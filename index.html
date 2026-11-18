@@ -2227,23 +2227,38 @@ try{icons();}catch(e){}
 })();
 </script>
 
-<!-- ===== 横画面（タブレット・PC）用のレイアウト ===== -->
+<!-- ===== 横画面（タブレット・PC・スマホ横向き）用のレイアウト ===== -->
 <style>
-@media (min-width:900px){
+@media (min-width:900px),(orientation:landscape) and (min-width:640px){
   .wrap{max-width:1160px;padding-left:24px;padding-right:24px}
-  .tab.on{columns:2;column-gap:18px}
-  .tab.on>*{break-inside:avoid;-webkit-column-break-inside:avoid;page-break-inside:avoid}
-  .tab.on>.card,.tab.on>.hero{display:block;width:100%}
-  .tab.on>.hero,.tab.on>#sSaveBtn,.tab.on>#sMsg,.tab.on>#lockBar{column-span:all;-webkit-column-span:all}
-  #tab-home>.hero{max-width:none}
   .top{max-width:1112px;margin-left:auto;margin-right:auto}
+  .tab.on{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:2px;column-gap:18px;align-items:start}
+  .tab.on>.hero,.tab.on>#sSaveBtn,.tab.on>#sMsg,.tab.on>#lockBar{grid-column:1/-1}
 }
 @media (min-width:1400px){
   .wrap{max-width:1560px}
-  .tab.on{columns:3}
   .top{max-width:1512px}
+  .tab.on{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 </style>
+<script>
+// カードの高さに合わせて、すき間なく並べる（レンガ積み）
+(()=>{
+const mq=matchMedia('(min-width:900px),(orientation:landscape) and (min-width:640px)');
+const ROW=2;let raf=0;
+function lay(){cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{
+  document.querySelectorAll('.tab').forEach(tab=>{[...tab.children].forEach(el=>{
+    if(!mq.matches||!tab.classList.contains('on')){el.style.gridRowEnd='';return;}
+    const cs=getComputedStyle(el);if(cs.display==='none'){el.style.gridRowEnd='';return;}
+    const h=el.getBoundingClientRect().height+parseFloat(cs.marginTop||0)+parseFloat(cs.marginBottom||0);
+    el.style.gridRowEnd='span '+Math.max(1,Math.ceil(h/ROW));});});});}
+const ro=new ResizeObserver(lay);
+const watch=()=>document.querySelectorAll('.tab>*').forEach(el=>{if(!el._ro){el._ro=1;ro.observe(el);}});
+watch();lay();
+new MutationObserver(()=>{watch();lay();}).observe(document.querySelector('.wrap')||document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+(mq.addEventListener?mq.addEventListener('change',lay):mq.addListener(lay));addEventListener('resize',lay);
+})();
+</script>
 <script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}</script>
 </body>
 </html>

@@ -1,0 +1,2222 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>こあまる家</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=Noto+Sans+JP:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0716; --card:rgba(24,16,44,.5); --ink:#e6f1ff; --sub:#9f93bf; --line:rgba(190,155,255,.18); --soft:rgba(100,70,160,.22);
+    --ok:#2ef2b0; --okbg:rgba(46,242,176,.12); --warn:#ffc857; --warnbg:rgba(255,200,87,.13); --ng:#ff5577; --ngbg:rgba(255,85,119,.14);
+    --accent:#c6a8ff; --me:#c6a8ff; --ko:#ff7ab6;
+    --grad:linear-gradient(160deg,rgba(19,12,36,.72) 0%,rgba(30,20,64,.6) 60%,rgba(44,29,92,.55) 100%);
+    --glow:0 0 0 1px rgba(190,155,255,.22),0 0 24px rgba(190,155,255,.10);
+    --shadow:0 8px 30px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{background:var(--bg)}
+  body{margin:0;color:var(--ink);font-family:"Noto Sans JP",-apple-system,"Hiragino Sans",sans-serif;font-size:15px;line-height:1.55;
+    background:transparent;min-height:100vh}
+  .wrap{max-width:540px;margin:0 auto;padding:14px 14px 100px}
+  .top{display:flex;justify-content:space-between;align-items:center;margin:2px 0 12px}
+  .top h1{font-size:15px;margin:0;letter-spacing:.18em;font-weight:800}
+  .top h1{display:flex;align-items:center;gap:9px}
+  .logo{width:30px;height:30px;border-radius:8px;box-shadow:0 0 0 1px rgba(198,168,255,.35),0 0 12px rgba(198,168,255,.35)}
+  .status{font-size:10px;color:var(--accent);letter-spacing:.06em;display:flex;align-items:center;gap:6px}
+  .status::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok);animation:blink 2s infinite}
+  @keyframes blink{50%{opacity:.3}}
+  .num{font-variant-numeric:tabular-nums;font-family:"Orbitron","Noto Sans JP",sans-serif;letter-spacing:.02em}
+  .muted{color:var(--sub);font-size:12px}
+  .neg{color:var(--ng)!important;text-shadow:0 0 12px rgba(255,85,119,.5)!important}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow);
+    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);position:relative}
+  .card::before{content:"";position:absolute;left:16px;top:-1px;width:44px;height:2px;background:var(--accent);box-shadow:0 0 10px var(--accent);border-radius:2px}
+  .card h2{font-size:13px;margin:0 0 12px;display:flex;align-items:center;justify-content:space-between;gap:6px;letter-spacing:.08em}
+  .card h2 .t{display:flex;align-items:center;gap:6px}
+  .link{border:none;background:none;color:var(--accent);font-size:11px;font-weight:700;padding:0;letter-spacing:.05em}
+
+  .hero{background:var(--grad);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);color:#fff;border-radius:20px;padding:18px;margin-bottom:14px;position:relative;overflow:hidden;
+    border:1px solid rgba(190,155,255,.35);box-shadow:0 0 0 1px rgba(190,155,255,.08),0 0 40px rgba(190,155,255,.15),inset 0 0 60px rgba(190,155,255,.06)}
+  .hero::before{content:"";position:absolute;inset:0;background:
+      linear-gradient(rgba(190,155,255,.07) 1px,transparent 1px) 0 0/20px 20px,
+      linear-gradient(90deg,rgba(190,155,255,.07) 1px,transparent 1px) 0 0/20px 20px;
+    -webkit-mask:linear-gradient(180deg,#000,transparent 85%);mask:linear-gradient(180deg,#000,transparent 85%);pointer-events:none}
+  .hero::after{content:"";position:absolute;left:0;right:0;height:60px;top:-60px;background:linear-gradient(180deg,transparent,rgba(190,155,255,.12),transparent);animation:scan 5s linear infinite;pointer-events:none}
+  @keyframes scan{to{top:110%}}
+  .hero > *{position:relative;z-index:1}
+  .hero .per{display:flex;align-items:center;justify-content:space-between}
+  .hero .per button{border:1px solid rgba(190,155,255,.4);background:rgba(190,155,255,.08);color:var(--accent);border-radius:8px;width:34px;height:30px;font-size:18px}
+  .hero .per b{font-size:12px;font-weight:600;letter-spacing:.08em;color:#eadfff}
+  .hero .lab{font-size:11px;color:var(--accent);margin-top:14px;letter-spacing:.12em}
+  .hero .big{font-size:36px;font-weight:800;line-height:1.2;margin-top:2px;color:#fff;text-shadow:0 0 18px rgba(190,155,255,.55)}
+  .hero .bar{height:6px;border-radius:4px;background:rgba(190,155,255,.12);overflow:hidden;margin:12px 0 6px}
+  .hero .bar i{display:block;height:100%;background:linear-gradient(90deg,#9b7bff,var(--accent));box-shadow:0 0 12px var(--accent);border-radius:4px;transition:width .5s}
+  .hero .meta{display:flex;justify-content:space-between;font-size:11px;color:#cbbde9}
+  .chips3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+  .chips3 div{background:rgba(190,155,255,.06);border:1px solid rgba(190,155,255,.18);border-radius:10px;padding:8px 10px}
+  .chips3 small{display:block;font-size:10px;color:#bcaee0}
+  .chips3 b{font-size:13px}
+  .perday{background:rgba(190,155,255,.08);border:1px solid rgba(190,155,255,.22);border-radius:10px;padding:10px 12px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#eadfff}
+  .perday b{font-size:17px;color:#fff;font-family:"Orbitron",sans-serif}
+
+  .item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .item:last-child{border-bottom:none}
+  .ic{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;border:1px solid var(--line)}
+  .item .mid{flex:1;min-width:0}
+  .item .mid .n{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .item .mid .n2{font-size:11px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .xp{cursor:pointer}
+  .xp.open .n,.xp.open .n2{white-space:normal;word-break:break-word}
+  .xp.open{background:rgba(190,155,255,.05)}
+  .item .rt{text-align:right;white-space:nowrap}
+  .item .rt b{font-size:13px}
+  .tag{display:inline-block;font-size:10px;padding:1px 8px;border-radius:6px;font-weight:700;margin-top:3px;letter-spacing:.03em}
+  .tag.soon{background:var(--warnbg);color:var(--warn);border:1px solid rgba(255,200,87,.35)}
+  .tag.today{background:var(--ngbg);color:var(--ng);border:1px solid rgba(255,85,119,.4)}
+  .tag.later{background:var(--soft);color:var(--sub)}
+  .who{display:inline-block;font-size:10px;padding:0 7px;border-radius:6px;font-weight:700;vertical-align:1px}
+  .who.me{background:linear-gradient(135deg,#05080f,#0f1c33);color:#6ab8ff;box-shadow:inset 0 0 0 1px #3d9bff} .who.ko{background:rgba(255,122,182,.14);color:#ff9cc8} .who.both{background:rgba(46,242,176,.12);color:#6ff5c6}
+  .dayhead{font-size:11px;font-weight:700;color:var(--accent);margin:14px 0 0;letter-spacing:.08em}
+
+  .donutWrap{display:flex;align-items:center;gap:14px}
+  .donutWrap svg{filter:drop-shadow(0 0 8px rgba(190,155,255,.25))}
+  .legend{flex:1;min-width:0}
+  .legend .l{display:flex;justify-content:space-between;font-size:12px;padding:3px 0}
+  .legend .l span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:6px}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:1px}
+  .seg{display:flex;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:10px;padding:3px;margin-bottom:12px}
+  .seg button{flex:1;border:none;background:none;color:var(--sub);padding:7px 4px;border-radius:7px;font-size:12px;font-weight:700}
+  .seg button.on{background:rgba(190,155,255,.14);color:var(--accent);box-shadow:inset 0 0 0 1px rgba(190,155,255,.4)}
+
+  input,select{font-size:15px;padding:8px 9px;border:1px solid var(--line);border-radius:9px;background:rgba(0,0,0,.3);color:var(--ink);font-family:inherit;min-width:0;color-scheme:dark}
+  input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(190,155,255,.15)}
+  input[type=number]{text-align:right}
+  .full{width:100%}
+  .btn{width:100%;padding:13px;border:1px solid rgba(190,155,255,.5);border-radius:11px;background:rgba(190,155,255,.12);color:var(--accent);font-size:14px;font-weight:800;margin-top:10px;letter-spacing:.1em}
+  .btn.grad{background:linear-gradient(90deg,#9b7bff,#c6a8ff);color:#1d1036;border:none;box-shadow:0 0 20px rgba(190,155,255,.35)}
+  .btn.sub{background:rgba(190,155,255,.05);color:var(--ink);border:1px dashed var(--line);font-weight:700;padding:10px;letter-spacing:.02em}
+  .btns{display:flex;gap:8px} .btns .btn{flex:1}
+  .mini{border:none;background:none;color:var(--sub);font-size:18px;padding:0 4px}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px dashed var(--line)}
+  .row label{flex:1;font-size:14px}
+  .row small{display:block;color:var(--sub);font-size:11px;line-height:1.3}
+  .w120{width:124px} .w50{width:56px} .w90{width:96px}
+  .h3{font-size:11px;font-weight:800;margin:18px 0 4px;color:var(--accent);letter-spacing:.1em}
+  .msg{font-size:12px;color:var(--ok);text-align:center;margin-top:6px;min-height:1em}
+
+  .amt{display:flex;align-items:baseline;justify-content:center;gap:4px;padding:8px 0 4px;border-bottom:1px solid var(--line)}
+  .amt input{font-size:34px;font-weight:800;border:none;background:none;text-align:center;width:100%;padding:0;font-family:"Orbitron",sans-serif;color:#fff;box-shadow:none;text-shadow:0 0 14px rgba(190,155,255,.5)}
+  .amt span{font-size:16px;font-weight:700;color:var(--sub)}
+  .catgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:12px 0}
+  .cat{border:1px solid var(--line);background:rgba(0,0,0,.25);border-radius:10px;padding:7px 2px;font-size:10px;color:var(--ink);display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:600}
+  .cat i{font-style:normal;font-size:19px}
+  .cat.on{border-color:var(--accent);background:rgba(190,155,255,.12);box-shadow:0 0 12px rgba(190,155,255,.35);color:var(--accent)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+  .verdict{border-radius:12px;padding:14px;margin-top:12px;display:none}
+  .verdict.show{display:block}
+  .verdict .v{font-size:18px;font-weight:800;margin-bottom:4px}
+  .ok{background:var(--okbg);border:1px solid rgba(46,242,176,.35)} .ok .v{color:var(--ok)}
+  .warn{background:var(--warnbg);border:1px solid rgba(255,200,87,.35)} .warn .v{color:var(--warn)}
+  .ng{background:var(--ngbg);border:1px solid rgba(255,85,119,.35)} .ng .v{color:var(--ng)}
+  .verdict ul{margin:8px 0 0;padding-left:18px}
+
+  .goal{padding:12px;border-radius:12px;background:rgba(0,0,0,.25);border:1px solid var(--line);margin-bottom:10px}
+  .goal .gt{display:flex;justify-content:space-between;align-items:baseline}
+  .goal .gt b{font-size:14px}
+  .goal .gbig{font-size:22px;font-weight:800;margin-top:4px;color:#fff;text-shadow:0 0 12px rgba(190,155,255,.4)}
+  .pbar{height:7px;border-radius:4px;background:rgba(190,155,255,.1);overflow:hidden;margin:8px 0 4px}
+  .pbar i{display:block;height:100%;background:linear-gradient(90deg,#9b7bff,var(--accent));box-shadow:0 0 10px var(--accent);border-radius:4px;min-width:2px}
+  .pbar.green i{background:linear-gradient(90deg,#14b88a,var(--ok));box-shadow:0 0 10px var(--ok)}
+  .count{display:flex;gap:8px;margin-top:10px}
+  .count div{flex:1;background:rgba(190,155,255,.06);border:1px solid var(--line);border-radius:10px;padding:8px;text-align:center}
+  .count b{display:block;font-size:17px;color:#fff}
+  .count small{font-size:10px;color:var(--sub)}
+
+  .tab{display:none} .tab.on{display:block;animation:fade .25s}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  details summary{cursor:pointer;font-weight:800;font-size:14px;list-style:none}
+  details summary::-webkit-details-marker{display:none}
+  details summary::after{content:"＋";float:right;color:var(--accent)}
+  details[open] summary::after{content:"−"}
+
+  .scan{position:relative;border-radius:12px;overflow:hidden;margin-top:10px;border:1px solid var(--line)}
+  .scan img{width:100%;max-height:240px;object-fit:cover;display:block}
+  .scan.busy img{opacity:.55;filter:saturate(.6)}
+  .scan.busy::after{content:"";position:absolute;left:0;right:0;height:3px;top:0;background:var(--accent);box-shadow:0 0 16px 4px var(--accent);animation:scanl 1.6s ease-in-out infinite alternate}
+  @keyframes scanl{to{top:calc(100% - 3px)}}
+  .scanmsg{font-size:13px;margin-top:8px;text-align:center}
+  .scanitems{font-size:12px;color:var(--sub);margin-top:6px;max-height:120px;overflow:auto}
+  .scanitems div{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dashed var(--line)}
+  .camrow{display:flex;gap:8px}
+  .camrow .btn{margin-top:0}
+  #fab{position:fixed;right:max(16px,calc(50% - 254px));bottom:78px;width:56px;height:56px;border-radius:50%;border:none;font-size:24px;z-index:11;
+    background:linear-gradient(135deg,#9b7bff,#c6a8ff);box-shadow:0 0 0 1px rgba(255,255,255,.2),0 0 22px rgba(190,155,255,.6);color:#1d1036}
+  svg.lucide{width:18px;height:18px;flex-shrink:0;vertical-align:-3px}
+  .card h2 svg.lucide{width:17px;height:17px;color:var(--accent);filter:drop-shadow(0 0 4px rgba(190,155,255,.6))}
+  details summary svg.lucide{width:17px;height:17px;color:var(--accent);margin-right:4px}
+  .ic svg.lucide{width:19px;height:19px;filter:drop-shadow(0 0 3px currentColor)}
+  .cat svg.lucide{width:20px;height:20px}
+  .cat.on svg.lucide{filter:drop-shadow(0 0 4px var(--accent))}
+  #fab svg.lucide{width:24px;height:24px}
+  .btn svg.lucide{margin-right:4px}
+  .otag{display:inline-block;font-family:"Orbitron",sans-serif;font-size:8.5px;font-weight:700;letter-spacing:.18em;padding:2px 6px 1px;border-radius:4px;vertical-align:2px;line-height:1.3}
+  .otag.me{color:#6ab8ff;text-shadow:0 0 6px rgba(61,155,255,.6);border:1px solid #3d9bff;background:linear-gradient(135deg,#05080f,#0f1c33);box-shadow:0 0 8px rgba(61,155,255,.45),inset 0 0 6px rgba(61,155,255,.25)}
+  .otag.ko{color:#ffb3d6;border:1px solid rgba(255,156,200,.55);background:rgba(255,156,200,.1);box-shadow:0 0 8px rgba(255,156,200,.25)}
+  #paySeg{display:block;padding:6px}
+  .pgrp{display:flex;align-items:center;gap:8px;padding:3px 0}
+  .pgrp .otag{width:52px;text-align:center;flex-shrink:0}
+  .pchips{display:flex;flex-wrap:wrap;gap:4px;flex:1}
+  .pchips button{flex:1 0 28%}
+  .dayhead .otag{font-size:10px;padding:3px 8px 2px}
+  .fold>summary{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:13px;letter-spacing:.08em}
+  .fold>summary .t{display:flex;align-items:center;gap:6px}
+  .fold>summary::after,.pfold summary::after{content:"";width:16px;height:16px;flex-shrink:0;border:none;float:none;margin:0 0 0 8px;transform:none;transition:transform .2s;background:var(--accent);
+    -webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>") center/contain no-repeat;
+    mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>") center/contain no-repeat}
+  .fold[open]>summary::after,.pfold[open] summary::after{content:"";transform:rotate(180deg);margin:0 0 0 8px}
+  .psum{display:flex;flex-direction:column;align-items:flex-end;gap:4px;margin-left:auto}
+  .psum span{display:inline-flex;align-items:baseline;gap:6px;padding:3px 9px 2px;border-radius:7px;border:1px solid rgba(190,155,255,.28);background:rgba(190,155,255,.07);font-size:10px;color:var(--sub);white-space:nowrap;letter-spacing:.04em}
+  .psum span em{font-style:normal;color:var(--ink);font-weight:600}
+  .psum b{font-family:"Orbitron",sans-serif;font-size:12px;color:var(--ok);text-shadow:0 0 8px rgba(46,242,176,.45);letter-spacing:.03em}
+  .psum b.low{color:var(--ng);text-shadow:0 0 8px rgba(255,85,119,.5)}
+  .fold>summary .muted{margin-left:auto}
+  .fl{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .fl .num{font-size:14px}
+  .fl.plus .num{color:var(--ok)}
+  .fl.sumrow{border-bottom:none;border-top:1px solid var(--accent);margin-top:4px;padding-top:12px;font-weight:800}
+  .fl.sumrow .num{font-size:18px}
+  .flsub{padding:2px 0 6px 14px;border-bottom:1px solid var(--line)}
+  .flsub .link svg.lucide{width:13px;height:13px;margin-right:3px}
+  .flsub .s{display:flex;justify-content:space-between;font-size:12px;color:var(--sub);padding:3px 0}
+  details.fl2 summary{list-style:none;display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px;font-weight:400}
+  details.fl2 summary::after{display:none}
+  details.fl2 summary .k::after{content:" ▾";color:var(--accent);font-size:10px}
+  details.fl2[open] summary .k::after{content:" ▴"}
+  .exitem{display:flex;align-items:center;gap:10px;padding:8px 0 8px 6px;border-bottom:1px dashed var(--line)}
+  .exitem .ic{width:30px;height:30px;border-radius:8px}
+  .exitem .ic svg.lucide{width:15px;height:15px}
+  .exitem .nw{flex:1;min-width:0}
+  .exitem .n{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .exitem .n2{font-size:11px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .exitem .mini svg.lucide{width:15px;height:15px;color:var(--accent)}
+  .exform{display:none;margin-top:10px;padding:12px;border:1px solid var(--line);border-radius:12px;background:rgba(0,0,0,.2)}
+  .exform.on{display:block}
+  .pfold{border:1px solid var(--line);border-radius:12px;padding:0 10px;margin-top:8px;background:rgba(0,0,0,.18)}
+  .pfold summary{display:flex;align-items:center;gap:10px;padding:11px 0;font-size:13px}
+  .pfold summary .muted{margin-left:auto}
+  .pfold summary .otag{font-size:10px;padding:3px 8px 2px}
+  .pfold[open]{padding-bottom:4px}
+  .chk{width:22px;height:22px;flex-shrink:0;border-radius:7px;border:1.5px solid rgba(198,168,255,.55);background:rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;padding:0;color:transparent}
+  .chk svg.lucide{width:14px;height:14px;stroke-width:3}
+  .chk.on{background:var(--ok);border-color:var(--ok);color:#06231a;box-shadow:0 0 10px rgba(46,242,176,.5)}
+  .item.paid,.exitem.paid,.s.paid{opacity:.55}
+  .item.paid .n,.exitem.paid .n,.s.paid span:first-child{text-decoration:line-through;text-decoration-color:rgba(46,242,176,.7)}
+  .item.od,.exitem.od{box-shadow:inset 3px 0 0 var(--ng);padding-left:8px;background:linear-gradient(90deg,rgba(255,85,119,.1),transparent 60%)}
+  .item.od .n{color:#ffd0da}
+  .calseg{margin-bottom:10px}
+  .calhd b{text-align:center}
+  .calhd b small{display:block;font-family:"Noto Sans JP",sans-serif;font-size:10px;color:var(--sub);letter-spacing:.04em;font-weight:400}
+  .wkstrip{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px}
+  .wd{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 0;border:1px solid var(--line);border-radius:10px;background:rgba(0,0,0,.2)}
+  .wd .w{font-size:9px;color:var(--sub)} .wd .dn{font-family:"Orbitron",sans-serif;font-size:13px;font-weight:700}
+  .wd.t{border-color:var(--accent);box-shadow:0 0 10px rgba(190,155,255,.45);background:rgba(190,155,255,.12)}
+  .wd.sun .dn,.wd.sun .w{color:#ff8fa8} .wd.sat .dn,.wd.sat .w{color:#7fb8ff}
+  .calhd{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+  .calhd b{font-family:"Orbitron","Noto Sans JP",sans-serif;font-size:14px;letter-spacing:.06em}
+  .calhd .mini{border:1px solid rgba(190,155,255,.4);background:rgba(190,155,255,.08);color:var(--accent);border-radius:8px;width:34px;height:30px;font-size:18px;padding:0}
+  .calsum{display:flex;justify-content:space-between;font-size:11px;color:var(--sub);margin-bottom:8px}
+  .cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .cw{text-align:center;font-size:10px;color:var(--sub);padding:2px 0}
+  .cw.sun,.cd.sun .dn{color:#ff8fa8} .cw.sat,.cd.sat .dn{color:#7fb8ff}
+  .cd{position:relative;aspect-ratio:1/1.1;border:1px solid var(--line);border-radius:9px;background:rgba(0,0,0,.2);color:var(--ink);padding:3px 2px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:1px;font-size:11px}
+  .cd.e{border:none;background:none}
+  .cd .dn{font-weight:700;font-size:12px}
+  .cd .ca{font-family:"Orbitron",sans-serif;font-size:8px;color:var(--sub);letter-spacing:0}
+  .cd.t{border-color:var(--accent);box-shadow:0 0 10px rgba(190,155,255,.45)}
+  .cd.sel{background:rgba(190,155,255,.18);border-color:var(--accent)}
+  .cdot{display:inline-block;width:6px;height:6px;border-radius:50%;margin:1px 0}
+  .cdot.up{background:var(--warn);box-shadow:0 0 6px var(--warn)} .cdot.od{background:var(--ng);box-shadow:0 0 6px var(--ng)} .cdot.pd{background:var(--ok);box-shadow:0 0 6px var(--ok)}
+  .clg{display:flex;gap:12px;justify-content:center;font-size:10px;color:var(--sub);margin-top:8px}
+  .clg span{display:flex;align-items:center;gap:4px}
+  .exg{border-bottom:1px dashed var(--line)}
+  .chksp{width:22px;flex-shrink:0}
+  .exg>summary{display:flex;align-items:center;gap:10px;padding:8px 0 8px 6px;font-weight:400;font-size:13px}
+  .exg>summary::after{content:"";width:14px;height:14px;flex-shrink:0;float:none;background:var(--accent);transition:transform .2s;
+    -webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>") center/contain no-repeat;
+    mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>") center/contain no-repeat}
+  .exg[open]>summary::after{content:"";transform:rotate(180deg)}
+  .exg>summary .ic{width:30px;height:30px;border-radius:8px}
+  .exg>summary .ic svg.lucide{width:15px;height:15px;margin:0;color:inherit}
+  .exg>summary .nw{flex:1;min-width:0}
+  .exg>summary .n{font-size:13px;font-weight:700}
+  .exg>summary .n2{font-size:11px;color:var(--sub)}
+  .exg.paid>summary{opacity:.55}
+  .exgin{margin:0 0 6px 14px;padding-left:8px;border-left:1px solid rgba(190,155,255,.3)}
+  .exgin .exitem:last-child{border-bottom:none}
+  .selhid{display:none!important}
+  .selbtn{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:15px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:rgba(0,0,0,.3);color:var(--ink);font-family:inherit;min-width:0;text-align:left;cursor:pointer}
+  .selbtn .sv{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .selbtn.ph .sv{color:var(--sub)}
+  .selbtn .sch{width:12px;height:12px;flex-shrink:0;background:var(--accent);-webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>") center/contain no-repeat;mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>") center/contain no-repeat}
+  .selbtn:active{border-color:var(--accent);box-shadow:0 0 0 3px rgba(190,155,255,.15)}
+  .sheetov{position:fixed;inset:0;z-index:50;background:rgba(5,3,12,.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);opacity:0;transition:opacity .2s;display:flex;align-items:flex-end;justify-content:center}
+  .sheetov.on{opacity:1}
+  .sheet{width:100%;max-width:540px;max-height:70vh;display:flex;flex-direction:column;background:linear-gradient(180deg,rgba(30,20,60,.96),rgba(14,9,28,.98));border:1px solid rgba(190,155,255,.45);border-bottom:none;border-radius:20px 20px 0 0;box-shadow:0 -10px 40px rgba(190,155,255,.25);transform:translateY(30px);transition:transform .22s ease-out;padding:8px 14px 24px;position:relative}
+  .sheetov.on .sheet{transform:none}
+  .sheet::before{content:"";position:absolute;left:20%;right:20%;top:-1px;height:2px;background:var(--accent);box-shadow:0 0 12px var(--accent);border-radius:2px}
+  .sbar{width:40px;height:4px;border-radius:2px;background:rgba(190,155,255,.4);margin:4px auto 10px}
+  .slist{overflow-y:auto}
+  .sgh{padding:12px 4px 6px}
+  .sopt{width:100%;display:flex;align-items:center;gap:12px;padding:13px 10px;margin:3px 0;border:1px solid transparent;border-radius:12px;background:rgba(0,0,0,.18);color:var(--ink);font-size:15px;font-family:inherit;text-align:left}
+  .sopt .sdot{width:16px;height:16px;border-radius:50%;border:1.5px solid rgba(190,155,255,.55);flex-shrink:0;position:relative}
+  .sopt.on{border-color:rgba(190,155,255,.6);background:rgba(190,155,255,.14);box-shadow:0 0 14px rgba(190,155,255,.25)}
+  .sopt.on .sdot{border-color:var(--accent)}
+  .sopt.on .sdot::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+  .sopt.on span{color:#fff;font-weight:700}
+  .scal{-webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='4' width='18' height='18' rx='3'/><path d='M16 2v4M8 2v4M3 10h18'/></svg>") center/contain no-repeat!important;mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='4' width='18' height='18' rx='3'/><path d='M16 2v4M8 2v4M3 10h18'/></svg>") center/contain no-repeat!important;width:14px!important;height:14px!important}
+  .dsel{text-align:center;font-size:20px;font-weight:800;color:#fff;text-shadow:0 0 14px rgba(190,155,255,.5);margin:2px 0 12px}
+  .dgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:6px}
+  .mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
+  .dcell{aspect-ratio:1/1;border:1px solid var(--line);border-radius:10px;background:rgba(0,0,0,.22);color:var(--ink);font-family:"Orbitron","Noto Sans JP",sans-serif;font-size:13px;font-weight:700;padding:0}
+  .mgrid .dcell{aspect-ratio:auto;padding:14px 0;font-family:"Noto Sans JP",sans-serif}
+  .dcell.sun{color:#ff8fa8} .dcell.sat{color:#7fb8ff}
+  .dcell.t{border-color:var(--accent);box-shadow:0 0 8px rgba(190,155,255,.4)}
+  .dcell.sel{background:linear-gradient(135deg,#9b7bff,#c6a8ff);color:#1d1036;border-color:transparent;box-shadow:0 0 16px rgba(190,155,255,.6)}
+  .tag.mv{background:rgba(190,155,255,.14);color:var(--accent);border:1px solid rgba(190,155,255,.45)}
+  .item.moved{opacity:.7}
+  .tag.done{background:var(--okbg);color:var(--ok);border:1px solid rgba(46,242,176,.35)}
+  .flsub .s .chk{width:18px;height:18px;border-radius:6px}
+  .flsub .s .chk svg.lucide{width:11px;height:11px}
+  #bgfx{position:fixed;inset:0;z-index:-1;pointer-events:none}
+  #bgfx svg{width:100%;height:100%;display:block}
+  #bgfx .gl{animation:pulse 4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.25}50%{opacity:1}}
+  #bgfx .rings circle{transform-origin:60px 660px;animation:spin linear infinite}
+  #bgfx .rings circle:nth-child(even){animation-direction:reverse}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+<script src="lucide.min.js"></script>
+<meta name="theme-color" content="#0b0716">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="こあまる家">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script src="firebase-app-compat.js"></script>
+<script src="firebase-auth-compat.js"></script>
+<script src="firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="firebase-bridge.js"></script>
+<style>body{padding-top:env(safe-area-inset-top)}</style>
+</head>
+<body>
+<div id="bgfx" aria-hidden="true"><svg viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">
+<defs><radialGradient id="bgg" cx="70%" cy="40%" r="75%"><stop offset="0" stop-color="#3a2a7a"/><stop offset=".45" stop-color="#1c1342"/><stop offset="1" stop-color="#0a0616"/></radialGradient>
+<filter id="blr"><feGaussianBlur stdDeviation="2.2"/></filter></defs>
+<rect width="400" height="800" fill="url(#bgg)"/>
+<g fill="none" stroke="#c6a8ff" stroke-opacity=".6" stroke-width="1.3"><path d="M151 -10V79L61 169V282"/><path d="M172 -10V78L86 164V268"/><path d="M190 -10V99L146 143V184"/><path d="M201 -10V108L150 159V259"/><path d="M219 -10V112L172 159V262"/><path d="M236 -10V118L191 163V264"/><path d="M258 -10V149L200 207V306"/><path d="M276 -10V173L213 236V279"/><path d="M293 -10V155L241 207V307"/><path d="M308 -10V193L242 259V352"/><path d="M332 -10V219L252 299V388"/><path d="M351 -10V172L273 250V311"/><path d="M365 -10V142L287 220V317"/><path d="M385 -10V231L288 328V394"/></g>
+<g fill="#0b0716" stroke="#d9c6ff" stroke-opacity=".85" stroke-width="1.3"><circle cx="61" cy="282" r="3.2"/><circle cx="151" cy="79" r="3.2"/><circle cx="86" cy="268" r="3.2"/><circle cx="172" cy="78" r="3.2"/><circle cx="146" cy="184" r="3.2"/><circle cx="190" cy="99" r="3.2"/><circle cx="150" cy="259" r="3.2"/><circle cx="201" cy="108" r="3.2"/><circle cx="172" cy="262" r="3.2"/><circle cx="191" cy="264" r="3.2"/><circle cx="200" cy="306" r="3.2"/><circle cx="258" cy="149" r="3.2"/><circle cx="213" cy="279" r="3.2"/><circle cx="241" cy="307" r="3.2"/><circle cx="242" cy="352" r="3.2"/><circle cx="252" cy="388" r="3.2"/><circle cx="273" cy="311" r="3.2"/><circle cx="287" cy="317" r="3.2"/><circle cx="365" cy="142" r="3.2"/><circle cx="288" cy="394" r="3.2"/></g>
+<g fill="#f3e9ff" filter="url(#blr)"><circle cx="86" cy="268" r="2.2" class="gl" style="animation-delay:0.6s"/><circle cx="172" cy="78" r="2.2" class="gl" style="animation-delay:2.0s"/><circle cx="273" cy="311" r="2.2" class="gl" style="animation-delay:0.2s"/><circle cx="241" cy="307" r="2.2" class="gl" style="animation-delay:2.7s"/><circle cx="190" cy="99" r="2.2" class="gl" style="animation-delay:3.1s"/><circle cx="213" cy="279" r="2.2" class="gl" style="animation-delay:2.3s"/><circle cx="252" cy="388" r="2.2" class="gl" style="animation-delay:3.5s"/></g>
+<g fill="#f3e9ff"><circle cx="86" cy="268" r="2.2" class="gl" style="animation-delay:0.6s"/><circle cx="172" cy="78" r="2.2" class="gl" style="animation-delay:2.0s"/><circle cx="273" cy="311" r="2.2" class="gl" style="animation-delay:0.2s"/><circle cx="241" cy="307" r="2.2" class="gl" style="animation-delay:2.7s"/><circle cx="190" cy="99" r="2.2" class="gl" style="animation-delay:3.1s"/><circle cx="213" cy="279" r="2.2" class="gl" style="animation-delay:2.3s"/><circle cx="252" cy="388" r="2.2" class="gl" style="animation-delay:3.5s"/></g>
+<g fill="#c6a8ff" fill-opacity=".28"><rect x="40" y="30" width="14" height="14" rx="1.5"/><rect x="57" y="30" width="14" height="14" rx="1.5"/><rect x="40" y="47" width="14" height="14" rx="1.5"/><rect x="57" y="47" width="14" height="14" rx="1.5"/><rect x="372" y="700" width="10" height="10" rx="1.5"/><rect x="385" y="713" width="10" height="10" rx="1.5"/><rect x="330" y="40" width="9" height="9" rx="1.5"/><rect x="342" y="40" width="9" height="9" rx="1.5"/><rect x="330" y="52" width="9" height="9" rx="1.5"/><rect x="342" y="52" width="9" height="9" rx="1.5"/><rect x="250" y="341" width="8" height="8" rx="1.5"/><rect x="261" y="341" width="8" height="8" rx="1.5"/></g>
+<g class="rings" fill="none" stroke="#e6dcff" stroke-opacity=".45"><circle cx="60" cy="660" r="150" stroke-dasharray="40 12 8 12" stroke-width="2" style="animation-duration:60s"/><circle cx="60" cy="660" r="125" stroke-dasharray="70 18" stroke-width="6" style="animation-duration:90s"/><circle cx="60" cy="660" r="100" stroke-dasharray="14 8" stroke-width="2" style="animation-duration:45s"/><circle cx="60" cy="660" r="78" stroke-dasharray="120 30 20 30" stroke-width="4" style="animation-duration:70s"/><circle cx="60" cy="660" r="56" stroke-dasharray="6 6" stroke-width="2" style="animation-duration:40s"/></g>
+</svg></div>
+<div class="wrap">
+  <div class="top">
+    <h1><img src="logo.png" alt="" class="logo">こあまる家</h1>
+    <div style="display:flex;align-items:center;gap:10px"><div class="status" id="status">読み込み中…</div><button id="sndBtn" class="mini" aria-label="効果音" style="color:var(--accent);padding:2px"><i data-lucide="volume-2"></i></button></div>
+  </div>
+
+  <!-- ===== ホーム ===== -->
+  <section class="tab on" id="tab-home">
+    <div class="hero">
+      <div class="per"><button id="prevP">‹</button><b id="pLabel">—</b><button id="nextP">›</button></div>
+      <div class="lab"><span class="num" style="letter-spacing:.18em;font-size:10px;opacity:.8">BALANCE</span>　利用可能額</div>
+      <div class="big num" id="leftBig">—</div>
+      <div class="bar"><i id="leftBar"></i></div>
+      <div class="meta"><span id="usedTxt"></span><span id="budTxt"></span></div>
+      <div class="perday" id="perday"></div>
+      <div class="chips3">
+        <div><small>2人の月収</small><b class="num" id="hInc">—</b></div>
+        <div><small>固定費＋変動費</small><b class="num" id="hFix">—</b></div>
+        <div><small>今月の貯金</small><b class="num" id="hSave">—</b></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="t"><i data-lucide="list-checks"></i> 収支の詳細</span><span class="muted" id="flowLabel"></span></h2>
+      <div id="flow"></div>
+      <div class="exform" id="incForm">
+        <div class="row"><label>MARUの月収</label><input type="number" class="w120" id="iMe" inputmode="numeric"></div>
+        <div class="row"><label>KOKOAの月収</label><input type="number" class="w120" id="iKo" inputmode="numeric"></div>
+        <div class="btns"><button class="btn sub" id="incReset">予定に戻す</button><button class="btn grad" id="incSave">保存する</button></div>
+      </div>
+      <div class="btns"><button class="btn sub" id="exOpen" style="margin-top:10px">＋ 変動費を追加</button><button class="btn sub" id="xiOpen" style="margin-top:10px">＋ 臨時収入</button></div>
+      <div class="exform" id="exForm">
+        <input class="full" id="xLabel" placeholder="項目名（例：美容院）">
+        <input class="full" id="xMemo" placeholder="詳細（例：カット＋カラー・なくてOK）" style="margin-top:8px">
+        <div class="grid2" style="margin-top:8px"><input type="number" id="xAmt" placeholder="金額" inputmode="numeric"><input type="date" id="xDate"></div>
+        <div class="grid2" style="margin-top:8px"><select id="xCat"></select><select id="xWho"><option value="自分">MARU</option><option value="心愛">KOKOA</option><option value="2人">BOTH</option></select></div>
+        <button class="btn grad" id="xAdd">追加する</button>
+      </div>
+      <div class="exform" id="xiForm">
+        <input class="full" id="xiLabel" placeholder="内容（例：おばあちゃんから・賞与）">
+        <div class="grid2" style="margin-top:8px"><input type="number" id="xiAmt" placeholder="金額" inputmode="numeric"><input type="date" id="xiDate"></div>
+        <div class="grid2" style="margin-top:8px"><select id="xiWho"><option value="自分">MARU</option><option value="心愛">KOKOA</option></select><select id="xiTo"></select></div>
+        <button class="btn grad" id="xiAdd">臨時収入を追加</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="t"><i data-lucide="bell"></i> もうすぐの支払い</span><button class="link" data-goto="future">全部見る ›</button></h2>
+      <div id="duesSoon"></div>
+    </div>
+
+    <div class="card"><details class="fold">
+      <summary><span class="t"><i data-lucide="wallet-cards"></i> お財布・支払い方法</span><span class="psum" id="paySum"></span></summary>
+      <div id="pays" style="margin-top:6px"></div>
+      <button class="link" data-goto="set" data-open="payBox" style="margin-top:8px">編集 ›</button>
+    </details></div>
+
+    <div class="card">
+      <h2><span class="t"><i data-lucide="cooking-pot"></i> 生活費（食費・日用品・光熱費）</span></h2>
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><b class="num" style="font-size:22px" id="livUsed">—</b><span class="muted" id="livBud"></span></div>
+      <div class="pbar green" id="livBarW"><i id="livBar"></i></div>
+      <div class="muted" id="livSub"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="t"><i data-lucide="chart-pie"></i> 支出の内訳</span></h2>
+      <div class="seg"><button id="mAll" class="on">固定費もふくめて全部</button><button id="mRec">記録した分だけ</button></div>
+      <div class="donutWrap"><div id="chart"></div><div class="legend" id="legend"></div></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="t"><i data-lucide="shopping-cart"></i> 購入シミュレーター</span></h2>
+      <input class="full" type="text" id="cItem" placeholder="欲しいもの（例：コート）">
+      <div class="grid2" style="margin-top:8px">
+        <input type="number" id="cPrice" inputmode="numeric" placeholder="値段（円）">
+        <select id="cNeed"><option value="must">ないと困る</option><option value="want" selected>欲しい</option><option value="impulse">なんとなく</option></select>
+      </div>
+      <button class="btn grad" id="cBtn">判定する</button>
+      <div class="verdict" id="verdict"></div>
+    </div>
+  </section>
+
+  <!-- ===== 記録 ===== -->
+  <section class="tab" id="tab-rec">
+    <div class="card">
+      <h2><span class="t"><i data-lucide="pencil-line"></i> 使ったお金を記録</span></h2>
+      <div class="camrow" id="camRow">
+        <label class="btn grad" style="flex:1;position:relative;text-align:center;overflow:hidden"><i data-lucide="image"></i> レシートの写真を選ぶ<input type="file" id="albIn" accept="image/*" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:0;cursor:pointer"></label>
+      </div>
+      <div id="camBox" hidden><div class="scan" id="scanWrap"><img id="camImg" alt="レシート"></div><div class="scanmsg" id="camMsg"></div><div class="scanitems" id="camItems"></div></div>
+      <div class="muted" id="camOff" style="display:none;text-align:center;margin-top:6px">この画面ではレシート読み取りが使えないよ（手入力はできるよ）</div>
+      <div class="amt"><span>¥</span><input type="number" id="fAmount" inputmode="numeric" placeholder="0"></div>
+      <div class="catgrid" id="catGrid"></div>
+      <input class="full" type="text" id="fItem" placeholder="内容（例：スーパーで食材）">
+      <div class="grid2" style="margin-top:8px">
+        <input type="date" id="fDate">
+        <input type="text" id="fShop" placeholder="お店（なくてOK）">
+      </div>
+      <div class="seg" style="margin-top:10px" id="whoSeg"><button class="on" data-w="自分">MARU</button><button data-w="心愛">KOKOA</button><button data-w="2人">BOTH</button></div>
+      <div class="muted" style="margin-top:2px">支払い方法</div>
+      <div class="seg" style="margin-top:4px;flex-wrap:wrap" id="paySeg"></div>
+      <button class="btn grad" id="fAdd">記録する</button>
+      <div class="msg" id="fMsg"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="t"><i data-lucide="arrow-left-right"></i> チャージ・お金の移動</span></h2>
+      <div class="muted" style="margin-bottom:6px">銀行からPayPayにチャージしたときなど。出費には数えないよ</div>
+      <div class="grid2"><select id="mvFrom"></select><select id="mvTo"></select></div>
+      <div class="grid2" style="margin-top:8px"><input type="number" id="mvAmt" placeholder="金額" inputmode="numeric"><input type="date" id="mvDate"></div>
+      <button class="btn grad" id="mvAdd">移動を記録</button>
+      <div class="msg" id="mvMsg"></div>
+      <div id="mvList"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="t"><i data-lucide="chart-column"></i> 記録した出費の推移</span><span class="muted">給料期間ごと</span></h2>
+      <div id="trend"></div>
+      <div class="muted" style="margin-top:6px"><span class="dot" style="background:#2ef2b0"></span>生活費 <span class="dot" style="background:#c6a8ff;margin-left:8px"></span>それ以外</div>
+    </div>
+
+    <div class="card">
+      <h2><span class="t"><i data-lucide="receipt"></i> この期間の記録</span><span class="muted" id="recCount"></span></h2>
+      <div id="recs"></div>
+    </div>
+  </section>
+
+  <!-- ===== 未来 ===== -->
+  <section class="tab" id="tab-future">
+    <div class="card">
+      <h2><span class="t"><i data-lucide="gem"></i> 結婚・出産に向けた貯金</span><button class="link" data-goto="set" data-open="goalBox">目標を変える ›</button></h2>
+      <div id="goals"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="t"><i data-lucide="flag"></i> 返済の完済まで</span></h2>
+      <div id="debt"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="t"><i data-lucide="calendar-days"></i> 支払い日カレンダー</span></h2>
+      <div class="muted" id="dueNote" style="margin-bottom:4px"></div>
+      <div id="cal"></div>
+      <div id="calList"></div>
+      <div id="dues" hidden></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="t"><i data-lucide="calendar-clock"></i> これからの変動費</span></h2>
+      <div id="plans"></div>
+    </div>
+  </section>
+
+  <!-- ===== 設定 ===== -->
+
+  <section class="tab" id="tab-set">
+    <div class="card"><details open>
+      <summary><i data-lucide="wallet"></i> 月収と予算</summary>
+      <div class="row"><label>MARUの月収<small>いつもの金額（確定前はこれで計算）</small></label><input type="number" class="w120" id="sIncMe" inputmode="numeric"></div>
+      <div class="row"><label>KOKOAの月収<small>いつもの金額（確定前はこれで計算）</small></label><input type="number" class="w120" id="sIncKo" inputmode="numeric"></div>
+      <div class="row"><label>生活費の予算<small>食費・日用品・光熱費（2人分）</small></label><input type="number" class="w120" id="sLiving" inputmode="numeric"></div>
+      <div class="row"><label>毎月の貯金<small>結婚・出産用。先に取っておく</small></label><input type="number" class="w120" id="sSave" inputmode="numeric"></div>
+      <div class="row"><label>支払いを知らせる日数<small>この日数前から黄色になる</small></label><input type="number" class="w50" id="sNotify" inputmode="numeric"></div>
+    </details></div>
+
+    <div class="card"><details>
+      <summary><i data-lucide="house"></i> 固定費</summary>
+      <div class="h3">MARU</div><div id="fixMe"></div>
+      <button class="btn sub" data-add="me">＋ 固定費を追加</button>
+      <div class="h3">KOKOA</div><div id="fixKo"></div>
+      <button class="btn sub" data-add="ko">＋ 固定費を追加</button>
+    </details></div>
+
+    <div class="card"><details>
+      <summary><i data-lucide="shopping-cart"></i> 変動費</summary>
+      <div class="per" style="display:flex;align-items:center;justify-content:space-between;margin:10px 0 4px"><button class="mini" id="exPrev" style="font-size:20px;color:var(--accent)">‹</button><b id="exTitle" style="font-size:13px">—</b><button class="mini" id="exNext" style="font-size:20px;color:var(--accent)">›</button></div>
+      <div id="extras"></div>
+      <button class="btn sub" id="exAdd">＋ 変動費を追加</button>
+    </details></div>
+
+    <div class="card"><details>
+      <summary><i data-lucide="tv"></i> サブスク<span id="subMonth" hidden></span></summary>
+      <div id="subList"></div>
+      <div class="muted" style="text-align:right;margin-top:6px">1年だと <b class="num" id="subYear">—</b></div>
+      <button class="btn sub" id="subAdd">＋ サブスクを追加</button>
+    </details></div>
+
+    <div class="card"><details id="goalBox">
+      <summary><i data-lucide="gem"></i> 貯金の目標</summary>
+      <div class="row"><label>今の貯金額<small>2人の合計。たまに更新してね</small></label><input type="number" class="w120" id="sSavedNow" inputmode="numeric"></div>
+      <div class="row"><label>賞与のときの追加貯金<small>7月・12月にそれぞれ</small></label><input type="number" class="w120" id="sBonus" inputmode="numeric"></div>
+      <div id="goalRows"></div>
+      <button class="btn sub" id="goalAdd">＋ 目標を追加</button>
+    </details></div>
+
+    <div class="card"><details id="payBox">
+      <summary><i data-lucide="wallet-cards"></i> お財布・支払い方法</summary>
+      <div class="muted" style="margin-top:6px">後払い・カードは「上限」「使った額」「確認した日」を入れると、その日以降の記録を自動で足して残りを出すよ</div>
+      <div class="h3">MARU</div><div id="payMe"></div>
+      <button class="btn sub" data-padd="me">＋ 支払い方法を追加</button>
+      <div class="h3">KOKOA</div><div id="payKo"></div>
+      <button class="btn sub" data-padd="ko">＋ 支払い方法を追加</button>
+    </details></div>
+
+    <div class="card"><details>
+      <summary><i data-lucide="flag"></i> 返済の設定</summary>
+      <div class="row"><label>毎月の返済額</label><input type="number" class="w120" id="dMonthly" inputmode="numeric"></div>
+      <div class="row"><label>支払い日</label><input type="number" class="w50" id="dDay" inputmode="numeric"></div>
+      <div class="row"><label>返済のスタート</label><input type="month" id="dStart"></div>
+      <div class="row"><label>最終回</label><input type="month" id="dEnd"></div>
+      <div class="row"><label>最終回の金額</label><input type="number" class="w120" id="dLast" inputmode="numeric"></div>
+      <div class="h3">和解先ごとの金額（事務所の画面を見て更新）</div>
+      <div class="row"><label>更新日</label><input type="date" id="dAsOf"></div>
+      <div id="credRows"></div>
+      <button class="btn sub" id="credAdd">＋ 和解先を追加</button>
+    </details></div>
+
+    <button class="btn grad" id="sSaveBtn">設定を保存</button>
+    <div class="msg" id="sMsg"></div>
+  </section>
+</div>
+
+<label id="fab" aria-label="レシートの写真を選ぶ" style="display:flex;align-items:center;justify-content:center;overflow:hidden"><i data-lucide="receipt"></i><input type="file" id="fabIn" accept="image/*" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:0;cursor:pointer"></label>
+
+<script>
+const CATS=['食費','外食','日用品','光熱費','デート・旅行','趣味・買い物','交際費','ペット','車','その他','家賃','返済','スマホ・通信','サブスク','カード払い'];
+const ICN={'食費':'shopping-basket','外食':'utensils','日用品':'spray-can','光熱費':'zap','家賃':'house','車':'car','返済':'landmark','スマホ・通信':'smartphone','サブスク':'tv','カード払い':'credit-card','デート・旅行':'heart','趣味・買い物':'shopping-bag','ペット':'cat','交際費':'users','その他':'package'};
+const LI=n=>`<i data-lucide="${n}"></i>`;
+function icons(){try{window.lucide&&window.lucide.createIcons({attrs:{'stroke-width':1.8}});}catch(e){}}
+const COLORS={'家賃':'#4e79a7','車':'#f28e2b','返済':'#e15759','スマホ・通信':'#76b7b2','サブスク':'#59a14f','カード払い':'#edc948','デート・旅行':'#e0508a','食費':'#9c755f','外食':'#c9a27e','日用品':'#8cd17d','光熱費':'#86bcb6','趣味・買い物':'#b07aa1','ペット':'#f1ce63','交際費':'#a0cbe8','その他':'#9aa0a8'};
+const LIVING=['食費','日用品','光熱費'];
+const FIXEDC=['家賃','車','返済','スマホ・通信','サブスク','カード払い','車・ガソリン','車のローン・保険'];
+const OLDMAP={'車・ガソリン':'車','車のローン・保険':'車'};
+const DEFAULT_SETTINGS={incomes:{me:0,ko:0},fixed:{me:[],ko:[]},subs:[],livingBudget:0,saving:0,extras:{},notifyDays:10,
+  savedNow:0,bonusSave:0,goals:[{name:'結婚',ym:'2027-12',target:0},{name:'出産',ym:'2028-02',target:0}],
+  debt:{monthly:0,day:27,start:'',end:'',last:0},methods:{me:[],ko:[]}};
+let S=JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+let EXP=[], MOV=[], db=null, mode='all', selCat='食費', selWho='自分';
+const yen=n=>(n<0?'−':'')+'¥'+Math.abs(Math.round(n||0)).toLocaleString('ja-JP');
+const man=n=>{n=Math.round(n||0);return Math.abs(n)>=10000?(n<0?'−':'')+'¥'+(Math.abs(n)/10000).toFixed(Math.abs(n)>=1000000?0:1).replace(/\.0$/,'')+'万':yen(n);};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=id=>document.getElementById(id);
+const sum=a=>a.reduce((x,y)=>x+(+y.amount||0),0);
+function guessCat(l){l=l||'';if(/家賃/.test(l))return'家賃';if(/車|ガソリン|駐車/.test(l))return'車';if(/返済|整理/.test(l))return'返済';if(/スマホ|携帯|通信|wifi/i.test(l))return'スマホ・通信';if(/カード/.test(l))return'カード払い';if(/デート|旅行|宿/.test(l))return'デート・旅行';return'その他';}
+const catOf=f=>OLDMAP[f.cat]||f.cat||guessCat(f.label);
+const whoCls=w=>w==='心愛'?'ko':w==='2人'?'both':'me';
+const whoName=w=>w==='自分'||!w?'マル':w;
+const whoDisp=w=>w==='心愛'?'KOKOA':w==='2人'?'BOTH':'MARU';
+const splitL=s=>{s=String(s||'');const m=s.match(/^(.*?)[（(](.*)[）)]\s*$/);return m&&m[1].trim()?[m[1].replace(/[：:]\s*$/,'').trim(),m[2]]:[s,''];};
+const nameHtml=s=>{const [a,b]=splitL(s);return `<div class="n">${esc(a)}</div>${b?`<div class="n2">${esc(b)}</div>`:''}`;};
+const otag=o=>`<span class="otag ${o==='心愛'?'ko':'me'}">${o==='心愛'?'KOKOA':'MARU'}</span>`;
+const keyHtml=k=>{const [o,n]=String(k).split('|');return `${otag(o)} ${esc(n||'')}`;};
+const icon=c=>`<div class="ic" style="background:${(COLORS[c]||'#999')}1f;color:${COLORS[c]||'#bbb'}">${LI(ICN[c]||'package')}</div>`;
+
+// 給料期間（25日〜翌24日）
+function keyOf(ds){const [y,m,d]=ds.split('-').map(Number);let yy=y,mm=m;if(d<25){mm--;if(mm===0){mm=12;yy--;}}return yy+'-'+String(mm).padStart(2,'0');}
+function shiftKey(k,n){let [y,m]=k.split('-').map(Number);m+=n;while(m>12){m-=12;y++;}while(m<1){m+=12;y--;}return y+'-'+String(m).padStart(2,'0');}
+function labelOf(k){const [y,m]=k.split('-').map(Number);let nm=m+1;if(nm>12)nm=1;return `${m}/25 〜 ${nm}/24`;}
+const todayD=(()=>{const d=new Date();d.setHours(0,0,0,0);return d;})();
+const todayStr=todayD.getFullYear()+'-'+String(todayD.getMonth()+1).padStart(2,'0')+'-'+String(todayD.getDate()).padStart(2,'0');
+const NOWK=keyOf(todayStr);
+let P=NOWK;
+
+function incOf(k){const a=(S.incomeActual||{})[k]||{};const me=a.me!=null&&a.me!==''?+a.me:+S.incomes.me||0,ko=a.ko!=null&&a.ko!==''?+a.ko:+S.incomes.ko||0;return {me,ko,meFix:a.me!=null&&a.me!=='',koFix:a.ko!=null&&a.ko!==''};}
+function calc(k=P){
+  const ia=incOf(k),xin=(S.extraIncome||{})[k]||[],xinSum=xin.reduce((a,x)=>a+(+x.amount||0),0),inc=ia.me+ia.ko+xinSum;
+  const fixMe=sum(S.fixed.me), fixKo=sum(S.fixed.ko), fix=fixMe+fixKo;
+  const subs=sum(S.subs||[]);
+  const exList=S.extras[k]||[], ex=sum(exList);
+  const rows=EXP.filter(e=>e.date&&keyOf(e.date)===k);
+  let living=0, free=0;
+  rows.forEach(e=>{const a=+e.amount||0;const c=OLDMAP[e.category]||e.category;if(LIVING.includes(c))living+=a;else if(!FIXEDC.includes(c))free+=a;});
+  const lb=+S.livingBudget||0, sv=+S.saving||0;
+  const carry=k===NOWK?overdueList().filter(x=>x.k<NOWK):[];const carrySum=carry.reduce((a,x)=>a+(+x.a||0),0);
+  const freeBudget=inc-fix-subs-ex-sv-lb-carrySum;
+  const over=Math.max(0,living-lb);
+  const left=freeBudget-over-free;
+  return {inc,fixMe,fixKo,fix,subs,exList,ex,rows,living,free,lb,sv,freeBudget,over,left,carry,carrySum,xin,xinSum};
+}
+
+function donut(items,total){
+  const R=56,C=2*Math.PI*R;let off=0;
+  const segs=items.map(([k,v])=>{const len=v/total*C;const s=`<circle r="${R}" cx="70" cy="70" fill="none" stroke="${COLORS[k]||'#999'}" stroke-width="20" stroke-dasharray="${Math.max(0,len-1.5)} ${C-len+1.5}" stroke-dashoffset="${-off}" transform="rotate(-90 70 70)"/>`;off+=len;return s;}).join('');
+  return `<svg width="140" height="140" viewBox="0 0 140 140">${segs}<text x="70" y="64" text-anchor="middle" font-size="10" fill="currentColor" opacity=".6">合計</text><text x="70" y="82" text-anchor="middle" font-size="15" font-weight="800" fill="currentColor">${man(total)}</text></svg>`;
+}
+
+function render(){render0();icons();try{syncSels();}catch(e){}}
+function render0(){
+  const c=calc();
+  $('pLabel').textContent=labelOf(P)+(P===NOWK?'（今）':'');
+  $('leftBig').textContent=yen(c.left);$('leftBig').classList.toggle('neg',c.left<0);
+  const pct=c.freeBudget>0?Math.max(0,Math.min(100,c.left/c.freeBudget*100)):0;
+  $('leftBar').style.width=pct+'%';
+  $('usedTxt').textContent=`使った ${yen(c.free+c.over)}`;
+  $('budTxt').textContent=`予算 ${yen(c.freeBudget)}`;
+  $('hInc').textContent=man(c.inc);$('hFix').textContent=man(c.fix+c.subs+c.ex+(c.carrySum||0));$('hSave').textContent=man(c.sv);
+  // 1日あたり
+  if(P===NOWK){
+    const [y,m]=P.split('-').map(Number);const end=new Date(y,m,25);end.setHours(0,0,0,0);
+    const days=Math.max(1,Math.round((end-todayD)/86400000));
+    $('perday').style.display='flex';
+    $('perday').innerHTML=`<span>給料日まであと <b>${days}</b> 日</span><span>1日あたり <b class="num">${c.left>0?yen(c.left/days):'¥0'}</b></span>`;
+  }else $('perday').style.display='none';
+
+  // 生活費
+  $('livUsed').textContent=yen(c.living);$('livBud').textContent=`予算 ${yen(c.lb)}`;
+  $('livBar').style.width=(c.lb>0?Math.min(100,c.living/c.lb*100):0)+'%';
+  $('livBarW').classList.toggle('green',c.living<=c.lb);
+  $('livSub').textContent=c.living>c.lb?`${yen(c.over)} オーバー（自由なお金から引いてるよ）`:`あと ${yen(c.lb-c.living)} 使えるよ`;
+
+  renderDues();renderCal();
+
+  // 予定の出費
+  const keys=Object.keys(S.extras||{}).filter(k=>k>=NOWK&&(S.extras[k]||[]).length).sort();
+  $('plans').innerHTML=keys.length?keys.map(k=>{
+    const L=S.extras[k];
+    return `<div class="dayhead">${labelOf(k)} の期間 <button class="link" data-go="${k}">この期間を見る ›</button></div>`+
+      L.map(x=>`<div class="item xp">${icon(catOf(x))}<div class="mid">${nameHtml(x.label)}</div><div class="rt"><b class="num">${yen(x.amount)}</b></div></div>`).join('');
+  }).join(''):'<div class="muted">変動費はないよ</div>';
+
+  // 円グラフ
+  const by={};const add=(k,v)=>{if(v>0)by[k]=(by[k]||0)+v;};
+  if(mode==='all'){[...S.fixed.me,...S.fixed.ko].forEach(f=>add(catOf(f),+f.amount||0));add('サブスク',c.subs);c.exList.forEach(f=>add(catOf(f),+f.amount||0));}
+  c.rows.forEach(e=>add(OLDMAP[e.category]||e.category||'その他',+e.amount||0));
+  const items=Object.entries(by).sort((a,b)=>b[1]-a[1]);
+  const total=items.reduce((a,b)=>a+b[1],0);
+  $('chart').innerHTML=total>0?donut(items,total):'';
+  $('legend').innerHTML=total>0?items.map(([k,v])=>`<div class="l"><span><span class="dot" style="background:${COLORS[k]||'#999'}"></span>${esc(k)}</span><span class="num">${yen(v)} <span class="muted">${Math.round(v/total*100)}%</span></span></div>`).join(''):'<div class="muted" style="padding:20px 0">この期間の記録はまだないよ</div>';
+
+  // 記録一覧（日付ごと）
+  const rows=[...c.rows].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  $('recCount').textContent=`${rows.length}件・${yen(sum(rows))}`;
+  let html='',last='';
+  rows.forEach(e=>{
+    if(e.date!==last){last=e.date;const d=new Date(e.date+'T00:00');html+=`<div class="dayhead">${d.getMonth()+1}月${d.getDate()}日（${'日月火水木金土'[d.getDay()]}）</div>`;}
+    const ct=OLDMAP[e.category]||e.category;
+    html+=`<div class="item">${icon(ct)}<div class="mid"><div class="n">${esc(e.item||e.shop||ct)}</div><div class="muted">${esc(ct)}${e.shop&&e.item?'・'+esc(e.shop):''} <span class="who ${whoCls(e.who)}">${esc(whoDisp(e.who))}</span>${e.method?` <span class="tag later" style="margin:0">${esc(e.method)}</span>`:''}</div></div><div class="rt"><b class="num">${yen(e.amount)}</b><button class="mini" data-del="${esc(e.id)}">×</button></div></div>`;
+  });
+  $('recs').innerHTML=html||'<div class="muted">この期間の記録はまだないよ</div>';
+
+  renderFlow(c);renderPays();renderPaySeg();renderMoves();
+  renderTrend();
+  renderGoals();
+  renderDebt();
+}
+
+// 支払い方法
+const PT={cash:['現金','banknote'],wallet:['スマホ決済','smartphone'],debit:['銀行口座・デビット','landmark'],bank:['銀行口座','landmark'],later:['後払い','calendar-clock'],card:['クレジットカード','credit-card']};
+let selPay='';
+const isCredit=m=>m.type==='later'||m.type==='card';
+function methodsOf(w){return w==='心愛'?S.methods.ko:S.methods.me;}
+function payerOf(e){return e.payer||whoName(e.who);}
+const recTs=e=>e.ts?+e.ts:new Date((e.date||todayStr)+'T23:59').getTime();
+function matchRec(e,owner,m){return e.method===m.name&&payerOf(e)===owner;}
+function usedOf(m,w){
+  const base=+m.used||0;if(!m.asOf)return base;
+  return base+EXP.filter(e=>matchRec(e,w,m)&&e.date&&e.date>=m.asOf).reduce((a,e)=>a+(+e.amount||0),0);
+}
+function balOf(m,owner){
+  if(m.balance===undefined||m.balance===null||m.balance==='')return null;
+  const at=+m.balAt||0;let b=+m.balance;
+  EXP.forEach(e=>{if(matchRec(e,owner,m)&&recTs(e)>at)b-=+e.amount||0;});
+  const key=owner+'|'+m.name;
+  MOV.forEach(v=>{if((+v.ts||0)<=at)return;if(v.from===key)b-=+v.amount||0;if(v.to===key)b+=+v.amount||0;});
+  Object.values(S.extraIncome||{}).flat().forEach(x=>{if(x&&x.to===key&&(+x.ts||0)>at)b+=+x.amount||0;});
+  const fixed=owner==='心愛'?S.fixed.ko:S.fixed.me;
+  const subs=(S.subs||[]).filter(s=>whoName(s.who)===owner);
+  const st=new Date(at);st.setHours(0,0,0,0);
+  for(let d=new Date(st.getFullYear(),st.getMonth(),st.getDate()+1);d<=todayD;d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1)){
+    const dd=d.getDate(),last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();
+    const hit=day=>+day>0&&(+day===dd||(+day>last&&dd===last));
+    if(m.salary&&dd===25){const ia=incOf(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'));b+=owner==='心愛'?ia.ko:ia.me;}
+    fixed.forEach(f=>{if(f.from===m.name&&hit(f.day))b-=+f.amount||0;});
+    subs.forEach(s=>{if(s.from===m.name&&hit(s.day))b-=+s.amount||0;});
+  }
+  return b;
+}
+const PF={'マル':false,'心愛':false};
+function pfSum(w,L){const bal=L.filter(m=>!isCredit(m)).map(m=>balOf(m,w)).filter(b=>b!==null);return `${L.length}件`+(bal.length?`・残高 ${yen(bal.reduce((a,b)=>a+b,0))}`:'');}
+document.addEventListener('toggle',e=>{const d=e.target;if(d.dataset&&d.dataset.pf)PF[d.dataset.pf]=d.open;},true);
+function renderPays(){
+  const sec=(w,L)=>L.length?`<details class="pfold" data-pf="${w}"${PF[w]?' open':''}><summary>${otag(w)}<span class="muted">${pfSum(w,L)}</span></summary>`+L.map(m=>{
+    const t=PT[m.type]||PT.cash;const lim=+m.limit||0;
+    let right,extra='';
+    if(isCredit(m)){
+      const u=usedOf(m,w);
+      right=`<b class="num">${yen(u)}</b>${lim?`<div class="muted">/ ${yen(lim)}</div>`:''}`;
+      if(lim){const q=Math.min(100,u/lim*100);const left=lim-u;
+        extra=`<div class="pbar ${q>=90?'':'green'}" style="height:6px;margin:6px 0 2px"><i style="width:${q}%;${q>=90?'background:var(--ng);box-shadow:0 0 10px var(--ng)':''}"></i></div><div class="muted" style="display:flex;justify-content:space-between"><span>残り <b class="num" style="color:${left<lim*.1?'var(--ng)':'var(--ok)'}">${yen(left)}</b></span><span>${m.day?`次の引き落とし ${(()=>{const d=nextDue(+m.day).date;return (d.getMonth()+1)+'/'+d.getDate();})()}`:''}</span></div>`;}
+      else if(m.day){const d=nextDue(+m.day).date;extra=`<div class="muted">次の引き落とし ${d.getMonth()+1}/${d.getDate()}</div>`;}
+    }else{
+      const s=EXP.filter(e=>matchRec(e,w,m)&&e.date&&keyOf(e.date)===P).reduce((a,e)=>a+(+e.amount||0),0);
+      const b=balOf(m,w);
+      right=b===null?`<b class="num">${yen(s)}</b><div class="muted">この期間</div>`:`<b class="num"${b<0?' style="color:var(--ng)"':''}>${yen(b)}</b><div class="muted">残高</div>`;
+
+    }
+    return `<div class="item" style="flex-wrap:wrap"><div class="ic" style="color:var(--accent);background:rgba(190,155,255,.1)">${LI(t[1])}</div><div class="mid"><div class="n">${esc(m.name)}</div><div class="muted">${t[0]}</div></div><div class="rt">${right}</div>${extra?`<div style="flex-basis:100%;padding-left:48px">${extra}</div>`:''}</div>`;
+  }).join('')+'</details>':'';
+  const html=sec('マル',S.methods.me)+sec('心愛',S.methods.ko);
+  {const cr=[...S.methods.me.map(m=>['マル',m]),...S.methods.ko.map(m=>['心愛',m])].filter(([o,m])=>isCredit(m)&&+m.limit);
+   const yS=n=>(n<0?'−':'')+'¥'+Math.abs(Math.round(n||0)).toLocaleString('ja-JP');
+   $('paySum').innerHTML=cr.map(([o,m])=>{const l=+m.limit-usedOf(m,o);return `<span><em>${esc(m.name)}</em>残り<b class="${l<+m.limit*.1?'low':''}">${yS(l)}</b></span>`;}).join('');}
+  $('pays').innerHTML=html||'<div class="muted">設定タブで支払い方法を入れてね</div>';
+}
+function payOptions(){return [...S.methods.me.map(m=>['マル',m]),...S.methods.ko.map(m=>['心愛',m])];}
+function renderPaySeg(){
+  const L=selWho==='2人'?payOptions():methodsOf(selWho).map(m=>[whoName(selWho),m]);
+  if(!L.some(([o,m])=>o+'|'+m.name===selPay))selPay=L[0]?L[0][0]+'|'+L[0][1].name:'';
+  const grp=o=>{const G=L.filter(x=>x[0]===o);return G.length?`<div class="pgrp">${otag(o)}<div class="pchips">${G.map(([o,m])=>{const k=o+'|'+m.name;return `<button data-pm="${esc(k)}" class="${k===selPay?'on':''}">${esc(m.name)}</button>`;}).join('')}</div></div>`:'';};
+  $('paySeg').innerHTML=(grp('マル')+grp('心愛'))||'<span class="muted" style="padding:6px">設定タブで追加してね</span>';
+}
+function renderMoves(){
+  const og=(o,L,lab)=>L.length?`<optgroup label="${lab}">${L.map(m=>`<option value="${esc(o+'|'+m.name)}">${esc(m.name)}</option>`).join('')}</optgroup>`:'';
+  const opts=og('マル',S.methods.me,'MARU')+og('心愛',S.methods.ko,'KOKOA');
+  const f=$('mvFrom').value,t=$('mvTo').value;
+  $('mvFrom').innerHTML=opts;$('mvTo').innerHTML=opts;
+  if(f)$('mvFrom').value=f;else{const o=[...$('mvFrom').options].find(x=>/デビット|銀行/.test(x.value));if(o)$('mvFrom').value=o.value;}
+  if(t)$('mvTo').value=t;else{const o=[...$('mvTo').options].find(x=>/PayPay$/.test(x.value));if(o)$('mvTo').value=o.value;}
+  const L=[...MOV].sort((a,b)=>(+b.ts||0)-(+a.ts||0)).slice(0,5);
+  $('mvList').innerHTML=L.map(v=>{const d=new Date(+v.ts||0);return `<div class="item"><div class="ic" style="color:var(--accent);background:rgba(190,155,255,.1)">${LI('arrow-left-right')}</div><div class="mid"><div class="n" style="white-space:normal">${keyHtml(v.from)} <span style="color:var(--accent)">→</span> ${keyHtml(v.to)}</div><div class="muted">${d.getMonth()+1}/${d.getDate()}</div></div><div class="rt"><b class="num">${yen(v.amount)}</b><button class="mini" data-mvdel="${esc(v.id)}">×</button></div></div>`;}).join('');
+}
+function payRow(w,i,m){return `<div class="row" style="flex-wrap:wrap"><input data-pn="${w}:${i}" value="${esc(m.name)}" placeholder="名前" style="flex:1;min-width:100px"><select data-pt="${w}:${i}">${Object.entries(PT).map(([k,v])=>`<option value="${k}"${k===m.type?' selected':''}>${v[0]}</option>`).join('')}</select>
+  <div style="flex-basis:100%;display:${m.type==='later'||m.type==='card'?'grid':'none'};grid-template-columns:1fr 1fr;gap:6px;margin-top:6px">
+  <input type="number" data-pl="${w}:${i}" value="${m.limit||''}" placeholder="上限" inputmode="numeric"><input type="number" data-pu="${w}:${i}" value="${m.used??''}" placeholder="使った額" inputmode="numeric">
+  <input type="date" data-pa="${w}:${i}" value="${esc(m.asOf||'')}"><input type="number" data-pd="${w}:${i}" value="${m.day||''}" placeholder="引き落とし日" inputmode="numeric"></div>
+  <div style="flex-basis:100%;display:${isCredit(m)?'none':'flex'};gap:8px;align-items:center;margin-top:6px"><input type="number" data-pb="${w}:${i}" value="${m.balance??''}" placeholder="今の残高" inputmode="numeric" style="flex:1"><label class="muted" style="display:flex;align-items:center;gap:4px;white-space:nowrap"><input type="checkbox" data-ps="${w}:${i}" ${m.salary?'checked':''}>給料が入る</label></div>
+  <input data-po="${w}:${i}" value="${esc(m.note||'')}" placeholder="メモ（銀行など）" style="flex-basis:100%;margin-top:6px"><button class="mini" data-px="${w}:${i}">×</button></div>`;}
+
+// お金の流れ
+const EXG={};
+document.addEventListener('toggle',e=>{const d=e.target;if(d.dataset&&d.dataset.exg!==undefined)EXG[d.dataset.exg]=d.open;},true);
+function exBase(s){s=String(s||'').trim();let b=s.split(/[：:（(\s　]/)[0]||s;b=b.replace(/(予算|代|費)$/,'').replace(/[\d\/]+$/,'').trim();return b||s;}
+function exRow(x,i,base){const k=xid(x)+'|'+(x.date||P);let lb=x.label||'追加支出';if(base&&lb.startsWith(base)){const r=lb.slice(base.length).replace(/^[：:・\s　]+/,'');if(r)lb=r;}return `<div class="exitem xp${isPaid(k)?' paid':''}">${chk(k)}${icon(catOf(x))}<div class="nw">${nameHtml(lb)}</div><b class="num" style="font-size:13px">${yen(x.amount)}</b><button class="mini" data-exed="${P}:${i}" aria-label="編集">${LI('pencil')}</button><button class="mini" data-exdel="${P}:${i}">×</button></div>`;}
+const chkG=(ks,on)=>`<button class="chk${on?' on':''}" data-paidg="${esc(ks.join('\n'))}" aria-label="まとめて支払い済み">${LI('check')}</button>`;
+document.addEventListener('click',e=>{const b=e.target.closest('[data-paidg]');if(!b)return;e.preventDefault();e.stopPropagation();const ks=b.dataset.paidg.split('\n');S.paid=S.paid||{};const all=ks.every(k=>S.paid[k]);ks.forEach(k=>{if(all)delete S.paid[k];else S.paid[k]=Date.now();});render();save($('status'));},true);
+function exGroupsHtml(list){
+  const items=list.map((x,i)=>({x,i,b:exBase(x.label)}));
+  const bases=[...new Set(items.map(o=>o.b))].sort((a,b)=>a.length-b.length);
+  items.forEach(o=>{const p=bases.find(b=>b.length>=2&&b!==o.b&&o.b.startsWith(b));if(p)o.b=p;});
+  const G=[];const idx={};items.forEach(o=>{if(idx[o.b]===undefined){idx[o.b]=G.length;G.push({b:o.b,L:[]});}G[idx[o.b]].L.push(o);});
+  const T=g=>g.L.reduce((a,o)=>a+(+o.x.amount||0),0);G.forEach(g=>g.L.sort((a,b)=>(+b.x.amount||0)-(+a.x.amount||0)));G.sort((a,b)=>T(b)-T(a));
+  return G.map(g=>{
+    if(g.L.length===1)return exRow(g.L[0].x,g.L[0].i);
+    const tot=g.L.reduce((a,o)=>a+(+o.x.amount||0),0);const paidN=g.L.filter(o=>isPaid(xid(o.x)+'|'+(o.x.date||P))).length;const all=paidN===g.L.length;
+    return `<details class="exg${all?' paid':''}" data-exg="${esc(g.b)}"${EXG[g.b]?' open':''}><summary><span class="chksp"></span>${icon(catOf(g.L[0].x))}<div class="nw"><div class="n">${esc(g.b)}</div><div class="n2">${g.L.length}件${paidN?`・${all?'全部支払い済み':paidN+'件支払い済み'}`:''}</div></div><b class="num" style="font-size:13px">${yen(tot)}</b></summary><div class="exgin">${g.L.map(o=>exRow(o.x,o.i,g.b)).join('')}</div></details>`;
+  }).join('');
+}
+const FL2={};
+document.addEventListener('toggle',e=>{const d=e.target;if(d.classList&&d.classList.contains('fl2')){const k=d.querySelector('.k');if(k)FL2[k.textContent]=d.open;}},true);
+let exOpen=false,exEdit=null;
+function renderFlow(c){
+  $('flowLabel').textContent=labelOf(P);
+  const sub=(L,f,idf)=>[...L].sort((a,b)=>(+b.amount||0)-(+a.amount||0)).map(x=>{const k=idf(x)+'|'+occOf(x.day,P);return `<div class="s${isPaid(k)?' paid':''}"><span style="display:flex;align-items:center;gap:6px">${chk(k)}${esc(f(x))}</span><span class="num">${yen(x.amount)}</span></div>`;}).join('');
+  const fixAll=[...S.fixed.me.map(x=>({...x,o:'マル'})),...S.fixed.ko.map(x=>({...x,o:'心愛'}))];
+  const grp=(k,v,inner)=>inner?`<details class="fl2"><summary><span class="k">${k}</span><span class="num">−${yen(v)}</span></summary><div class="flsub">${inner}</div></details>`:`<div class="fl"><span>${k}</span><span class="num">−${yen(v)}</span></div>`;
+  const ex=c.exList.length?`<div class="fl" style="border-bottom:none"><span>変動費</span><span class="num" style="color:var(--warn)">−${yen(c.ex)}</span></div>`+
+    exGroupsHtml(c.exList):'';
+  const ia=incOf(P);const st=f=>f?'<span class="tag" style="background:var(--okbg);color:var(--ok);margin:0 0 0 6px">確定</span>':'<span class="tag later" style="margin:0 0 0 6px">予定</span>';
+  $('flow').innerHTML=`<details class="fl2"><summary><span class="k">2人の月収</span><span class="num" style="color:var(--ok)">+${yen(c.inc-c.xinSum)}</span></summary><div class="flsub">
+    <div class="s"><span>MARU${st(ia.meFix)}</span><span class="num">${yen(ia.me)}</span></div>
+    <div class="s"><span>KOKOA${st(ia.koFix)}</span><span class="num">${yen(ia.ko)}</span></div>
+    <button class="link" id="incOpen" style="margin-top:4px">${LI('pencil')} この期間の月収を入力</button></div></details>`+
+    (c.xin.length?`<details class="fl2"><summary><span class="k">臨時収入</span><span class="num" style="color:var(--ok)">+${yen(c.xinSum)}</span></summary><div class="flsub">${c.xin.map((x,i)=>`<div class="s"><span>${esc(whoDisp(x.who))}｜${esc(x.label||'臨時収入')}</span><span style="display:flex;align-items:center;gap:6px"><span class="num">${yen(x.amount)}</span><button class="mini" data-xidel="${P}:${i}">×</button></span></div>`).join('')}</div></details>`:'')+
+    grp('固定費',c.fix,sub(fixAll,x=>`${x.o==='心愛'?'KOKOA':'MARU'}｜${x.label||''}`,x=>fid(x.o==='心愛'?'ko':'me',x)))+
+    grp('サブスク',c.subs,sub(S.subs||[],x=>x.name||'',sid))+
+    (c.carry.length?`<div class="fl" style="border-bottom:none"><span style="color:var(--ng)">先月分の未払い</span><span class="num" style="color:var(--ng)">−${yen(c.carrySum)}</span></div>`+c.carry.map(x=>`<div class="exitem xp od">${chk(x.pk)}${icon(x.c)}<div class="nw">${nameHtml(x.n)}<div class="n2" style="color:var(--ng)">${x.date.getMonth()+1}/${x.date.getDate()}の分・未払い</div></div><b class="num" style="font-size:13px;color:var(--ng)">${yen(x.a)}</b></div>`).join(''):'')+
+    ex+
+    `<div class="fl"><span>生活費の予算</span><span class="num">−${yen(c.lb)}</span></div>`+
+    `<div class="fl"><span>貯金（結婚・出産用）</span><span class="num">−${yen(c.sv)}</span></div>`+
+    `<div class="fl sumrow"><span>利用可能額</span><span class="num"${c.freeBudget<0?' style="color:var(--ng)"':''}>${yen(c.freeBudget)}</span></div>`;
+  $('flow').querySelectorAll('details.fl2').forEach(d=>{const k=d.querySelector('.k');if(k&&FL2[k.textContent])d.open=true;});
+}
+
+// 推移グラフ
+function renderTrend(){
+  const ks=[];for(let i=5;i>=0;i--)ks.push(shiftKey(P,-i));
+  const data=ks.map(k=>{let l=0,o=0;EXP.forEach(e=>{if(!e.date||keyOf(e.date)!==k)return;const c=OLDMAP[e.category]||e.category;const a=+e.amount||0;if(LIVING.includes(c))l+=a;else o+=a;});return {k,l,o};});
+  const mx=Math.max(1,...data.map(d=>d.l+d.o));
+  const W=320,H=150,bw=30,gap=(W-bw*6)/6;
+  const bars=data.map((d,i)=>{const x=gap/2+i*(bw+gap);const hl=d.l/mx*110,ho=d.o/mx*110;const m=+d.k.split('-')[1];
+    return `<rect x="${x}" y="${125-hl}" width="${bw}" height="${hl}" rx="4" fill="#2ef2b0"/>`+
+      `<rect x="${x}" y="${125-hl-ho}" width="${bw}" height="${ho}" rx="4" fill="#c6a8ff"/>`+
+      ((d.l+d.o)>0?`<text x="${x+bw/2}" y="${118-hl-ho}" text-anchor="middle" font-size="9" fill="currentColor" opacity=".75">${man(d.l+d.o)}</text>`:'')+
+      `<text x="${x+bw/2}" y="142" text-anchor="middle" font-size="10" fill="currentColor" ${d.k===P?'font-weight="800"':'opacity=".6"'}>${m}月</text>`;}).join('');
+  $('trend').innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%"><line x1="0" y1="125.5" x2="${W}" y2="125.5" stroke="currentColor" opacity=".15"/>${bars}</svg>`;
+}
+
+// 目標
+function paydaysUntil(ym){
+  const [gy,gm]=ym.split('-').map(Number);let y=todayD.getFullYear(),m=todayD.getMonth()+1;
+  if(todayD.getDate()>=25){m++;if(m>12){m=1;y++;}}
+  let n=0,b=0;while(y<gy||(y===gy&&m<=gm)){n++;if(m===7||m===12)b++;m++;if(m>12){m=1;y++;}}
+  return {n,b};
+}
+function renderGoals(){
+  const G=S.goals||[];const now=+S.savedNow||0,sv=+S.saving||0,bs=+S.bonusSave||0;
+  if(!G.length){$('goals').innerHTML='<div class="muted">設定タブから目標を追加してね</div>';return;}
+  $('goals').innerHTML=`<div class="muted" style="margin-bottom:8px">今の貯金 <b class="num">${yen(now)}</b>・毎月 ${yen(sv)}${bs?`・賞与ごと ${yen(bs)}`:''}</div>`+G.map(g=>{
+    if(!g.ym)return'';
+    const [y,m]=g.ym.split('-').map(Number);const {n,b}=paydaysUntil(g.ym);
+    const proj=now+sv*n+bs*b;const tg=+g.target||0;
+    let body=`<div class="gt"><b>${esc(g.name||'目標')}</b><span class="muted">${y}年${m}月まで・あと${n}ヶ月</span></div>`;
+    body+=`<div class="muted" style="margin-top:6px">今のペースだと、その時点で</div><div class="gbig num">${yen(proj)}</div>`;
+    if(tg>0){
+      const p=Math.min(100,now/tg*100);const need=n>0?Math.max(0,(tg-now-bs*b)/n):Math.max(0,tg-now);
+      body+=`<div class="pbar"><i style="width:${p}%"></i></div><div class="muted">目標 ${yen(tg)} のうち ${Math.round(p)}% たまってる</div>`;
+      body+=proj>=tg?`<div class="tag soon" style="background:var(--okbg);color:var(--ok);margin-top:6px">このペースで達成できる 🎉</div>`
+        :`<div class="tag today" style="margin-top:6px">あと毎月 ${yen(need)} 貯めれば達成</div>`;
+    }else body+=`<div class="muted" style="margin-top:4px">目標額を入れると、達成できるか判定するよ</div>`;
+    return `<div class="goal">${body}</div>`;
+  }).join('');
+}
+
+// 返済
+const pf=x=>(Math.round(x*10)/10).toFixed(1);
+function renderDebt(){
+  const d=S.debt||{};if(!d.end||!d.monthly){$('debt').innerHTML='<div class="muted">設定タブで返済の情報を入れてね</div>';return;}
+  let y=todayD.getFullYear(),m=todayD.getMonth()+1;if(todayD.getDate()>(+d.day||27)){m++;if(m>12){m=1;y++;}}
+  const [ey,em]=d.end.split('-').map(Number);
+  const left=Math.max(0,(ey-y)*12+(em-m)+1);
+  const C=(d.creditors||[]).filter(c=>+c.settle>0);
+  let remain,p,st=0,paid=0;
+  if(C.length){st=C.reduce((a,c)=>a+(+c.settle||0),0);remain=C.reduce((a,c)=>a+(+c.remain||0),0);paid=st-remain;p=st?paid/st*100:0;}
+  else{remain=left>0?(left-1)*(+d.monthly)+(+d.last||+d.monthly):0;let total=left;if(d.start){const [sy,sm]=d.start.split('-').map(Number);total=Math.max(left,(ey-sy)*12+(em-sm)+1);}p=total?(total-left)/total*100:100;}
+  const credHtml=C.length?`<div class="h3" style="margin-top:14px">和解先ごと${d.asOf?`（${d.asOf.slice(5).replace('-','/')}時点）`:''}</div>`+C.map(c=>{const q=+c.settle?((+c.settle)-(+c.remain||0))/(+c.settle)*100:0;return `<div style="margin-top:8px"><div style="display:flex;justify-content:space-between;font-size:13px"><span>${esc(c.name)} <b class="num" style="color:var(--ok)">${pf(q)}%</b></span><span class="num">残り ${yen(c.remain)} <span class="muted">/ ${yen(c.settle)}</span></span></div><div class="pbar green" style="height:6px;margin:4px 0 0"><i style="width:${q}%"></i></div></div>`;}).join(''):'';
+  if(left===0){$('debt').innerHTML='<div class="gbig">完済おめでとう！🎉</div>';return;}
+  $('debt').innerHTML=`<div class="goal" style="margin:0"><div class="gt"><b>${ey}年${em}月に完済予定</b><span style="font-size:20px;font-weight:800" class="num">${pf(p)}%</span></div>
+    <div class="pbar green"><i style="width:${p}%"></i></div>${C.length?`<div class="muted">返済ずみ <b class="num">${yen(paid)}</b> / 和解金 ${yen(st)}</div>`:""}
+    <div class="count"><div><b class="num">${left}</b><small>残りの回数</small></div><div><b class="num" style="font-size:15px;line-height:1.9">${yen(remain)}</b><small>残りの金額</small></div><div><b class="num">${m}/${d.day}</b><small>次の支払い</small></div></div>
+    ${C.length?'<div class="muted" style="margin-top:6px">残りの金額は事務所の「残債務額」の合計（管理費は別）</div>':''}${credHtml}
+    <div class="muted" style="margin-top:10px">終わったら毎月 ${yen(d.monthly)} がまるごと貯金に回せるよ</div></div>`;
+}
+
+// 支払い日
+function nextDue(day){
+  const mk=(y,m)=>{const last=new Date(y,m+1,0).getDate();return new Date(y,m,Math.min(day,last));};
+  let d=mk(todayD.getFullYear(),todayD.getMonth());if(d<todayD)d=mk(todayD.getFullYear(),todayD.getMonth()+1);
+  return {date:d,diff:Math.round((d-todayD)/86400000)};
+}
+const ds=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const fid=(o,f)=>'f:'+o+':'+(f.label||''), sid=s=>'s:'+(s.name||''), xid=x=>'x:'+(x.label||'')+':'+(+x.amount||0);
+function occOf(day,k){if(!(+day>0))return k;const [y,m]=k.split('-').map(Number);const mm=+day>=25?m-1:m;const last=new Date(y,mm+1,0).getDate();return ds(new Date(y,mm,Math.min(+day,last)));}
+const isPaid=k=>!!(S.paid||{})[k];
+const movedTo=k=>{const v=(S.paid||{})[k];if(typeof v==='string'&&v[0]==='→'){const d=new Date(v.slice(1)+'T00:00');return isNaN(d)?v.slice(1):(d.getMonth()+1)+'/'+d.getDate();}return '';};
+const chk=k=>`<button class="chk${isPaid(k)&&!movedTo(k)?' on':''}" data-paid="${esc(k)}" aria-label="支払い済み">${LI('check')}</button>`;
+const TRACK_FROM='2026-11-17';
+function overdueList(){
+  const out=[];const from=new Date(TRACK_FROM+'T00:00');
+  const items=[...S.fixed.me.map(f=>({n:f.label,a:f.amount,day:f.day,w:'自分',c:catOf(f),id:fid('me',f)})),...S.fixed.ko.map(f=>({n:f.label,a:f.amount,day:f.day,w:'心愛',c:catOf(f),id:fid('ko',f)})),...(S.subs||[]).map(s=>({n:s.name,a:s.amount,day:s.day,w:s.who||'自分',c:'サブスク',id:sid(s)}))].filter(x=>+x.day>=1&&+x.day<=31);
+  items.forEach(x=>{let y=from.getFullYear(),m=from.getMonth();
+    while(new Date(y,m,1)<=todayD){const last=new Date(y,m+1,0).getDate();const d=new Date(y,m,Math.min(+x.day,last));
+      if(d>=from&&d<todayD){const pk=x.id+'|'+ds(d);if(!isPaid(pk))out.push({...x,date:d,pk,k:keyOf(ds(d))});}
+      m++;if(m>11){m=0;y++;}}});
+  Object.values(S.extras||{}).flat().forEach(x=>{if(!x||!x.date||!/^\d{4}-\d{2}-\d{2}$/.test(x.date))return;const d=new Date(x.date+'T00:00');if(d<from||d>=todayD)return;const pk=xid(x)+'|'+x.date;if(!isPaid(pk))out.push({n:x.label,a:x.amount,w:x.who||'自分',c:catOf(x),date:d,pk,once:1,k:keyOf(x.date)});});
+  return out.sort((a,b)=>a.date-b.date);
+}
+let calY=todayD.getFullYear(),calM=todayD.getMonth(),calSel=todayD.getDate();
+let calView='week',wkOff=0;
+function calEvents(y,m){
+  const ev={};const add=(d,o)=>{(ev[d]=ev[d]||[]).push(o);};const last=new Date(y,m+1,0).getDate();const from=new Date(TRACK_FROM+'T00:00');
+  [...S.fixed.me.map(f=>({n:f.label,a:f.amount,day:f.day,w:'自分',c:catOf(f),id:fid('me',f)})),...S.fixed.ko.map(f=>({n:f.label,a:f.amount,day:f.day,w:'心愛',c:catOf(f),id:fid('ko',f)})),...(S.subs||[]).map(s=>({n:s.name,a:s.amount,day:s.day,w:s.who||'自分',c:'サブスク',id:sid(s)}))]
+    .filter(x=>+x.day>=1&&+x.day<=31).forEach(x=>{const dd=Math.min(+x.day,last);const date=new Date(y,m,dd);add(dd,{...x,date,pk:x.id+'|'+ds(date)});});
+  Object.values(S.extras||{}).flat().forEach(x=>{if(!x||!x.date)return;const d=new Date(x.date+'T00:00');if(d.getFullYear()===y&&d.getMonth()===m)add(d.getDate(),{n:x.label,a:x.amount,w:x.who||'自分',c:catOf(x),date:d,once:1,pk:xid(x)+'|'+x.date});});
+  Object.values(ev).flat().forEach(o=>{o.diff=Math.round((o.date-todayD)/86400000);o.paid=isPaid(o.pk);o.od=!o.paid&&o.date<todayD&&o.date>=from;o.k=keyOf(ds(o.date));});
+  return ev;
+}
+function evOn(d){return (calEvents(d.getFullYear(),d.getMonth())[d.getDate()]||[]);}
+function calSegHtml(){return `<div class="seg calseg"><button data-calv="w0" class="${calView==='week'?'on':''}">週ごと</button><button data-calv="m" class="${calView==='month'?'on':''}">月ごと</button></div>`;}
+function renderCal(){
+  if(calView==='week'){const N=+S.notifyDays||10;
+    const st=new Date(todayD.getFullYear(),todayD.getMonth(),todayD.getDate()-todayD.getDay()+wkOff*7);
+    const days=[...Array(7)].map((_,i)=>new Date(st.getFullYear(),st.getMonth(),st.getDate()+i));
+    const all=days.flatMap(evOn);const en=days[6];const tot=all.reduce((a,o)=>a+(+o.a||0),0),un=all.filter(o=>!o.paid).reduce((a,o)=>a+(+o.a||0),0);
+    const lab=wkOff===0?'今週':wkOff===1?'来週':wkOff===-1?'先週':`${st.getMonth()+1}/${st.getDate()}の週`;
+    $('cal').innerHTML=calSegHtml()+`<div class="calhd"><button class="mini" data-calw="-1">‹</button><b>${lab}<small>${st.getMonth()+1}/${st.getDate()} 〜 ${en.getMonth()+1}/${en.getDate()}</small></b><button class="mini" data-calw="1">›</button></div>`+
+      `<div class="calsum"><span>合計 <b class="num">${yen(tot)}</b></span><span>まだ <b class="num" style="color:${un?'var(--warn)':'var(--ok)'}">${yen(un)}</b></span></div>`+
+      `<div class="wkstrip">${days.map(d=>{const L=evOn(d);const isT=+d===+todayD;const stt=L.length?(L.some(o=>o.od)?'od':L.every(o=>o.paid)?'pd':'up'):'';return `<div class="wd${isT?' t':''}${d.getDay()===0?' sun':d.getDay()===6?' sat':''}"><span class="w">${'日月火水木金土'[d.getDay()]}</span><span class="dn">${d.getDate()}</span><i class="cdot ${stt}"></i></div>`;}).join('')}</div>`;
+    const grp=days.filter(d=>evOn(d).length);
+    $('calList').innerHTML=grp.length?grp.map(d=>`<div class="dayhead">${d.getMonth()+1}月${d.getDate()}日（${'日月火水木金土'[d.getDay()]}）${+d===+todayD?' ・今日':''}</div>`+evOn(d).map(o=>dueRow(o,N)).join('')).join(''):'<div class="muted" style="padding:10px 0;text-align:center">この週の支払いはないよ</div>';
+    return;}
+  const ev=calEvents(calY,calM);const first=new Date(calY,calM,1).getDay(),last=new Date(calY,calM+1,0).getDate();
+  const all=Object.values(ev).flat();const tot=all.reduce((a,o)=>a+(+o.a||0),0),un=all.filter(o=>!o.paid).reduce((a,o)=>a+(+o.a||0),0);
+  let cells='';for(let i=0;i<first;i++)cells+='<div class="cd e"></div>';
+  for(let d=1;d<=last;d++){const L=ev[d]||[];const isT=calY===todayD.getFullYear()&&calM===todayD.getMonth()&&d===todayD.getDate();const dow=(first+d-1)%7;
+    const st=L.length?(L.some(o=>o.od)?'od':L.every(o=>o.paid)?'pd':'up'):'';const s=L.reduce((a,o)=>a+(+o.a||0),0);
+    cells+=`<button class="cd${isT?' t':''}${d===calSel?' sel':''}${dow===0?' sun':dow===6?' sat':''}" data-cald="${d}"><span class="dn">${d}</span>${L.length?`<i class="cdot ${st}"></i><span class="ca">${man(s).replace('¥','')}</span>`:''}</button>`;}
+  $('cal').innerHTML=calSegHtml()+`<div class="calhd"><button class="mini" data-calm="-1">‹</button><b>${calY}年${calM+1}月</b><button class="mini" data-calm="1">›</button></div>
+    <div class="calsum"><span>合計 <b class="num">${yen(tot)}</b></span><span>まだ <b class="num" style="color:${un?'var(--warn)':'var(--ok)'}">${yen(un)}</b></span></div>
+    <div class="cgrid">${['日','月','火','水','木','金','土'].map((w,i)=>`<div class="cw${i===0?' sun':i===6?' sat':''}">${w}</div>`).join('')}${cells}</div>
+    <div class="clg"><span><i class="cdot up"></i>予定</span><span><i class="cdot od"></i>未払い</span><span><i class="cdot pd"></i>支払い済み</span></div>`;
+  const L=ev[calSel]||[];const N=+S.notifyDays||10;
+  $('calList').innerHTML=`<div class="dayhead">${calM+1}月${calSel}日の支払い</div>`+(L.length?L.map(o=>dueRow(o,N)).join(''):'<div class="muted" style="padding:8px 0">この日の支払いはないよ</div>');
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-calm],[data-cald],[data-calv],[data-calw]');if(!b||!b.closest('#cal'))return;
+  if(b.dataset.calv){if(b.dataset.calv==='m'){calView='month';calY=todayD.getFullYear();calM=todayD.getMonth();calSel=todayD.getDate();}else{calView='week';wkOff=+b.dataset.calv.slice(1);}}
+  else if(b.dataset.calw){wkOff+=+b.dataset.calw;}
+  else if(b.dataset.calm){calM+=+b.dataset.calm;if(calM<0){calM=11;calY--;}if(calM>11){calM=0;calY++;}const last=new Date(calY,calM+1,0).getDate();calSel=(calY===todayD.getFullYear()&&calM===todayD.getMonth())?todayD.getDate():1;if(calSel>last)calSel=last;}
+  else calSel=+b.dataset.cald;
+  renderCal();icons();});
+function dueList(){
+  const all=[...S.fixed.me.map(f=>({n:f.label,a:f.amount,day:f.day,w:'自分',c:catOf(f),id:fid('me',f)})),...S.fixed.ko.map(f=>({n:f.label,a:f.amount,day:f.day,w:'心愛',c:catOf(f),id:fid('ko',f)})),...(S.subs||[]).map(s=>({n:s.name,a:s.amount,day:s.day,w:s.who||'自分',c:'サブスク',id:sid(s)}))];
+  let L=all.filter(x=>+x.day>=1&&+x.day<=31).map(x=>{const nd=nextDue(+x.day);return {...x,...nd,pk:x.id+'|'+ds(nd.date)};});
+  Object.values(S.extras||{}).flat().forEach(x=>{if(!x||!x.date||!/^\d{4}-\d{2}-\d{2}$/.test(x.date))return;const d=new Date(x.date+'T00:00');const diff=Math.round((d-todayD)/86400000);if(diff>=0)L.push({n:x.label,a:x.amount,w:x.who||'自分',c:catOf(x),date:d,diff,once:1,pk:xid(x)+'|'+x.date});});
+  L.sort((a,b)=>a.diff-b.diff);
+  return {L,miss:all.length-L.filter(x=>!x.once).length};
+}
+function dueRow(x,N){
+  const mv=movedTo(x.pk);const pd=isPaid(x.pk)&&!mv;const cls=mv?'mv':pd?'done':x.od?'today':x.diff<0?'later':x.diff===0?'today':x.diff<=N?'soon':'later';const lab=mv?`${mv}に延期`:pd?'支払い済み':x.od?(x.k<NOWK?'先月分・':'')+'未払い':x.diff<0?'過ぎた日':x.diff===0?'今日！':`あと${x.diff}日`;
+  return `<div class="item xp${pd?' paid':''}${mv?' moved':''}${x.od&&!pd&&!mv?' od':''}">${chk(x.pk)}${icon(x.c)}<div class="mid">${nameHtml(x.n)}<div class="muted">${x.once?'変動費':'毎月'+x.day+'日'} <span class="who ${whoCls(x.w)}">${esc(whoDisp(x.w))}</span></div></div><div class="rt"><b class="num">${yen(x.a)}</b><div><span class="tag ${cls}">${x.date.getMonth()+1}/${x.date.getDate()}・${lab}</span></div></div></div>`;
+}
+function renderDues(){
+  const N=+S.notifyDays||10;const {L,miss}=dueList();
+  $('dueNote').textContent=`${N}日前から黄色で知らせるよ`+(miss?`・日付未登録 ${miss}件`:'');
+  const OD=overdueList().map(x=>({...x,od:1}));
+  $('dues').innerHTML=(OD.length||L.length)?[...OD,...L].map(x=>dueRow(x,N)).join(''):'<div class="muted">支払い日が登録されたものはまだないよ</div>';
+  const soon=[...OD,...L.filter(x=>x.diff<=N)];const unpaid=soon.filter(x=>!isPaid(x.pk));
+  $('duesSoon').innerHTML=soon.length?soon.map(x=>dueRow(x,N)).join('')+`<div class="muted" style="text-align:right;margin-top:6px">${unpaid.length?`まだ払っていない分 <b class="num">${yen(sum(unpaid.map(x=>({amount:x.a}))))}</b>`:'<b style="color:var(--ok)">全部払い済み ✓</b>'}</div>`
+    :(L.length?`<div class="muted">${N}日以内の支払いはないよ。次は ${esc(L[0].n)}（${L[0].date.getMonth()+1}/${L[0].date.getDate()}）</div>`:'<div class="muted">設定タブで固定費に支払い日を入れると、ここに出るよ</div>');
+}
+
+// サブスク
+function renderSubs(){
+  const L=S.subs||[];
+  $('subList').innerHTML=L.length?L.map((s,i)=>`<div class="row" style="flex-wrap:wrap">
+    <input data-sn="${i}" value="${esc(s.name)}" placeholder="名前" style="flex:1;min-width:120px">
+    <input type="number" class="w90" data-sa="${i}" value="${+s.amount||0}" inputmode="numeric">
+    <input type="number" class="w50" data-sd="${i}" value="${s.day||''}" inputmode="numeric" placeholder="日">
+    <select data-sw="${i}">${['自分','心愛','2人'].map(w=>`<option value="${w}"${w===s.who?' selected':''}>${whoDisp(w)}</option>`).join('')}</select>
+    <button class="mini" data-sx="${i}">×</button>${fromSel(`data-sf="${i}"`,s.who==='心愛'?'ko':'me',s.from)}</div>`).join(''):'<div class="muted">まだないよ</div>';
+  subTotals();
+}
+function subTotals(){const m=sum(S.subs||[]);$('subMonth').textContent=yen(m);$('subYear').textContent=yen(m*12);}
+function readSubs(){
+  document.querySelectorAll('[data-sn]').forEach(el=>{S.subs[+el.dataset.sn].name=el.value;});
+  document.querySelectorAll('[data-sa]').forEach(el=>{S.subs[+el.dataset.sa].amount=+el.value||0;});
+  document.querySelectorAll('[data-sd]').forEach(el=>{S.subs[+el.dataset.sd].day=+el.value||'';});
+  document.querySelectorAll('[data-sw]').forEach(el=>{S.subs[+el.dataset.sw].who=el.value;});
+}
+
+// 設定
+function catSel(attr,cur){return `<select ${attr}>${CATS.map(c=>`<option${c===cur?' selected':''}>${c}</option>`).join('')}</select>`;}
+function fromSel(attr,owner,cur){const L=owner==='ko'?S.methods.ko:S.methods.me;return `<select ${attr} style="flex-basis:100%;margin-top:4px"><option value="">支払い元（未設定）</option>${L.map(m=>`<option${m.name===cur?' selected':''}>${esc(m.name)}</option>`).join('')}</select>`;}
+function fixRow(w,i,f){return `<div class="row" style="flex-wrap:wrap"><input type="text" value="${esc(f.label)}" data-fl="${w}:${i}" style="flex:1;min-width:120px" placeholder="名前"><input type="number" value="${+f.amount||0}" data-fa="${w}:${i}" class="w90" inputmode="numeric">${w==='ex'?`<input type="date" value="${esc(f.date||'')}" data-fdt="${w}:${i}" style="width:140px">`:`<input type="number" class="w50" value="${f.day||''}" data-fdy="${w}:${i}" placeholder="日" inputmode="numeric">`}${catSel(`data-fc="${w}:${i}"`,catOf(f))}<button class="mini" data-fd="${w}:${i}">×</button>${w==='ex'?'':fromSel(`data-ff="${w}:${i}"`,w,f.from)}</div>`;}
+function arrOf(w){return w==='ex'?(S.extras[P]=S.extras[P]||[]):S.fixed[w];}
+function renderSettings(){
+  $('sIncMe').value=S.incomes.me;$('sIncKo').value=S.incomes.ko;
+  $('sLiving').value=S.livingBudget;$('sSave').value=S.saving;$('sNotify').value=S.notifyDays||10;
+  $('fixMe').innerHTML=S.fixed.me.map((f,i)=>fixRow('me',i,f)).join('')||'<div class="muted">なし</div>';
+  $('fixKo').innerHTML=S.fixed.ko.map((f,i)=>fixRow('ko',i,f)).join('')||'<div class="muted">なし</div>';
+  $('exTitle').textContent=`${labelOf(P)}　合計 ${yen(sum(S.extras[P]||[]))}`;
+  $('extras').innerHTML=(S.extras[P]||[]).map((f,i)=>fixRow('ex',i,f)).join('')||'<div class="muted">なし</div>';
+  $('sSavedNow').value=S.savedNow||0;$('sBonus').value=S.bonusSave||0;
+  $('goalRows').innerHTML=(S.goals||[]).map((g,i)=>`<div class="row" style="flex-wrap:wrap"><input data-gn="${i}" value="${esc(g.name)}" placeholder="目標の名前" style="flex:1;min-width:100px"><input type="month" data-gy="${i}" value="${esc(g.ym)}"><input type="number" class="w120" data-gt="${i}" value="${+g.target||''}" placeholder="目標額" inputmode="numeric"><button class="mini" data-gx="${i}">×</button></div>`).join('');
+  $('payMe').innerHTML=S.methods.me.map((m,i)=>payRow('me',i,m)).join('')||'<div class="muted">なし</div>';
+  $('payKo').innerHTML=S.methods.ko.map((m,i)=>payRow('ko',i,m)).join('')||'<div class="muted">なし</div>';
+  const d=S.debt||{};$('dMonthly').value=d.monthly||'';$('dDay').value=d.day||'';$('dStart').value=d.start||'';$('dEnd').value=d.end||'';$('dLast').value=d.last||'';$('dAsOf').value=d.asOf||'';
+  $('credRows').innerHTML=(d.creditors||[]).map((c,i)=>`<div class="row" style="flex-wrap:wrap"><input data-cn="${i}" value="${esc(c.name)}" placeholder="名前" style="flex:1;min-width:100px"><input type="number" class="w90" data-cs="${i}" value="${+c.settle||''}" placeholder="和解金" inputmode="numeric"><input type="number" class="w90" data-cr="${i}" value="${c.remain??''}" placeholder="残り" inputmode="numeric"><button class="mini" data-cx="${i}">×</button></div>`).join('')||'<div class="muted">なし</div>';
+}
+function readSettings(){
+  S.incomes.me=+$('sIncMe').value||0;S.incomes.ko=+$('sIncKo').value||0;
+  S.livingBudget=+$('sLiving').value||0;S.saving=+$('sSave').value||0;S.notifyDays=+$('sNotify').value||10;
+  S.savedNow=+$('sSavedNow').value||0;S.bonusSave=+$('sBonus').value||0;
+  const cr=(S.debt&&S.debt.creditors)||[];
+  document.querySelectorAll('[data-cn]').forEach(el=>{const c=cr[+el.dataset.cn];if(c)c.name=el.value;});
+  document.querySelectorAll('[data-cs]').forEach(el=>{const c=cr[+el.dataset.cs];if(c)c.settle=+el.value||0;});
+  document.querySelectorAll('[data-cr]').forEach(el=>{const c=cr[+el.dataset.cr];if(c)c.remain=+el.value||0;});
+  S.debt={monthly:+$('dMonthly').value||0,day:+$('dDay').value||27,start:$('dStart').value,end:$('dEnd').value,last:+$('dLast').value||0,asOf:$('dAsOf').value,creditors:cr};
+  document.querySelectorAll('[data-fl]').forEach(el=>{const [w,i]=el.dataset.fl.split(':');const a=arrOf(w);if(a[i])a[i].label=el.value;});
+  document.querySelectorAll('[data-fa]').forEach(el=>{const [w,i]=el.dataset.fa.split(':');const a=arrOf(w);if(a[i])a[i].amount=+el.value||0;});
+  document.querySelectorAll('[data-fdy]').forEach(el=>{const [w,i]=el.dataset.fdy.split(':');const a=arrOf(w);if(a[i])a[i].day=+el.value||'';});
+  document.querySelectorAll('[data-fdt]').forEach(el=>{const [w,i]=el.dataset.fdt.split(':');const a=arrOf(w);if(a[i]){if(el.value)a[i].date=el.value;else delete a[i].date;}});
+  document.querySelectorAll('[data-fc]').forEach(el=>{const [w,i]=el.dataset.fc.split(':');const a=arrOf(w);if(a[i])a[i].cat=el.value;});
+  document.querySelectorAll('[data-gn]').forEach(el=>{const g=S.goals[+el.dataset.gn];if(g)g.name=el.value;});
+  document.querySelectorAll('[data-gy]').forEach(el=>{const g=S.goals[+el.dataset.gy];if(g)g.ym=el.value;});
+  document.querySelectorAll('[data-gt]').forEach(el=>{const g=S.goals[+el.dataset.gt];if(g)g.target=+el.value||0;});
+  const pm=(sel,f)=>document.querySelectorAll(`[${sel}]`).forEach(el=>{const [w,i]=el.getAttribute(sel).split(':');const m=S.methods[w][+i];if(m)f(m,el);});
+  pm('data-pn',(m,el)=>m.name=el.value);pm('data-pt',(m,el)=>m.type=el.value);pm('data-pl',(m,el)=>m.limit=+el.value||0);
+  pm('data-pu',(m,el)=>m.used=+el.value||0);pm('data-pa',(m,el)=>m.asOf=el.value);pm('data-pd',(m,el)=>m.day=+el.value||'');pm('data-po',(m,el)=>m.note=el.value);pm('data-ps',(m,el)=>m.salary=el.checked);
+  pm('data-pb',(m,el)=>{const v=el.value===''?null:+el.value;if(v!==(m.balance??null)){m.balance=v;m.balAt=Date.now();}});
+  document.querySelectorAll('[data-ff]').forEach(el=>{const [w,i]=el.dataset.ff.split(':');const a=arrOf(w);if(a[i])a[i].from=el.value;});
+  document.querySelectorAll('[data-sf]').forEach(el=>{const s=S.subs[+el.dataset.sf];if(s)s.from=el.value;});
+  readSubs();
+}
+async function save(msgEl){
+  if(!db){msgEl.textContent='今は保存できない状態だよ（画面の中だけ反映）';return;}
+  try{await db.doc('settings/main').set(JSON.parse(JSON.stringify(S)));msgEl.textContent=msgEl.id==='sMsg'?'保存完了':'保存したよ ✓';setTimeout(()=>msgEl.textContent='',2500);}
+  catch(err){msgEl.textContent='保存できなかった：'+(err&&err.code||'');}
+}
+
+// 効果音
+let SND=true;try{SND=localStorage.getItem('koa_snd')!=='0';}catch(e){}
+let AC=null;
+function tone(f1,f2,dur,type='sine',vol=.07,delay=0){
+  try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();
+    const t=AC.currentTime+delay,o=AC.createOscillator(),g=AC.createGain();
+    o.type=type;o.frequency.setValueAtTime(f1,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+dur);
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.connect(g).connect(AC.destination);o.start(t);o.stop(t+dur+.02);}catch(e){}
+}
+const SFX={
+  tap:()=>tone(1400,1100,.05,'sine',.04),
+  tab:()=>{tone(880,1320,.07,'sine',.05);tone(1760,null,.05,'sine',.025,.05);},
+  open:()=>tone(600,900,.08,'triangle',.05),
+  close:()=>tone(900,600,.08,'triangle',.05),
+  ok:()=>{tone(784,null,.09,'sine',.06);tone(1046,null,.09,'sine',.06,.08);tone(1568,null,.16,'sine',.05,.16);},
+  del:()=>{tone(500,220,.14,'square',.03);},
+  page:()=>tone(1000,1500,.06,'sine',.04),
+};
+function sfx(n){if(SND&&SFX[n])SFX[n]();}
+function sndIcon(){$('sndBtn').innerHTML=LI(SND?'volume-2':'volume-x');icons();}
+$('sndBtn').onclick=e=>{e.stopPropagation();SND=!SND;try{localStorage.setItem('koa_snd',SND?'1':'0');}catch(_){};sndIcon();if(SND)sfx('ok');};
+document.addEventListener('click',e=>{
+  const t=e.target;
+  if(t.closest('#sndBtn'))return;
+  const b=t.closest('button,summary,label.btn,#fab,.xp');if(!b)return;
+  if(b.matches('summary')){const d=b.parentElement;sfx(d.open?'close':'open');return;}
+  if(b.closest('nav'))return sfx('tab');
+  if(b.id==='prevP'||b.id==='nextP'||b.id==='exPrev'||b.id==='exNext')return sfx('page');
+  if(b.dataset.del||b.dataset.exdel||b.dataset.mvdel||b.dataset.fd||b.dataset.sx||b.dataset.px||b.dataset.cx||b.dataset.gx||b.id==='incReset')return sfx('del');
+  if(['fAdd','xAdd','incSave','mvAdd','sSaveBtn','cBtn'].includes(b.id))return sfx('ok');
+  sfx('tap');
+},true);
+
+// 近未来セレクト
+function selLabel(s){const o=s.options[s.selectedIndex];return o?o.text:'';}
+function enhanceSel(s){if(s.dataset.fx)return;s.dataset.fx='1';const b=document.createElement('button');b.type='button';b.className='selbtn '+(s.className||'');const st=s.getAttribute('style');if(st)b.setAttribute('style',st);
+  b.innerHTML='<span class="sv"></span><i class="sch"></i>';b._sel=s;s._btn=b;s.after(b);s.classList.add('selhid');syncSel(s);
+  b.addEventListener('click',e=>{e.preventDefault();openSheet(s);});}
+function syncSel(s){if(s._btn){const v=s._btn.querySelector('.sv'),t=selLabel(s)||'選択';if(v.textContent!==t)v.textContent=t;s._btn.classList.toggle('ph',!s.value);}}
+function dLabel(i){const v=i.value;if(!v)return '';if(i.type==='month'){const [y,m]=v.split('-').map(Number);return `${y}年${m}月`;}const d=new Date(v+'T00:00');if(isNaN(d))return v;return `${d.getFullYear()!==todayD.getFullYear()?d.getFullYear()+'年':''}${d.getMonth()+1}月${d.getDate()}日（${'日月火水木金土'[d.getDay()]}）`;}
+function enhanceDate(i){if(i.dataset.fx)return;i.dataset.fx='1';const b=document.createElement('button');b.type='button';b.className='selbtn datebtn '+(i.className||'');const st=i.getAttribute('style');if(st)b.setAttribute('style',st);
+  b.innerHTML='<span class="sv"></span><i class="sch scal"></i>';b._sel=i;i._btn=b;i.after(b);i.classList.add('selhid');syncDate(i);
+  b.addEventListener('click',e=>{e.preventDefault();openDateSheet(i);});}
+function syncDate(i){if(i._btn){const v=i._btn.querySelector('.sv'),t=dLabel(i)||(i.type==='month'?'年月を選ぶ':'日付を選ぶ');if(v.textContent!==t)v.textContent=t;i._btn.classList.toggle('ph',!i.value);}}
+function setVal(i,v){i.value=v;(i.type==='month'||i.type==='date')?syncDate(i):syncSel(i);i.dispatchEvent(new Event('input',{bubbles:true}));i.dispatchEvent(new Event('change',{bubbles:true}));}
+function openDateSheet(i){
+  const ov=document.createElement('div');ov.className='sheetov';document.body.appendChild(ov);
+  const cur=i.value?(i.type==='month'?new Date(i.value+'-01T00:00'):new Date(i.value+'T00:00')):new Date(todayD);
+  let y=cur.getFullYear(),m=cur.getMonth();
+  const close=()=>{ov.classList.remove('on');setTimeout(()=>ov.remove(),200);};
+  const draw=()=>{
+    let body='';
+    if(i.type==='month'){
+      body=`<div class="calhd"><button class="mini" data-dy="-1">‹</button><b>${y}年</b><button class="mini" data-dy="1">›</button></div><div class="mgrid">${[...Array(12)].map((_,k)=>{const v=`${y}-${String(k+1).padStart(2,'0')}`;return `<button class="dcell${v===i.value?' sel':''}${y===todayD.getFullYear()&&k===todayD.getMonth()?' t':''}" data-pick="${v}">${k+1}月</button>`;}).join('')}</div>`;
+    }else{
+      const first=new Date(y,m,1).getDay(),last=new Date(y,m+1,0).getDate();let cells='';for(let k=0;k<first;k++)cells+='<span></span>';
+      for(let d=1;d<=last;d++){const v=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;const dow=(first+d-1)%7;cells+=`<button class="dcell${v===i.value?' sel':''}${v===todayStr?' t':''}${dow===0?' sun':dow===6?' sat':''}" data-pick="${v}">${d}</button>`;}
+      body=`<div class="calhd"><button class="mini" data-dm="-1">‹</button><b>${y}年${m+1}月</b><button class="mini" data-dm="1">›</button></div><div class="dgrid">${['日','月','火','水','木','金','土'].map((w,k)=>`<span class="cw${k===0?' sun':k===6?' sat':''}">${w}</span>`).join('')}${cells}</div>`;
+    }
+    ov.innerHTML=`<div class="sheet"><div class="sbar"></div><div class="dsel">${i.value?dLabel(i):'未選択'}</div>${body}<div class="btns"><button class="btn sub" data-dclr="1">消す</button><button class="btn grad" data-dtoday="1">${i.type==='month'?'今月':'今日'}</button></div></div>`;
+  };
+  draw();requestAnimationFrame(()=>ov.classList.add('on'));
+  ov.addEventListener('click',e=>{const t=e.target.closest('button');
+    if(!t){if(!e.target.closest('.sheet'))close();return;}
+    if(t.dataset.dm){m+=+t.dataset.dm;if(m<0){m=11;y--;}if(m>11){m=0;y++;}draw();return;}
+    if(t.dataset.dy){y+=+t.dataset.dy;draw();return;}
+    if(t.dataset.pick){setVal(i,t.dataset.pick);close();return;}
+    if(t.dataset.dclr){setVal(i,'');close();return;}
+    if(t.dataset.dtoday){setVal(i,i.type==='month'?todayStr.slice(0,7):todayStr);close();return;}});
+}
+function syncSels(){document.querySelectorAll('select').forEach(s=>{if(!s.dataset.fx)enhanceSel(s);else syncSel(s);});
+  document.querySelectorAll('input[type=date],input[type=month]').forEach(i=>{if(!i.dataset.fx)enhanceDate(i);else syncDate(i);});document.querySelectorAll('.selbtn').forEach(b=>{if(!b._sel||!b._sel.isConnected)b.remove();});}
+function openSheet(s){
+  const ov=document.createElement('div');ov.className='sheetov';
+  let html='';const opt=o=>`<button class="sopt${o.value===s.value?' on':''}" data-v="${esc(o.value)}"><i class="sdot"></i><span>${esc(o.text)}</span></button>`;
+  [...s.children].forEach(c=>{if(c.tagName==='OPTGROUP'){const l=c.label;html+=`<div class="sgh">${l==='MARU'?otag('マル'):l==='KOKOA'?otag('心愛'):esc(l)}</div>`+[...c.children].map(opt).join('');}else html+=opt(c);});
+  ov.innerHTML=`<div class="sheet"><div class="sbar"></div><div class="slist">${html}</div></div>`;document.body.appendChild(ov);
+  requestAnimationFrame(()=>ov.classList.add('on'));
+  const close=()=>{ov.classList.remove('on');setTimeout(()=>ov.remove(),200);};
+  ov.addEventListener('click',e=>{const b=e.target.closest('.sopt');if(b){s.value=b.dataset.v;syncSel(s);s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}));close();return;}if(!e.target.closest('.sheet'))close();});
+  const on=ov.querySelector('.sopt.on');if(on)on.scrollIntoView({block:'center'});
+}
+new MutationObserver(()=>{clearTimeout(window.__selT);window.__selT=setTimeout(syncSels,0);}).observe(document.body,{childList:true,subtree:true});
+document.addEventListener('click',()=>setTimeout(syncSels,0));
+
+// タブ
+function showTab(t){
+  document.querySelectorAll('.tab').forEach(s=>s.classList.toggle('on',s.id==='tab-'+t));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
+  $('fab').style.visibility=t==='ai'?'hidden':'';
+  window.scrollTo({top:0});
+}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+
+document.addEventListener('click',e=>{
+  if(!e.target.closest('button,input,select,a,label')){const x=e.target.closest('.xp');if(x)x.classList.toggle('open');}
+  const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.goto){showTab(t.dataset.goto);if(t.dataset.open)$(t.dataset.open).open=true;}
+  if(t.dataset.add){readSettings();S.fixed[t.dataset.add].push({label:'',amount:0,cat:'その他'});renderSettings();}
+  if(t.dataset.fd){readSettings();const [w,i]=t.dataset.fd.split(':');arrOf(w).splice(+i,1);renderSettings();render();}
+  if(t.dataset.sx){readSettings();S.subs.splice(+t.dataset.sx,1);renderSubs();render();}
+  if(t.dataset.cx){readSettings();S.debt.creditors.splice(+t.dataset.cx,1);renderSettings();render();}
+  if(t.dataset.gx){readSettings();S.goals.splice(+t.dataset.gx,1);renderSettings();render();}
+  if(t.dataset.del){delExp(t.dataset.del);}
+  if(t.dataset.go){readSettings();P=t.dataset.go;renderSettings();render();showTab('home');}
+  if(t.dataset.padd){readSettings();S.methods[t.dataset.padd].push({name:'',type:'cash'});renderSettings();icons();}
+  if(t.dataset.px){readSettings();const [w,i]=t.dataset.px.split(':');S.methods[w].splice(+i,1);renderSettings();render();}
+  if(t.dataset.pm!==undefined){selPay=t.dataset.pm;renderPaySeg();}
+  if(t.dataset.mvdel){delMove(t.dataset.mvdel);}
+  if(t.id==='exOpen'){exEdit=null;$('xAdd').textContent='追加する';exOpen=!exOpen;$('exForm').classList.toggle('on',exOpen);if(exOpen){$('xMemo').value='';$('xLabel').value='';$('xAmt').value='';$('xDate').value='';$('xLabel').focus();}}
+  if(t.dataset.exed){const [k,i]=t.dataset.exed.split(':');const x=(S.extras[k]||[])[+i];if(x){exEdit={k,i:+i};exOpen=true;
+    {const [t,mm]=splitL(x.label||'');$('xLabel').value=t;$('xMemo').value=mm;}$('xAmt').value=x.amount||'';$('xDate').value=x.date||'';$('xCat').value=CATS.includes(catOf(x))?catOf(x):'その他';$('xWho').value=x.who||'自分';
+    $('xAdd').textContent='保存する';$('exForm').classList.add('on');$('exForm').scrollIntoView({behavior:'smooth',block:'center'});}}
+  if(t.id==='xAdd'){addExtra();}
+  if(t.id==='incOpen'){const ia=incOf(P);$('iMe').value=ia.me;$('iKo').value=ia.ko;$('incForm').classList.add('on');$('incForm').scrollIntoView({behavior:'smooth',block:'center'});}
+  if(t.id==='incSave'||t.id==='incReset'){S.incomeActual=S.incomeActual||{};
+    if(t.id==='incSave')S.incomeActual[P]={me:+$('iMe').value||0,ko:+$('iKo').value||0};else delete S.incomeActual[P];
+    $('incForm').classList.remove('on');render();save($('status'));}
+  if(t.dataset.exdel){const [k,i]=t.dataset.exdel.split(':');(S.extras[k]||[]).splice(+i,1);renderSettings();render();save($('status'));}
+  if(t.dataset.paid){S.paid=S.paid||{};const k=t.dataset.paid;if(S.paid[k])delete S.paid[k];else S.paid[k]=Date.now();render();save($('status'));return;}
+  if(t.dataset.cat){selCat=t.dataset.cat;renderCatGrid();}
+  if(t.dataset.w){selWho=t.dataset.w;document.querySelectorAll('#whoSeg button').forEach(b=>b.classList.toggle('on',b===t));selPay='';renderPaySeg();}
+});
+$('tab-set').addEventListener('input',()=>{readSettings();subTotals();render();});
+$('tab-set').addEventListener('change',e=>{if(e.target.dataset.pt){readSettings();renderSettings();icons();}});
+$('exPrev').onclick=()=>{readSettings();P=shiftKey(P,-1);renderSettings();render();};
+$('exNext').onclick=()=>{readSettings();P=shiftKey(P,1);renderSettings();render();};
+$('exAdd').onclick=()=>{readSettings();arrOf('ex').push({label:'',amount:0,cat:'その他'});renderSettings();};
+$('subAdd').onclick=()=>{readSettings();S.subs.push({name:'',amount:0,day:'',who:'自分'});renderSubs();};
+$('credAdd').onclick=()=>{readSettings();S.debt.creditors.push({name:'',settle:0,remain:0});renderSettings();};
+$('goalAdd').onclick=()=>{readSettings();S.goals.push({name:'',ym:'',target:0});renderSettings();};
+$('sSaveBtn').onclick=()=>{readSettings();render();save($('sMsg'));};
+$('prevP').onclick=()=>{readSettings();P=shiftKey(P,-1);renderSettings();render();};
+$('nextP').onclick=()=>{readSettings();P=shiftKey(P,1);renderSettings();render();};
+$('mAll').onclick=()=>{mode='all';$('mAll').classList.add('on');$('mRec').classList.remove('on');render();};
+$('mRec').onclick=()=>{mode='rec';$('mRec').classList.add('on');$('mAll').classList.remove('on');render();};
+
+// 記録
+function renderCatGrid(){renderCatGrid0();icons();}
+function renderCatGrid0(){$('catGrid').innerHTML=CATS.map(c=>`<button class="cat${c===selCat?' on':''}" data-cat="${c}">${LI(ICN[c])}${c.replace('・','<br>')}</button>`).join('');}
+$('fDate').value=todayStr;
+$('fAdd').onclick=async()=>{
+  const amt=+$('fAmount').value||0;if(amt<=0){$('fAmount').focus();$('fMsg').textContent='金額を入れてね';return;}
+  const rec={item:$('fItem').value.trim(),date:$('fDate').value||todayStr,amount:amt,category:selCat,who:selWho,kind:selWho==='2人'||LIVING.includes(selCat)?'2人の生活費':'個人',shop:$('fShop').value.trim(),memo:pendingMemo||'',method:(selPay.split('|')[1]||''),payer:(selPay.split('|')[0]||''),ts:($('fDate').value||todayStr)===todayStr?Date.now():new Date(($('fDate').value)+'T12:00').getTime()};
+  if(rec.category==='ガソリン'&&window.gasExtra)Object.assign(rec,window.gasExtra());
+  const clear=()=>{pendingMemo='';window.gasClear&&gasClear();$('camBox').hidden=true;$('fItem').value='';$('fAmount').value='';$('fShop').value='';$('fMsg').textContent=`${yen(amt)} を記録したよ`;setTimeout(()=>$('fMsg').textContent='',2500);};
+  if(!db){EXP.push({...rec,id:'local'+Date.now()});render();clear();return;}
+  try{await db.collection('expenses').add(rec);clear();}
+  catch(err){$('fMsg').textContent='追加できなかった：'+(err&&err.code||'');}
+};
+$('mvDate').value=todayStr;
+$('mvAdd').onclick=async()=>{
+  const amt=+$('mvAmt').value||0,from=$('mvFrom').value,to=$('mvTo').value,dt=$('mvDate').value||todayStr;
+  if(amt<=0){$('mvMsg').textContent='金額を入れてね';return;}
+  if(!from||from===to){$('mvMsg').textContent='移動元と移動先を別にしてね';return;}
+  const v={from,to,amount:amt,date:dt,ts:dt===todayStr?Date.now():new Date(dt+'T12:00').getTime()};
+  const done=()=>{$('mvAmt').value='';$('mvMsg').textContent=`${from.split('|')[1]} → ${to.split('|')[1]} ${yen(amt)} を記録したよ`;setTimeout(()=>$('mvMsg').textContent='',2500);};
+  if(!db){MOV.push({...v,id:'local'+Date.now()});render();done();return;}
+  try{await db.collection('moves').add(v);done();}catch(err){$('mvMsg').textContent='記録できなかった：'+(err&&err.code||'');}
+};
+async function delMove(id){
+  if(!db){MOV=MOV.filter(v=>v.id!==id);render();return;}
+  try{await db.collection('moves').doc(id).delete();}catch(err){$('status').textContent='削除できなかった';}
+}
+function xiToOpts(){const L=$('xiWho').value==='心愛'?S.methods.ko:S.methods.me;$('xiTo').innerHTML='<option value="">入金先（なくてOK）</option>'+L.filter(m=>!isCredit(m)).map(m=>`<option value="${esc(m.name)}">${esc(m.name)}</option>`).join('');}
+$('xiWho').onchange=xiToOpts;
+$('xiOpen').onclick=()=>{const f=$('xiForm');const on=!f.classList.contains('on');f.classList.toggle('on',on);if(on){xiToOpts();$('xiDate').value=todayStr;$('xiLabel').focus();}};
+$('xiAdd').onclick=async()=>{const amt=+$('xiAmt').value||0,label=$('xiLabel').value.trim(),dt=$('xiDate').value||todayStr;if(amt<=0){$('xiAmt').focus();return;}
+  const who=$('xiWho').value,to=$('xiTo').value;const k=keyOf(dt);S.extraIncome=S.extraIncome||{};
+  (S.extraIncome[k]=S.extraIncome[k]||[]).push({label:label||'臨時収入',amount:amt,who,date:dt,to:to?whoName(who)+'|'+to:'',ts:dt===todayStr?Date.now():new Date(dt+'T12:00').getTime()});
+  $('xiForm').classList.remove('on');$('xiLabel').value='';$('xiAmt').value='';render();await save($('status'));$('status').textContent=`臨時収入 ${yen(amt)} を追加したよ`;};
+document.addEventListener('click',e=>{const b=e.target.closest('[data-xidel]');if(!b)return;e.preventDefault();const [k,i]=b.dataset.xidel.split(':');((S.extraIncome||{})[k]||[]).splice(+i,1);render();save($('status'));});
+async function addExtra(){
+  const amt=+$('xAmt').value||0,ttl=$('xLabel').value.trim(),memo=$('xMemo').value.trim(),label=ttl&&memo?`${ttl}（${memo}）`:ttl,dt=$('xDate').value;
+  if(!label){$('xLabel').focus();return;}
+  if(amt<=0){$('xAmt').focus();return;}
+  let k=dt?keyOf(dt):P;const it={label,amount:amt,cat:$('xCat').value,who:$('xWho').value};if(dt)it.date=dt;
+  if(exEdit){const old=S.extras[exEdit.k]||[];if(!dt)k=exEdit.k;
+    if(k===exEdit.k&&old[exEdit.i])old[exEdit.i]=it;else{old.splice(exEdit.i,1);(S.extras[k]=S.extras[k]||[]).push(it);}
+    exEdit=null;$('xAdd').textContent='追加する';}
+  else (S.extras[k]=S.extras[k]||[]).push(it);
+  exOpen=false;$('exForm').classList.remove('on');$('xMemo').value='';$('xLabel').value='';$('xAmt').value='';$('xDate').value='';renderSettings();render();
+  await save($('status'));
+  $('status').textContent=`「${label}」を保存したよ`;
+}
+async function delExp(id){
+  if(!db){EXP=EXP.filter(e=>e.id!==id);render();return;}
+  try{await db.collection('expenses').doc(id).delete();}catch(err){$('status').textContent='削除できなかった';}
+}
+
+// レシート読み取り
+let samp=null,pendingMemo='',scanCtl=null;
+const VAR_CATS=CATS;
+async function readReceipt(file){
+  if(!file)return;
+  showTab('rec');
+  $('camBox').hidden=false;$('scanWrap').classList.add('busy');
+  try{$('camImg').src=URL.createObjectURL(file);}catch(e){}
+  $('camMsg').textContent='読み取り中…（10〜30秒くらい）';$('camItems').innerHTML='';
+  if(!samp){$('camMsg').textContent='この画面ではレシート読み取りが使えないよ';$('scanWrap').classList.remove('busy');return;}
+  scanCtl=new AbortController();
+  const prompt=`これは日本のお店のレシートの写真です。内容を読み取って、次の形のJSONだけを返してください。
+{"shop":"店名","date":"YYYY-MM-DD または null","total":支払い合計(税込・整数),"category":"カテゴリー","item":"何を買ったかの短い要約(15文字以内)","items":[{"name":"品名","price":整数}]}
+- categoryは次のどれか1つ: ${VAR_CATS.join('、')}
+- スーパーの食材は「食費」、飲食店は「外食」、ドラッグストアの日用品は「日用品」、ガソリンスタンドは「車」。
+- 年が読めないときは今日(${todayStr})に近い日付にしてください。
+- itemsは主な品物を最大15個まで。
+- レシートではない、または読めないときは {"error":"理由を日本語で短く"} だけを返してください。`;
+  try{
+    const r=await samp.json(prompt,{images:[file],signal:scanCtl.signal});
+    $('scanWrap').classList.remove('busy');
+    if(!r||r.error){$('camMsg').textContent='読み取れなかった：'+(r&&r.error||'もう一度撮ってみてね');return;}
+    const tot=Math.round(+String(r.total??'').replace(/[^\d.]/g,'')||0);
+    if(tot>0)$('fAmount').value=tot;
+    if(r.shop)$('fShop').value=String(r.shop).slice(0,40);
+    if(r.item)$('fItem').value=String(r.item).slice(0,40);
+    if(r.date&&/^\d{4}-\d{2}-\d{2}$/.test(r.date))$('fDate').value=r.date;
+    if(CATS.includes(r.category)){selCat=r.category;renderCatGrid();}
+    const its=Array.isArray(r.items)?r.items.slice(0,15):[];
+    pendingMemo=its.map(x=>`${x.name} ${x.price}`).join(' / ').slice(0,600);
+    $('camItems').innerHTML=its.map(x=>`<div><span>${esc(x.name)}</span><span class="num">${yen(+x.price||0)}</span></div>`).join('');
+    $('camMsg').innerHTML=`<b style="color:var(--ok)">読み取ったよ！</b> 金額とカテゴリーを確認して「記録する」を押してね`;
+  }catch(e){
+    $('scanWrap').classList.remove('busy');
+    const M={not_granted:'Claudeを使う許可がなかったよ',sampling_disabled:'このアカウントでは使えないみたい',images_unavailable:'この画面では写真を送れないよ',image_rejected:'この写真は読めなかった。別の写真で試してね',rate_limited:'今は混んでるみたい。少し待ってからもう一度',invalid_json:'うまく読み取れなかった。もう一度撮ってみてね',session_expired:'もう一度ログインしてね',cancelled:'やめたよ'};
+    $('camMsg').textContent=M[e&&e.code]||'読み取りに失敗した。もう一度試してね';
+  }
+}
+$('albIn').onchange=e=>{readReceipt(e.target.files[0]);e.target.value='';};
+$('fabIn').onchange=e=>{readReceipt(e.target.files[0]);e.target.value='';};
+(async()=>{
+  try{samp=window.claude&&await window.claude.use('sample');}catch(e){samp=null;}
+  let ok=!!samp;
+  if(samp){try{const l=await samp.limits();ok=!!(l&&l.images);}catch(e){ok=false;}}
+  if(!ok){$('camRow').style.display='none';$('fab').style.display='none';$('camOff').style.display='block';}
+})();
+
+
+// チェッカー
+$('cBtn').onclick=()=>{
+  const price=+$('cPrice').value||0,need=$('cNeed').value,item=$('cItem').value.trim()||'それ';
+  const box=$('verdict');
+  if(price<=0){box.className='verdict show warn';box.innerHTML='<div class="v">値段を入れてね</div>';return;}
+  const c=calc(),left=c.left;
+  const per=Math.max(1,c.inc-c.fix-c.subs-c.sv-c.lb);
+  let cls,title,msg,tips=[];
+  if(left<=0){
+    if(need==='must'){cls='warn';title='必要なら買う。でも工夫を';msg=`この期間の自由なお金はもう残ってない（${yen(left)}）。必要なら生活費を削るか、貯金から出して来月戻そう。`;tips=['中古・型落ち・ポイントで安くできないか先に見る'];}
+    else{cls='ng';title='この期間はやめておこう';msg=`この期間の自由なお金はもう残ってないよ（${yen(left)}）。次の給料日以降にもう一度判定してね。`;tips=['欲しいものリストにメモしておく','1週間たっても欲しいなら本物'];}
+  }else if(price<=left*0.5){
+    cls='ok';title='買ってOK！';msg=`${esc(item)}（${yen(price)}）を買っても、この期間はまだ${yen(left-price)}残るよ。`;
+    tips=need==='impulse'?['なんとなくなら、一晩おいてから決めるともっと安心']:['クーポンやポイント還元だけチェック'];
+  }else if(price<=left){
+    if(need==='impulse'){cls='warn';title='買えるけど、ちょっと待って';msg=`買うと残りが${yen(left-price)}になって、給料日前がきつくなるよ。`;tips=['3日待ってもまだ欲しいか確かめる'];}
+    else{cls='warn';title='買える。ただしこの期間はこれで最後';msg=`買うと残りは${yen(left-price)}。このあとの外食や買い物は控えめにね。`;tips=['セール・中古で安くできないか見る','2人の予定（デートなど）がないか確認'];}
+  }else{
+    const short=price-left,m=Math.ceil(short/per);
+    if(need==='must'){cls='warn';title='必要なら買う。でも計画的に';msg=`残り${yen(left)}では${yen(short)}足りない。貯金から出して、来月以降に戻そう。`;tips=['分割払い・リボ払いは使わない'];}
+    else if(m<=3){cls='warn';title=`今は待って、${m}ヶ月後に`;msg=`この期間だと${yen(short)}足りない。自由なお金を取っておけば、約${m}ヶ月後に貯金を減らさず買えるよ。`;tips=['賞与（7月・12月）のタイミングも狙い目','待つ間にセールや中古が出たらラッキー'];}
+    else{cls='ng';title='今は買わない方がいい';msg=`${yen(price)}は2人の自由なお金の約${Math.ceil(price/per)}ヶ月分。今買うと結婚・出産用の貯金に手をつけることになるよ。`;tips=['安いモデル・中古で代わりにならないか考える','分割払い・リボ払いは使わない'];}
+  }
+  if(c.ex>0&&cls!=='ok')tips.push('この期間は追加の支払いがある。次の給料期間まで待つだけで余裕が変わるよ');
+  box.className='verdict show '+cls;
+  box.innerHTML=`<div class="v">${title}</div><div>${msg}</div>${tips.length?'<ul>'+tips.map(t=>'<li>'+t+'</li>').join('')+'</ul>':''}`;
+};
+
+// データ読み込み
+function normalize(d){
+  const s=Object.assign(JSON.parse(JSON.stringify(DEFAULT_SETTINGS)),JSON.parse(JSON.stringify(d||{})));
+  s.fixed=s.fixed||{me:[],ko:[]};s.fixed.me=s.fixed.me||[];s.fixed.ko=s.fixed.ko||[];
+  s.extras=s.extras||{};s.incomes=s.incomes||{me:0,ko:0};s.subs=s.subs||[];s.goals=s.goals||[];
+  s.debt=Object.assign({},DEFAULT_SETTINGS.debt,s.debt||{});s.incomeActual=s.incomeActual||{};s.paid=s.paid||{};s.extraIncome=s.extraIncome||{};s.methods=s.methods||{me:[],ko:[]};s.methods.me=s.methods.me||[];s.methods.ko=s.methods.ko||[];return s;
+}
+$('xCat').innerHTML=CATS.map(c=>`<option${c==='その他'?' selected':''}>${c}</option>`).join('');
+renderCatGrid();renderSettings();renderSubs();render();icons();sndIcon();
+(async()=>{
+  const to=setTimeout(()=>{$('status').textContent='データにまだつながらないよ';},10000);
+  try{db=window.claude&&await window.claude.use('db');}catch(e){db=null;}
+  if(!db){clearTimeout(to);$('status').textContent='記録を読み込めない状態だよ';return;}
+  db.doc('settings/main').onSnapshot(snap=>{
+    if(snap.exists)S=normalize(snap.data());
+    renderSettings();renderSubs();render();
+  },()=>{$('status').textContent='設定を読み込めなかった';});
+  db.collection('moves').onSnapshot(snap=>{MOV=snap.docs.map(d=>({...d.data(),id:d.id}));render();},()=>{});
+  db.collection('expenses').onSnapshot(snap=>{
+    clearTimeout(to);
+    EXP=snap.docs.map(d=>({...d.data(),id:d.id}));
+    $('status').textContent=`記録${EXP.length}件・2人で共有中`;
+    render();
+  },()=>{clearTimeout(to);$('status').textContent='記録を読み込めなかった';});
+})();
+</script>
+<!-- ===== FX LAYER ===== -->
+<style>
+  @property --ang{syntax:'<angle>';inherits:false;initial-value:0deg}
+  .testtag{font-family:"Orbitron",sans-serif;font-size:8.5px;letter-spacing:.2em;color:#0b0716;background:linear-gradient(90deg,#6ab8ff,#c6a8ff);padding:2px 6px 1px;border-radius:4px;box-shadow:0 0 10px rgba(106,184,255,.6)}
+  .top h1{white-space:nowrap}
+
+  /* ① 起動シーケンス */
+  #boot{position:fixed;inset:0;z-index:999;background:#07040f;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;overflow:hidden;
+    transition:clip-path .7s cubic-bezier(.7,0,.2,1),opacity .7s;clip-path:inset(0 0 0 0)}
+  #boot.out{clip-path:inset(50% 0 50% 0);opacity:0}
+  #boot::before{content:"";position:absolute;inset:0;background:
+    linear-gradient(rgba(190,155,255,.06) 1px,transparent 1px) 0 0/24px 24px,
+    linear-gradient(90deg,rgba(190,155,255,.06) 1px,transparent 1px) 0 0/24px 24px;animation:gridmove 3s linear infinite}
+  @keyframes gridmove{to{background-position:0 24px,24px 0}}
+  #boot .bl{position:relative;width:96px;height:96px}
+  #boot .bl img{width:96px;height:96px;border-radius:22px;animation:bootlogo 1.1s cubic-bezier(.2,1.4,.4,1) both;box-shadow:0 0 30px rgba(198,168,255,.6)}
+  #boot .bl::before,#boot .bl::after{content:"";position:absolute;inset:-14px;border-radius:50%;border:2px solid transparent;border-top-color:#c6a8ff;border-right-color:#6ab8ff;animation:spin 1s linear infinite;filter:drop-shadow(0 0 6px #c6a8ff)}
+  #boot .bl::after{inset:-24px;animation-duration:1.6s;animation-direction:reverse;border-top-color:#ff7ab6;border-right-color:transparent;border-bottom-color:#c6a8ff}
+  @keyframes bootlogo{from{transform:scale(.2) rotate(-30deg);opacity:0;filter:blur(8px)}to{transform:none;opacity:1;filter:none}}
+  #boot .bt{position:relative;font-family:"Orbitron",sans-serif;font-weight:800;letter-spacing:.4em;font-size:15px;color:#fff;text-shadow:0 0 14px #c6a8ff;margin-top:14px}
+  #boot .bc{position:relative;font-family:"Orbitron",monospace;font-size:9.5px;color:#9f93bf;letter-spacing:.12em;height:52px;width:230px;overflow:hidden;line-height:1.45}
+  #boot .bc div{animation:typein .25s both}
+  @keyframes typein{from{opacity:0;transform:translateX(-8px)}}
+  #boot .bp{position:relative;width:230px;height:3px;background:rgba(190,155,255,.15);border-radius:2px;overflow:hidden}
+  #boot .bp i{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,#6ab8ff,#c6a8ff,#ff7ab6);box-shadow:0 0 12px #c6a8ff;transition:width .18s}
+  #boot .bk{position:relative;font-size:10px;color:#6c6290;letter-spacing:.1em}
+
+  /* ④ 数字のカウントアップ */
+  .num.counting{text-shadow:0 0 22px rgba(106,184,255,.9),2px 0 rgba(255,122,182,.6),-2px 0 rgba(106,184,255,.6)!important}
+
+  /* ⑦ 四隅のHUD枠 */
+  .fx-hud{position:absolute!important;inset:-1px;pointer-events:none;z-index:4!important;opacity:0;transition:opacity .25s,inset .25s}
+  .fx-hud i{position:absolute;width:12px;height:12px;border:2px solid #6ab8ff;filter:drop-shadow(0 0 4px #6ab8ff)}
+  .fx-hud i:nth-child(1){left:0;top:0;border-right:0;border-bottom:0;border-top-left-radius:8px}
+  .fx-hud i:nth-child(2){right:0;top:0;border-left:0;border-bottom:0;border-top-right-radius:8px}
+  .fx-hud i:nth-child(3){left:0;bottom:0;border-right:0;border-top:0;border-bottom-left-radius:8px}
+  .fx-hud i:nth-child(4){right:0;bottom:0;border-left:0;border-top:0;border-bottom-right-radius:8px}
+  .hudon>.fx-hud{opacity:1;inset:-5px}
+
+  /* ⑨ 背景：回路を走る光 */
+  #bgfx .flow path{stroke-dasharray:14 700;animation:flow linear infinite;filter:drop-shadow(0 0 3px #e6dcff)}
+  @keyframes flow{from{stroke-dashoffset:714}to{stroke-dashoffset:0}}
+
+  /* ===== 新ナビ：コア＋軌道メニュー ===== */
+  #fab{bottom:calc(22px + env(safe-area-inset-bottom))!important}
+  .wrap{padding-bottom:130px}
+  #core{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:30;width:66px;height:66px;border-radius:50%;border:none;padding:0;cursor:pointer;
+    background:radial-gradient(circle at 50% 40%,#2a1d55,#0d0820 70%);color:#eadfff;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    box-shadow:0 0 0 1px rgba(198,168,255,.5),0 0 26px rgba(198,168,255,.45),inset 0 0 18px rgba(198,168,255,.25);transition:transform .35s cubic-bezier(.3,1.6,.4,1)}
+  #core::before{content:"";position:absolute;inset:-7px;border-radius:50%;padding:2px;background:conic-gradient(from var(--ang),transparent 0 55%,#6ab8ff 70%,#c6a8ff 80%,#ff7ab6 88%,transparent 95%);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:ringspin 3s linear infinite}
+  #core::after{content:"";position:absolute;inset:-14px;border-radius:50%;border:1px dashed rgba(198,168,255,.35);animation:spin 18s linear infinite}
+  @keyframes ringspin{to{--ang:360deg}}
+  #core svg.lucide{width:24px;height:24px;filter:drop-shadow(0 0 6px #c6a8ff);transition:transform .35s cubic-bezier(.3,1.6,.4,1),opacity .2s}
+  #core .cl{font-family:"Orbitron",sans-serif;font-size:7px;letter-spacing:.2em;margin-top:2px;color:var(--accent)}
+  #core.pop svg.lucide{animation:iconpop .5s cubic-bezier(.2,1.6,.4,1)}
+  @keyframes iconpop{0%{transform:scale(.4) rotate(-40deg)}100%{transform:none}}
+  #core.open{transform:translateX(-50%) scale(.9)}
+  #core.open svg.lucide{transform:rotate(90deg)}
+
+  #dial{position:fixed;inset:0;z-index:29;pointer-events:none;opacity:0;transition:opacity .3s}
+  #dial.on{pointer-events:auto;opacity:1}
+  #dial .dbg{position:absolute;inset:0;background:radial-gradient(circle at 50% calc(100% - 50px),rgba(40,25,90,.7),rgba(5,3,12,.85) 70%);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  #dial .hub{position:absolute;left:50%;bottom:calc(49px + env(safe-area-inset-bottom));width:0;height:0}
+  #dial .orb{position:absolute;border-radius:50%;border:1px solid rgba(198,168,255,.3);left:0;top:0;transform:translate(-50%,-50%) scale(.2);transition:transform .6s cubic-bezier(.2,1.2,.3,1)}
+  #dial.on .orb{transform:translate(-50%,-50%) scale(1)}
+  #dial .orb.o1{width:260px;height:260px;border-style:dashed}
+  #dial.on .orb.o1{animation:spin3 30s linear infinite reverse}
+  #dial .orb.o2{width:340px;height:340px;border-color:rgba(106,184,255,.18);transition-delay:.05s}
+  #dial .orb.o3{width:200px;height:200px;border:2px solid transparent;border-top-color:rgba(255,122,182,.5);border-left-color:rgba(198,168,255,.4)}
+  #dial.on .orb.o3{animation:spin3 6s linear infinite}
+  @keyframes spin3{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+  #dial svg.beams{position:absolute;left:-180px;top:-180px;width:360px;height:360px;overflow:visible;pointer-events:none}
+  #dial svg.beams line{stroke:url(#beamg);stroke-width:1.5;stroke-dasharray:140;stroke-dashoffset:140;transition:stroke-dashoffset .5s ease-out}
+  #dial.on svg.beams line{stroke-dashoffset:0}
+  .node{position:absolute;left:0;top:0;width:62px;height:62px;margin:-31px 0 0 -31px;border-radius:50%;border:1px solid rgba(198,168,255,.45);
+    background:radial-gradient(circle at 50% 35%,rgba(60,40,120,.9),rgba(14,9,30,.95));color:#cbbde9;display:flex;align-items:center;justify-content:center;padding:0;
+    box-shadow:0 0 14px rgba(198,168,255,.2);transform:translate(0,0) scale(.3);opacity:0;
+    transition:transform .5s cubic-bezier(.2,1.5,.35,1),opacity .3s,box-shadow .3s;transition-delay:calc(var(--k)*55ms)}
+  #dial.on .node{transform:translate(var(--x),var(--y)) scale(1);opacity:1}
+  .node svg.lucide{width:24px;height:24px}
+  .node b{position:absolute;top:100%;margin-top:6px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:11px;font-weight:700;color:#eadfff;letter-spacing:.06em}
+  .node small{position:absolute;bottom:100%;margin-bottom:3px;left:50%;transform:translateX(-50%);font-family:"Orbitron",sans-serif;font-size:7px;letter-spacing:.2em;color:var(--sub)}
+  .node.on{color:#1d1036;background:linear-gradient(135deg,#6ab8ff,#c6a8ff 55%,#ff7ab6);border-color:transparent;box-shadow:0 0 0 3px rgba(198,168,255,.25),0 0 26px rgba(198,168,255,.8)}
+  .node.on small{color:var(--accent)}
+  .node:active{transform:translate(var(--x),var(--y)) scale(.9)!important}
+  #dial .dt{position:absolute;left:0;right:0;top:22%;text-align:center;font-family:"Orbitron",sans-serif;font-size:11px;letter-spacing:.5em;color:var(--accent);text-shadow:0 0 10px var(--accent);opacity:0;transform:translateY(10px);transition:.4s .15s}
+  #dial.on .dt{opacity:1;transform:none}
+  #dial .dt small{display:block;font-family:"Noto Sans JP",sans-serif;font-size:11px;letter-spacing:.1em;color:var(--sub);margin-top:8px}
+
+  /* 画面切り替えのワープ */
+  #warp{position:fixed;inset:0;z-index:28;pointer-events:none;opacity:0;background:radial-gradient(circle at 50% calc(100% - 50px),rgba(198,168,255,.55),rgba(106,184,255,.15) 30%,transparent 60%)}
+  #warp.go{animation:warp .55s ease-out}
+  @keyframes warp{0%{opacity:1;transform:scale(.3)}100%{opacity:0;transform:scale(2.2)}}
+  .tab.on.warpin{animation:warpin .45s cubic-bezier(.2,.8,.2,1)}
+  @keyframes warpin{from{opacity:0;transform:scale(.96) translateY(14px);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+
+  #core{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  #core.charging{animation:charge .38s ease-in forwards}
+  @keyframes charge{to{transform:translateX(-50%) scale(1.12);box-shadow:0 0 0 2px rgba(198,168,255,.9),0 0 46px rgba(198,168,255,.9),inset 0 0 24px rgba(198,168,255,.5)}}
+  .node.hov{transform:translate(var(--x),var(--y)) scale(1.2)!important;box-shadow:0 0 0 3px rgba(106,184,255,.5),0 0 30px rgba(106,184,255,.9);border-color:#6ab8ff;transition-delay:0s!important}
+  #dial.drag .dt small{color:#eadfff}
+  @media (prefers-reduced-motion:reduce){#bgfx .flow path,#core::before,#core::after,#dial .orb{animation:none!important}}
+</style>
+<div id="boot" aria-hidden="true">
+  <div class="bl"><img src="logo.png" alt=""></div>
+  <div class="bt">COAMARU</div>
+  <div class="bc" id="bootLog"></div>
+  <div class="bp"><i id="bootBar"></i></div>
+  <div class="bk">タップでスキップ</div>
+</div>
+<div id="warp"></div>
+<div id="dial" aria-hidden="true">
+  <div class="dbg"></div>
+  <div class="dt">NAVIGATION<small>行き先を選んでね</small></div>
+  <div class="hub">
+    <div class="orb o2"></div><div class="orb o1"></div><div class="orb o3"></div>
+    <svg class="beams"><defs><linearGradient id="beamg" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#c6a8ff" stop-opacity=".9"/><stop offset="1" stop-color="#6ab8ff" stop-opacity=".2"/></linearGradient></defs></svg>
+  </div>
+</div>
+<button id="core" aria-label="メニュー"><i data-lucide="house"></i><span class="cl">HOME</span></button>
+<script>
+(()=>{
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const Q=(s,r=document)=>[...r.querySelectorAll(s)];
+
+
+// ① 起動シーケンス
+const boot=document.getElementById('boot');
+const LINES=['> INIT CORE……………OK','> LINK DATABASE……OK','> SYNC MARU × KOKOA…OK','> LOAD LEDGER………OK','> NEON SHADER………OK','> WELCOME HOME'];
+let bi=0,done=false;
+function endBoot(){if(done)return;done=true;boot.classList.add('out');setTimeout(()=>boot.remove(),700);try{sfx('ok');}catch(e){}}
+if(RM){boot.remove();}else{
+  boot.addEventListener('click',endBoot);
+  const log=document.getElementById('bootLog'),bar=document.getElementById('bootBar');
+  const step=()=>{if(done)return;if(bi<LINES.length){const d=document.createElement('div');d.textContent=LINES[bi];log.appendChild(d);if(log.children.length>3)log.firstChild.remove();bi++;bar.style.width=(bi/LINES.length*100)+'%';setTimeout(step,230);}else setTimeout(endBoot,260);};
+  setTimeout(step,450);
+}
+
+// ⑦ 触ったカードの四隅に青い枠
+function decorate(){Q('.card,.hero').forEach(c=>{if(c._fx)return;c._fx=1;const h=document.createElement('div');h.className='fx-hud';h.innerHTML='<i></i><i></i><i></i><i></i>';c.appendChild(h);});}
+decorate();
+let hc=null;const hudOff=()=>{if(hc){hc.classList.remove('hudon');hc=null;}};
+document.addEventListener('pointerdown',e=>{const c=e.target.closest('.card,.hero');hudOff();if(c){hc=c;c.classList.add('hudon');}},{passive:true});
+['pointerup','pointercancel'].forEach(ev=>addEventListener(ev,()=>setTimeout(hudOff,250),{passive:true,capture:true}));
+
+// ⑨ 背景：回路を走る光
+const bg=document.querySelector('#bgfx svg');
+if(bg&&!RM){const src=bg.querySelector('g[stroke="#c6a8ff"]');if(src){const g=document.createElementNS('http://www.w3.org/2000/svg','g');g.setAttribute('class','flow');g.setAttribute('fill','none');g.setAttribute('stroke-width','2.2');g.setAttribute('stroke-linecap','round');
+  Q('path',src).forEach((p,i)=>{const c=p.cloneNode();c.setAttribute('stroke',i%3===0?'#6ab8ff':i%3===1?'#f3e9ff':'#ff9cc8');c.style.animationDuration=(3+Math.random()*4).toFixed(1)+'s';c.style.animationDelay=(-Math.random()*6).toFixed(1)+'s';g.appendChild(c);});
+  src.after(g);}}
+
+// ④ 数字のカウントアップ
+const parseY=s=>{s=String(s||'');const m=s.match(/(−|-)?¥([\d,\.]+)(万)?/);if(!m)return null;let v=parseFloat(m[2].replace(/,/g,''));if(m[3])v*=10000;return m[1]?-v:v;};
+const prev=new Map(),ACT=new Map();
+function countUp(el,from,to,fmt){
+  if(RM||from===to){el.textContent=fmt(to);return;}
+  cancelAnimationFrame(ACT.get(el));el.classList.add('counting');
+  const t0=performance.now(),dur=900;
+  const f=t=>{const p=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-p,4);let s=fmt(from+(to-from)*e);
+    if(p<.7)s=s.replace(/\d/g,d=>Math.random()<.25*(1-p)?String(Math.floor(Math.random()*10)):d);
+    el.textContent=s;if(p<1)ACT.set(el,requestAnimationFrame(f));else{el.textContent=fmt(to);el.classList.remove('counting');}};
+  ACT.set(el,requestAnimationFrame(f));
+}
+const TARGETS=[['leftBig',v=>yen(v)],['hInc',v=>man(v)],['hFix',v=>man(v)],['hSave',v=>man(v)],['livUsed',v=>yen(v)]];
+function animNums(){TARGETS.forEach(([id,fmt])=>{const el=document.getElementById(id);if(!el)return;const now=parseY(el.textContent);if(now===null)return;
+  const was=prev.has(id)?prev.get(id):0;prev.set(id,now);if(was!==now)countUp(el,was,now,fmt);});}
+const _render=window.render;
+window.render=function(){_render.apply(this,arguments);try{animNums();decorate();}catch(e){}};
+animNums();
+
+// ===== 新ナビ：コア＋軌道メニュー（⑪の光とアイコンの弾みはここに引き継ぎ） =====
+const TABS=[['home','house','ホーム','HOME'],['rec','pencil-line','記録','LOG'],['future','target','未来','FUTURE'],['set','settings','設定','SYSTEM']];
+const dial=document.getElementById('dial'),hub=dial.querySelector('.hub'),beams=dial.querySelector('svg.beams'),core=document.getElementById('core');
+const R=128;let cur='home';
+TABS.forEach(([t,ic,ja,en],k)=>{
+  const a=(160-k*(140/(TABS.length-1)))*Math.PI/180;const x=Math.cos(a)*R,y=-Math.sin(a)*R;
+  const b=document.createElement('button');b.className='node';b.dataset.node=t;b.style.setProperty('--x',x+'px');b.style.setProperty('--y',y+'px');b.style.setProperty('--k',k);
+  b.innerHTML=`<small>${en}</small><i data-lucide="${ic}"></i><b>${ja}</b>`;hub.appendChild(b);
+  const l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1',180);l.setAttribute('y1',180);l.setAttribute('x2',180+x*.78);l.setAttribute('y2',180+y*.78);l.style.transitionDelay=(k*55)+'ms';beams.appendChild(l);
+});
+icons();
+function setCore(t){const T=TABS.find(x=>x[0]===t)||TABS[0];core.innerHTML=`<i data-lucide="${T[1]}"></i><span class="cl">${T[3]}</span>`;icons();
+  core.classList.remove('pop');void core.offsetWidth;core.classList.add('pop');
+  Q('.node',hub).forEach(n=>n.classList.toggle('on',n.dataset.node===t));}
+function openDial(){dial.classList.add('on');dial.setAttribute('aria-hidden','false');core.classList.add('open');core.innerHTML='<i data-lucide="x"></i><span class="cl">CLOSE</span>';icons();}
+function closeDial(){if(!dial.classList.contains('on'))return;dial.classList.remove('on');dial.setAttribute('aria-hidden','true');core.classList.remove('open');setCore(cur);}
+let lpT=null,lp=false,eatClick=false,hov=null;const hint=dial.querySelector('.dt small'),HINT0=hint.textContent;
+const nodeAt=(x,y)=>{const el=document.elementFromPoint(x,y);return el&&el.closest?el.closest('.node'):null;};
+function setHov(n){if(n===hov)return;if(hov)hov.classList.remove('hov');hov=n;
+  if(n){n.classList.add('hov');hint.textContent='離すと「'+n.querySelector('b').textContent+'」へ';try{sfx('tap');}catch(e){}try{navigator.vibrate&&navigator.vibrate(8);}catch(e){}}
+  else hint.textContent=lp?'行きたいところまで指をすべらせてね':HINT0;}
+core.addEventListener('pointerdown',e=>{if(dial.classList.contains('on'))return;lp=false;core.classList.add('charging');
+  lpT=setTimeout(()=>{lp=true;eatClick=true;core.classList.remove('charging');openDial();dial.classList.add('drag');setHov(null);try{navigator.vibrate&&navigator.vibrate(15);}catch(e){}},380);});
+const lpCancel=()=>{clearTimeout(lpT);core.classList.remove('charging');};
+document.addEventListener('pointermove',e=>{if(!lp)return;setHov(nodeAt(e.clientX,e.clientY));},{passive:true});
+document.addEventListener('pointerup',e=>{lpCancel();if(!lp)return;lp=false;setTimeout(()=>{eatClick=false;},60);dial.classList.remove('drag');const n=nodeAt(e.clientX,e.clientY)||hov;setHov(null);hint.textContent=HINT0;
+  if(n){const t=n.dataset.node;Q('.node',hub).forEach(x=>x.classList.toggle('on',x===n));setTimeout(()=>{closeDial();showTab(t);},120);}});
+document.addEventListener('pointercancel',()=>{lpCancel();if(lp){lp=false;dial.classList.remove('drag');setHov(null);hint.textContent=HINT0;}});
+core.addEventListener('contextmenu',e=>e.preventDefault());
+core.addEventListener('click',e=>{if(eatClick){eatClick=false;return;}dial.classList.contains('on')?closeDial():openDial();});
+dial.querySelector('.dbg').addEventListener('click',closeDial);
+hub.addEventListener('click',e=>{const n=e.target.closest('.node');if(!n)return;const t=n.dataset.node;
+  Q('.node',hub).forEach(x=>x.classList.toggle('on',x===n));
+  setTimeout(()=>{closeDial();showTab(t);},140);});
+const _show=window.showTab;
+window.showTab=function(t){const changed=t!==cur;_show(t);cur=t;setCore(t);
+  if(changed&&!RM){const w=document.getElementById('warp');w.classList.remove('go');void w.offsetWidth;w.classList.add('go');
+    const s=document.getElementById('tab-'+t);if(s){s.classList.remove('warpin');void s.offsetWidth;s.classList.add('warpin');}}};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDial();});
+setCore('home');
+})();
+</script>
+
+<!-- ===== 期間ロック（確定） ===== -->
+<style>
+  .lockbar{display:flex;align-items:center;gap:10px;padding:10px 12px;margin:0 0 12px;border-radius:12px;border:1px solid rgba(106,184,255,.45);
+    background:linear-gradient(90deg,rgba(106,184,255,.12),rgba(198,168,255,.06));box-shadow:0 0 14px rgba(106,184,255,.18);font-size:12px;color:#d9e9ff}
+  .lockbar svg.lucide{width:18px;height:18px;color:#6ab8ff;filter:drop-shadow(0 0 5px #6ab8ff)}
+  .lockbar .lt{flex:1;line-height:1.4}
+  .lockbar .lt b{display:block;font-family:"Orbitron","Noto Sans JP",sans-serif;font-size:11px;letter-spacing:.14em;color:#fff}
+  .lockbar button{border:1px solid rgba(106,184,255,.6);background:rgba(106,184,255,.12);color:#9fd0ff;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;white-space:nowrap}
+  .lockbar button.sure{background:var(--ngbg);border-color:rgba(255,85,119,.6);color:var(--ng)}
+  .lockbar.open{border-color:rgba(255,200,87,.5);background:linear-gradient(90deg,rgba(255,200,87,.12),transparent);color:#ffe7b3}
+  .lockbar.open svg.lucide{color:var(--warn);filter:drop-shadow(0 0 5px var(--warn))}
+  .lockbar.open button{border-color:rgba(255,200,87,.6);background:rgba(255,200,87,.1);color:var(--warn)}
+  .plock #exOpen,.plock #xiOpen,.plock #incOpen,.plock [data-exed],.plock [data-exdel],.plock [data-xidel],.plock #recs [data-del],.plock #exAdd{opacity:.28;filter:grayscale(1)}
+  .lockpill{display:inline-flex;align-items:center;gap:3px;margin-left:6px;font-family:"Orbitron",sans-serif;font-size:8.5px;letter-spacing:.16em;color:#0b0716;background:linear-gradient(90deg,#6ab8ff,#c6a8ff);border-radius:4px;padding:2px 6px 1px;vertical-align:2px;box-shadow:0 0 8px rgba(106,184,255,.6)}
+  #lockToast{position:fixed;left:50%;bottom:110px;transform:translate(-50%,20px);z-index:60;opacity:0;pointer-events:none;transition:.3s;
+    background:rgba(14,9,30,.95);border:1px solid rgba(106,184,255,.6);box-shadow:0 0 20px rgba(106,184,255,.35);color:#d9e9ff;border-radius:12px;padding:10px 14px;font-size:12px;white-space:nowrap;display:flex;align-items:center;gap:8px}
+  #lockToast svg.lucide{width:16px;height:16px;color:#6ab8ff;filter:drop-shadow(0 0 5px #6ab8ff)}
+  .chk.lk{opacity:.35;filter:grayscale(.6);cursor:not-allowed}
+  #lockToast.on{opacity:1;transform:translate(-50%,0)}
+</style>
+<div id="lockToast"></div>
+<script>
+(()=>{
+const Q=(s,r=document)=>[...r.querySelectorAll(s)];
+const KEYS=['incomes','fixed','subs','livingBudget','saving','gasBudget','gasBudgetKo'];
+const UNLOCK={};               // この画面を開いている間だけの「解除」
+let loaded=false,swapped=null,saving=false;
+const isLocked=k=>!!k&&k<NOWK&&!UNLOCK[k];
+const clone=o=>JSON.parse(JSON.stringify(o));
+
+// 期間が終わったら、そのときの設定（月収・固定費・サブスク・生活費予算・貯金）を保存して固定する
+const _norm=window.normalize;
+window.normalize=function(d){const s=_norm(d);s.snap=s.snap||{};loaded=true;return s;};
+function pastKeys(){
+  const ks=new Set([shiftKey(NOWK,-1)]);
+  EXP.forEach(e=>{if(e.date)ks.add(keyOf(e.date));});
+  ['extras','incomeActual','extraIncome'].forEach(f=>Object.keys(S[f]||{}).forEach(k=>ks.add(k)));
+  const L=[...ks].filter(k=>/^\d{4}-\d{2}$/.test(k)&&k<NOWK).sort();if(!L.length)return [];
+  const out=[];for(let k=L[0];k<NOWK;k=shiftKey(k,1))out.push(k);return out;
+}
+function ensureSnaps(){
+  if(!loaded||!db||swapped)return;S.snap=S.snap||{};let add=0;
+  const live={};KEYS.forEach(k=>live[k]=clone(S[k]));
+  pastKeys().forEach(k=>{if(!S.snap[k]){S.snap[k]=clone(live);add++;}});
+  if(add&&!saving){saving=true;save($('status')).finally(()=>{saving=false;});}
+}
+
+// 過ぎた期間を表示するときは、保存しておいた設定で計算する
+function swapIn(snap){const o={};KEYS.forEach(k=>{o[k]=S[k];if(snap[k]!==undefined)S[k]=clone(snap[k]);else if(k==='gasBudget'||k==='gasBudgetKo')S[k]=0;});return o;}
+function swapOut(o){KEYS.forEach(k=>S[k]=o[k]);}
+const _r0=window.render0;
+window.render0=function(){
+  const sn=(P<NOWK&&S.snap)?S.snap[P]:null;
+  if(!sn)return _r0.apply(this,arguments);
+  const o=swapIn(sn);swapped=o;try{return _r0.apply(this,arguments);}finally{swapOut(o);swapped=null;}
+};
+// カレンダー・支払い予定・お財布・目標・返済は、いつも今の設定で出す
+['renderDues','renderCal','renderPays','renderGoals','renderDebt'].forEach(n=>{const f=window[n];if(typeof f!=='function')return;
+  window[n]=function(){if(!swapped)return f.apply(this,arguments);const cur={};KEYS.forEach(k=>{cur[k]=S[k];S[k]=swapped[k];});try{return f.apply(this,arguments);}finally{KEYS.forEach(k=>S[k]=cur[k]);}};});
+
+// ロック表示
+function lockUI(){
+  const L=isLocked(P),past=P<NOWK;document.body.classList.toggle('plock',L);
+  const flow=$('flow');if(!flow)return;let bar=$('lockBar');
+  if(!past){if(bar)bar.remove();}
+  else{
+    if(!bar){bar=document.createElement('div');bar.id='lockBar';flow.before(bar);}
+    bar.className='lockbar'+(L?'':' open');
+    bar.innerHTML=L?`<i data-lucide="lock"></i><div class="lt"><b>LOCKED・確定済み</b>この期間は締まったから編集できないよ</div><button data-unlock="${P}">解除</button>`
+      :`<i data-lucide="lock-open"></i><div class="lt"><b>UNLOCKED・編集中</b>画面を開き直すとまたロックされるよ</div><button data-relock="${P}">ロック</button>`;
+  }
+  const pl=$('pLabel');if(pl&&past&&!pl.querySelector('.lockpill'))pl.insertAdjacentHTML('beforeend',`<span class="lockpill">${L?'LOCK':'OPEN'}</span>`);
+  Q('#extras input,#extras select,#extras button').forEach(el=>el.disabled=L);
+  Q('[data-paid],[data-paidg]').forEach(el=>el.classList.toggle('lk',chkLocked(el)));
+  try{icons();}catch(e){}
+}
+const _rs=window.renderSettings;
+window.renderSettings=function(){const r=_rs.apply(this,arguments);lockUI();return r;};
+const _rd=window.render;
+window.render=function(){const r=_rd.apply(this,arguments);try{ensureSnaps();lockUI();}catch(e){}return r;};
+
+// トースト
+let tt=null;function toast(m){const t=$('lockToast');t.innerHTML='<i data-lucide="lock"></i><span></span>';t.querySelector('span').textContent=m;try{icons();}catch(e){}t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2200);try{sfx('del');}catch(e){}}
+const dsOf=ts=>{const d=new Date(ts);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+const keyPeriod=pk=>{const s=String(pk).split('|').pop();if(/^\d{4}-\d{2}-\d{2}$/.test(s))return keyOf(s);if(/^\d{4}-\d{2}$/.test(s))return s;return null;};
+function chkLocked(b){const ks=(b.dataset.paidg!==undefined?b.dataset.paidg.split('\n'):[b.dataset.paid]);
+  if(b.closest('#flow')&&isLocked(P))return true;return ks.some(k=>isLocked(keyPeriod(k)));}
+const LOCKMSG='この期間は確定済みだよ（解除すると編集できる）';
+
+// 編集をブロック
+addEventListener('click',e=>{
+  const t=e.target.closest('button,input[type=date]');
+  const u=e.target.closest('[data-unlock]');
+  if(u){e.stopImmediatePropagation();e.preventDefault();
+    if(!u.classList.contains('sure')){u.classList.add('sure');u.textContent='本当に解除？';setTimeout(()=>{if(u.isConnected){u.classList.remove('sure');u.textContent='解除';}},3000);return;}
+    UNLOCK[u.dataset.unlock]=1;render();renderSettings();return;}
+  const rl=e.target.closest('[data-relock]');
+  if(rl){e.stopImmediatePropagation();e.preventDefault();delete UNLOCK[rl.dataset.relock];render();renderSettings();return;}
+  if(!t)return;
+  let block=false;
+  if(isLocked(P)&&(t.matches('#incOpen,#incSave,#incReset,#exOpen,#xiOpen,#exAdd,[data-exed],[data-exdel],[data-xidel]')||t.closest('#recs [data-del]')))block=true;
+  if(t.id==='fAdd'){const d=$('fDate').value||todayStr;if(isLocked(keyOf(d)))block=true;}
+  if(t.id==='xAdd'){const d=$('xDate').value;const k=d?keyOf(d):P;if(isLocked(k))block=true;}
+  if(t.id==='xiAdd'){const d=$('xiDate').value||todayStr;if(isLocked(keyOf(d)))block=true;}
+  if(t.id==='mvAdd'){const d=$('mvDate').value||todayStr;if(isLocked(keyOf(d)))block=true;}
+  if(t.dataset.mvdel){const v=MOV.find(x=>x.id===t.dataset.mvdel);if(v&&isLocked(keyOf(dsOf(+v.ts||0))))block=true;}
+  if(t.dataset.paid!==undefined||t.dataset.paidg!==undefined){if(chkLocked(t))block=true;}
+  if(block){e.stopImmediatePropagation();e.preventDefault();toast(LOCKMSG);}
+},true);
+
+render();
+})();
+</script>
+
+<!-- ===== 支払い済みは一覧から消す ===== -->
+<style>
+  body:not(.showpaid) .item.paid,body:not(.showpaid) .exitem.paid,body:not(.showpaid) .flsub .s.paid,body:not(.showpaid) .exg.paid{display:none!important}
+  body.showpaid .item.paid .n,body.showpaid .exitem.paid .n,body.showpaid .s.paid span:first-child{text-decoration:none}
+  .paidtog{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin:8px 0 2px;padding:7px 0;border:1px dashed rgba(46,242,176,.35);border-radius:10px;background:rgba(46,242,176,.05);color:#6ff5c6;font-size:11px;font-weight:700;letter-spacing:.04em}
+  .paidtog svg.lucide{width:14px;height:14px;filter:drop-shadow(0 0 4px var(--ok))}
+  .fx-ghost{position:fixed;z-index:70;pointer-events:none;margin:0!important;border-radius:12px;overflow:hidden;
+    background:rgba(20,40,40,.85);box-shadow:0 0 0 1px rgba(46,242,176,.6),0 0 24px rgba(46,242,176,.45);animation:ghostout .75s cubic-bezier(.6,0,.3,1) forwards}
+  .fx-ghost::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(46,242,176,.55),transparent);transform:translateX(-100%);animation:ghostsweep .45s ease-out forwards}
+  .fx-ghost .chk{background:var(--ok);border-color:var(--ok);color:#06231a}
+  @keyframes ghostsweep{to{transform:translateX(100%)}}
+  @keyframes ghostout{0%,40%{opacity:1;transform:none;clip-path:inset(0 0 0 0)}100%{opacity:0;transform:translateX(40px) scaleY(.6);clip-path:inset(0 0 0 100%)}}
+  .fx-done{position:fixed;z-index:71;pointer-events:none;font-family:"Orbitron",sans-serif;font-size:10px;font-weight:800;letter-spacing:.25em;color:#6ff5c6;text-shadow:0 0 10px var(--ok);animation:donefly .9s ease-out forwards}
+  @keyframes donefly{0%{opacity:0;transform:translate(-50%,0) scale(.8)}20%{opacity:1;transform:translate(-50%,-6px) scale(1)}100%{opacity:0;transform:translate(-50%,-28px)}}
+</style>
+<script>
+(()=>{
+const Q=(s,r=document)=>[...r.querySelectorAll(s)];
+let SHOW=false;
+function addTogs(){
+  Q('.paidtog').forEach(b=>b.remove());
+  const put=(after,n)=>{if(!n||!after)return;const b=document.createElement('button');b.className='paidtog';b.dataset.ptog='1';
+    b.innerHTML=`<i data-lucide="${SHOW?'eye-off':'circle-check'}"></i>${SHOW?'支払い済みをかくす':`支払い済み ${n}件を表示`}`;after.after(b);};
+  // もうすぐの支払い・カレンダーの一覧
+  ['duesSoon','calList'].forEach(id=>{const c=$(id);if(!c)return;const L=Q(':scope > .item',c);const n=L.filter(x=>x.classList.contains('paid')).length;put(L[L.length-1],n);});
+  // 収支の詳細（固定費・サブスクの中）
+  Q('#flow .flsub').forEach(f=>{const L=Q(':scope > .s',f);const n=L.filter(x=>x.classList.contains('paid')).length;put(L[L.length-1],n);});
+  // 収支の詳細（変動費）
+  const fl=$('flow');if(fl){Q('.exgin',fl).forEach(g=>{const L=Q(':scope > .exitem',g);const n=L.filter(x=>x.classList.contains('paid')).length;put(L[L.length-1],n);});
+    const L=Q(':scope > .exitem, :scope > .exg',fl);const n=L.filter(x=>x.classList.contains('paid')).length;put(L[L.length-1],n);}
+  try{icons();}catch(e){}
+}
+const _r=window.render;window.render=function(){const r=_r.apply(this,arguments);try{addTogs();}catch(e){}return r;};
+const _c=window.renderCal;window.renderCal=function(){const r=_c.apply(this,arguments);try{addTogs();}catch(e){}return r;};
+// 一覧の外から呼ばれる renderCal（カレンダー操作）用
+document.addEventListener('click',e=>{if(e.target.closest('#cal'))setTimeout(addTogs,0);});
+
+addEventListener('click',e=>{
+  const tg=e.target.closest('[data-ptog]');
+  if(tg){e.stopImmediatePropagation();e.preventDefault();SHOW=!SHOW;document.body.classList.toggle('showpaid',SHOW);addTogs();return;}
+  // チェックしたら、光って横に消えていく
+  const b=e.target.closest('[data-paid],[data-paidg]');if(!b||SHOW||b.classList.contains('on'))return;
+  const row=b.closest('.exg')||b.closest('.item,.exitem,.s');if(!row)return;
+  if(b.dataset.paidg===undefined&&row.classList.contains('exg'))return;
+  const r=row.getBoundingClientRect();const g=row.cloneNode(true);g.classList.add('fx-ghost');g.classList.remove('paid');
+  Object.assign(g.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});
+  const ck=g.querySelector('.chk');if(ck)ck.classList.add('on');
+  document.body.appendChild(g);setTimeout(()=>g.remove(),800);
+  const d=document.createElement('div');d.className='fx-done';d.textContent='PAID';d.style.left=(r.left+r.width/2)+'px';d.style.top=(r.top+r.height/2-8)+'px';
+  document.body.appendChild(d);setTimeout(()=>d.remove(),950);
+  try{sfx('ok');}catch(_){}
+},true);
+addTogs();
+})();
+</script>
+
+<!-- ===== ガソリンの予算枠（2台分） ===== -->
+<style>
+  .gasact{display:flex;gap:8px;margin-top:10px}
+  .gasact .btn{margin-top:0;padding:10px}
+  #gasCard .pbar.over i{background:linear-gradient(90deg,#ff5577,#ff8fa8);box-shadow:0 0 10px var(--ng)}
+  .gcars{display:flex;gap:4px;padding:3px;border:1px solid var(--line);border-radius:9px;background:rgba(0,0,0,.25)}
+  .gcars button{border:none;background:none;padding:4px 9px 3px;border-radius:6px;font-family:"Orbitron",sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--sub)}
+  .gcars button.on[data-gcar=me]{color:#6ab8ff;background:linear-gradient(135deg,#05080f,#0f1c33);box-shadow:inset 0 0 0 1px #3d9bff,0 0 8px rgba(61,155,255,.45)}
+  .gcars button.on[data-gcar=ko]{color:#ffb3d6;background:rgba(255,156,200,.12);box-shadow:inset 0 0 0 1px rgba(255,156,200,.6),0 0 8px rgba(255,156,200,.3)}
+  .gcars button.on[data-fcar=me]{color:#6ab8ff;background:linear-gradient(135deg,#05080f,#0f1c33);box-shadow:inset 0 0 0 1px #3d9bff}
+  .gcars button.on[data-fcar=ko]{color:#ffb3d6;background:rgba(255,156,200,.12);box-shadow:inset 0 0 0 1px rgba(255,156,200,.6)}
+  #fCars button{font-family:"Noto Sans JP",sans-serif;font-size:11px;letter-spacing:.04em;padding:6px}
+  .gtot{display:flex;justify-content:space-between;font-size:11px;color:var(--sub);margin-top:6px;padding-top:6px;border-top:1px dashed var(--line)}
+</style>
+<script>
+(()=>{
+const GAS='ガソリン';
+window.GCAR=window.GCAR||'me';
+window.carOf=e=>e&&e.car==='ko'?'ko':'me';
+window.gasBudOf=w=>w==='ko'?(+S.gasBudgetKo||0):(+S.gasBudget||0);
+const CARNAME={me:'MARUの車',ko:'KOKOAの車'};
+if(!CATS.includes(GAS)){CATS.splice(CATS.indexOf('車')+1,0,GAS);}
+ICN[GAS]='fuel';COLORS[GAS]='#ff9f43';
+try{renderCatGrid();}catch(e){}
+try{$('xCat').innerHTML=CATS.map(c=>`<option${c==='その他'?' selected':''}>${c}</option>`).join('');}catch(e){}
+
+// 固定費の「ガソリン」は予算に移す（1回だけ）
+let migrated=false;
+const _n=window.normalize;
+window.normalize=function(d){const s=_n(d);
+  if(s.gasBudget===undefined){let amt=0;['me','ko'].forEach(w=>{s.fixed[w]=(s.fixed[w]||[]).filter(f=>{if(/ガソリン/.test(f.label||'')){amt+=+f.amount||0;return false;}return true;});});
+    s.gasBudget=amt;migrated=true;}
+  if(s.gasBudgetKo===undefined)s.gasBudgetKo=0;
+  return s;};
+
+// 計算：車ごとに予算から引き、超えた分だけ自由なお金から引く
+const _calc=window.calc;
+window.calc=function(k=P){
+  const c=_calc(k);const G=c.rows.filter(e=>e.category===GAS);
+  const by={};['me','ko'].forEach(w=>{const used=G.filter(e=>carOf(e)===w).reduce((a,e)=>a+(+e.amount||0),0);const b=gasBudOf(w);by[w]={used,b,over:Math.max(0,used-b),n:G.filter(e=>carOf(e)===w).length};});
+  const gb=by.me.b+by.ko.b,gasUsed=by.me.used+by.ko.used,gasOver=by.me.over+by.ko.over;
+  c.gb=gb;c.gasUsed=gasUsed;c.gasOver=gasOver;c.gasBy=by;
+  c.free=c.free-gasUsed+gasOver;
+  c.freeBudget-=gb;
+  c.left=c.freeBudget-c.over-c.free;
+  return c;
+};
+
+// 収支の詳細に「ガソリンの予算」
+const _rf=window.renderFlow;
+window.renderFlow=function(c){const r=_rf.apply(this,arguments);
+  const rows=[...document.querySelectorAll('#flow > .fl')];const liv=rows.find(x=>/生活費の予算/.test(x.textContent));
+  if(liv&&c&&c.gb>0){const d=document.createElement('div');d.className='fl';d.innerHTML=`<span>ガソリンの予算（2台）</span><span class="num">−${yen(c.gb)}</span>`;liv.after(d);}
+  return r;};
+
+// ホームのガソリンカード
+const livCard=$('livUsed')&&$('livUsed').closest('.card');
+if(livCard&&!$('gasCard')){
+  const card=document.createElement('div');card.className='card';card.id='gasCard';
+  card.innerHTML=`<h2><span class="t"><i data-lucide="fuel"></i> ガソリン</span><span class="gcars" id="gasCars"><button data-gcar="me" class="on">GR86</button><button data-gcar="ko">PASSO</button></span></h2>
+    <div style="display:flex;justify-content:space-between;align-items:baseline"><b class="num" style="font-size:22px" id="gasUsed">—</b><span class="muted" id="gasBud"></span></div>
+    <div class="pbar green" id="gasBarW"><i id="gasBar"></i></div>
+    <div class="muted" id="gasSub"></div>
+    <div class="gtot" id="gasTot"></div>
+    <div class="gasact"><button class="btn grad" id="gasRec"><i data-lucide="fuel"></i> 給油を記録</button></div>`;
+  livCard.after(card);
+}
+function renderGas(){
+  if(!$('gasCard'))return;const c=calc();const g=c.gasBy[GCAR];
+  document.querySelectorAll('#gasCars button').forEach(b=>b.classList.toggle('on',b.dataset.gcar===GCAR));
+  $('gasUsed').textContent=yen(g.used);$('gasBud').textContent=`予算 ${yen(g.b)}`;
+  const q=g.b>0?Math.min(100,g.used/g.b*100):0;$('gasBar').style.width=q+'%';
+  $('gasBarW').classList.toggle('green',g.used<=g.b*.8);$('gasBarW').classList.toggle('over',g.used>g.b);
+  $('gasSub').textContent=(g.b<=0?`設定タブで${CARNAME[GCAR]}の予算を入れてね`:g.used>g.b?`${yen(g.over)} オーバー（自由なお金から引いてるよ）`:`あと ${yen(g.b-g.used)} 入れられるよ`)+(g.n?`・給油 ${g.n}回`:'');
+  $('gasTot').innerHTML=`<span>2台の合計</span><span class="num">${yen(c.gasUsed)} / ${yen(c.gb)}</span>`;
+}
+const _r=window.render;window.render=function(){const r=_r.apply(this,arguments);try{renderGas();icons();}catch(e){}
+  if(migrated&&db){migrated=false;save($('status'));}return r;};
+document.addEventListener('click',e=>{const b=e.target.closest('[data-gcar]');if(!b)return;if(GCAR===b.dataset.gcar)return;
+  window.GCAR=b.dataset.gcar;renderGas();document.dispatchEvent(new CustomEvent('gascar'));});
+
+// 「給油を記録」→ 記録画面へ（選んでいる車で）
+document.addEventListener('click',e=>{if(!e.target.closest('#gasRec'))return;
+  selCat=GAS;window.FCAR=GCAR;renderCatGrid();showTab('rec');setTimeout(()=>{$('fItem').value||($('fItem').value='給油');$('fAmount').focus();},350);});
+
+// 設定に2台分の予算
+const lv=$('sLiving')&&$('sLiving').closest('.row');
+if(lv&&!$('sGas')){const r1=document.createElement('div');r1.className='row';
+  r1.innerHTML=`<label>ガソリンの予算（MARUの車）<small>1か月に入れていい金額</small></label><input type="number" class="w120" id="sGas" inputmode="numeric">`;
+  const r2=document.createElement('div');r2.className='row';
+  r2.innerHTML=`<label>ガソリンの予算（KOKOAの車）<small>1か月に入れていい金額</small></label><input type="number" class="w120" id="sGasKo" inputmode="numeric">`;
+  lv.after(r1);r1.after(r2);}
+const _rs=window.renderSettings;window.renderSettings=function(){const r=_rs.apply(this,arguments);if($('sGas'))$('sGas').value=+S.gasBudget||0;if($('sGasKo'))$('sGasKo').value=+S.gasBudgetKo||0;return r;};
+const _rd=window.readSettings;window.readSettings=function(){const r=_rd.apply(this,arguments);if($('sGas'))S.gasBudget=+$('sGas').value||0;if($('sGasKo'))S.gasBudgetKo=+$('sGasKo').value||0;return r;};
+
+if(S.gasBudget===undefined)S.gasBudget=0;if(S.gasBudgetKo===undefined)S.gasBudgetKo=0;
+renderSettings();render();
+})();
+</script>
+
+<!-- ===== ガソリン：給油量・走行距離・グラフ ===== -->
+<style>
+  #gasF{display:none;margin:-2px 0 10px;padding:10px;border:1px solid rgba(255,159,67,.35);border-radius:12px;background:rgba(255,159,67,.06)}
+  #gasF.on{display:block}
+  #gasF .gh{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#ffc58f;letter-spacing:.06em;margin-bottom:8px}
+  #gasF .gh svg.lucide{width:14px;height:14px}
+  #gasF .gi{position:relative}
+  #gasF .gi input{width:100%;padding-right:36px}
+  #gasF input::-webkit-inner-spin-button,#gasF input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+  #gasF input{-moz-appearance:textfield}
+  #gasF .gi span{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--sub);pointer-events:none}
+  #gasF .gn{font-size:11px;color:var(--sub);margin-top:6px;min-height:1em}
+  #gasF .gn b{color:#ffc58f;font-family:"Orbitron",sans-serif}
+  .gasx{margin-top:12px;border-top:1px solid var(--line);padding-top:4px}
+  .gasx>summary{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 0;font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.06em}
+  .gasx>summary::after{display:none}
+  .gasx>summary svg.lucide{width:15px;height:15px}
+  .gstats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0 12px}
+  .gstats div{background:rgba(190,155,255,.06);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+  .gstats small{display:block;font-size:10px;color:var(--sub)}
+  .gstats b{font-family:"Orbitron","Noto Sans JP",sans-serif;font-size:16px;color:#fff}
+  .gstats b em{font-style:normal;font-size:10px;color:var(--sub);margin-left:3px;font-family:"Noto Sans JP",sans-serif}
+  .gchart{position:relative}
+  .gchart svg{display:block;width:100%;height:auto;overflow:visible}
+  .gtip{position:absolute;pointer-events:none;background:rgba(14,9,30,.96);border:1px solid rgba(255,159,67,.55);border-radius:8px;padding:5px 8px;font-size:11px;color:var(--ink);white-space:nowrap;transform:translate(-50%,-110%);opacity:0;transition:opacity .12s;box-shadow:0 0 12px rgba(255,159,67,.25)}
+  .gtip b{font-family:"Orbitron",sans-serif;color:#fff}
+  .gtip.on{opacity:1}
+  .gnote{font-size:11px;color:var(--sub);margin-top:6px;line-height:1.5}
+  .gempty{font-size:12px;color:var(--sub);text-align:center;padding:24px 0}
+</style>
+<script>
+(()=>{
+const GAS='ガソリン',GC='#ff9f43';
+const Q=(s,r=document)=>[...r.querySelectorAll(s)];
+const fmtN=(n,d=1)=>(Math.round(n*10**d)/10**d).toLocaleString('ja-JP',{minimumFractionDigits:d,maximumFractionDigits:d});
+
+// ---- 記録画面：給油量・走行距離 ----
+const grid=$('catGrid');
+if(grid&&!$('gasF')){const d=document.createElement('div');d.id='gasF';
+  d.innerHTML=`<div class="gh"><i data-lucide="fuel"></i>給油のくわしい記録（なくてもOK）</div>
+  <div class="gcars" id="fCars" style="margin-bottom:8px"><button data-fcar="me" style="flex:1">MARUの車</button><button data-fcar="ko" style="flex:1">KOKOAの車</button></div>
+  <div class="grid2"><div class="gi"><input type="number" id="gLit" step="0.01" inputmode="decimal" placeholder="給油量"><span>L</span></div>
+  <div class="gi"><input type="number" id="gOdo" inputmode="numeric" placeholder="メーター"><span>km</span></div></div>
+  <div class="gn" id="gNote"></div>`;grid.after(d);}
+const fills=(w=GCAR)=>EXP.filter(e=>e.category===GAS&&carOf(e)===w).sort((a,b)=>(a.date||'').localeCompare(b.date||'')||((+a.ts||0)-(+b.ts||0)));
+const lastOdo=()=>{const L=fills(window.FCAR||'me').filter(e=>+e.odo>0);return L.length?+L[L.length-1].odo:null;};
+function gasNote(){
+  if(!$('gNote'))return;const amt=+$('fAmount').value||0,l=+$('gLit').value||0,o=+$('gOdo').value||0,lo=lastOdo();
+  const p=[];if(amt&&l)p.push(`1Lあたり <b>¥${fmtN(amt/l,1)}</b>`);
+  if(o&&lo&&o>lo)p.push(`前回から <b>${(o-lo).toLocaleString()}</b>km`);
+  $('gNote').innerHTML=p.length?p.join('・'):(lo?`前回のメーター ${lo.toLocaleString()}km`:'メーターを入れると、走った距離と燃費が出るよ');
+}
+function fcarUI(){document.querySelectorAll('#fCars button').forEach(b=>{b.classList.toggle('on',b.dataset.fcar===(window.FCAR||'me'));});}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-fcar]');if(!b)return;e.preventDefault();window.FCAR=b.dataset.fcar;fcarUI();gasNote();});
+function gasFToggle(){const f=$('gasF');if(!f)return;f.classList.toggle('on',selCat===GAS);if(selCat===GAS&&!window.FCAR)window.FCAR=selWho==='心愛'?'ko':'me';fcarUI();if(selCat===GAS){gasNote();try{icons();}catch(e){}}}
+const _cg=window.renderCatGrid;window.renderCatGrid=function(){const r=_cg.apply(this,arguments);gasFToggle();return r;};
+['fAmount','gLit','gOdo'].forEach(id=>{const el=$(id);if(el)el.addEventListener('input',gasNote);});
+window.gasExtra=()=>{const o={car:window.FCAR||'me'};const l=+$('gLit').value,od=+$('gOdo').value;if(l>0)o.liters=l;if(od>0)o.odo=od;return o;};
+window.gasClear=()=>{if($('gLit'))$('gLit').value='';if($('gOdo'))$('gOdo').value='';gasNote();};
+
+// ---- グラフ ----
+let gview='amt',gopen=false;
+const card=$('gasCard');
+if(card&&!$('gasX')){const x=document.createElement('details');x.className='gasx';x.id='gasX';
+  x.innerHTML=`<summary><i data-lucide="chart-line"></i>ガソリンの分析を見る</summary>
+  <div class="gstats" id="gStats"></div>
+  <div class="seg" id="gSeg"><button data-gv="amt" class="on">金額</button><button data-gv="ppl">単価</button><button data-gv="eff">燃費</button><button data-gv="km">走行距離</button></div>
+  <div class="gchart" id="gChart"></div><div class="gnote" id="gNote2"></div>`;
+  card.appendChild(x);x.addEventListener('toggle',()=>{gopen=x.open;if(gopen)drawGas();});}
+
+function periodsBack(n){const ks=[];for(let i=n-1;i>=0;i--)ks.push(shiftKey(NOWK,-i));return ks;}
+function fillRows(){ // 単価・燃費（1回ごと）
+  const F=fills();const out=[];let prev=null;
+  F.forEach(e=>{const l=+e.liters||0,a=+e.amount||0,o=+e.odo||0;const r={d:e.date,a,l,o,ppl:l?a/l:null,eff:null,dist:null};
+    if(o&&prev&&prev.o&&o>prev.o){r.dist=o-prev.o;if(l)r.eff=r.dist/l;}
+    out.push(r);if(o)prev=r;});
+  return out;
+}
+function kmOf(k){ // その期間に走った距離
+  const F=fills().filter(e=>+e.odo>0);const inK=F.filter(e=>keyOf(e.date)===k);if(!inK.length)return null;
+  const before=F.filter(e=>e.date&&keyOf(e.date)<k);const start=before.length?+before[before.length-1].odo:+inK[0].odo;
+  return Math.max(0,+inK[inK.length-1].odo-start);
+}
+// 満タンじゃなくても使える燃費：メーターの差 ÷ その間に入れた量（最初の1回は除く）
+function avgEff(n=8){const F=fills().filter(e=>+e.odo>0&&+e.liters>0).slice(-n);if(F.length<2)return null;
+  const dist=+F[F.length-1].odo-+F[0].odo,lit=F.slice(1).reduce((a,e)=>a+(+e.liters||0),0);return dist>0&&lit>0?dist/lit:null;}
+function effOf(k){const km=kmOf(k);if(!km)return null;const all=fills().filter(e=>+e.odo>0);
+  let inK=fills().filter(e=>e.date&&keyOf(e.date)===k);const hasPrev=all.some(e=>e.date&&keyOf(e.date)<k);
+  if(!hasPrev){const i=inK.findIndex(e=>+e.odo>0);inK=inK.slice(i+1);} // 最初の基準の給油は除く
+  const lit=inK.reduce((a,e)=>a+(+e.liters||0),0);return lit?{v:km/lit,km,lit}:null;}
+function stats(){
+  const k=P;const R=fillRows().filter(r=>keyOf(r.d)===k);
+  const L=R.reduce((a,r)=>a+(r.l||0),0),A=R.filter(r=>r.l).reduce((a,r)=>a+r.a,0);
+  const eff=avgEff();
+  const km=kmOf(k);const spent=R.reduce((a,r)=>a+r.a,0);
+  const t=(lab,v,u)=>`<div><small>${lab}</small><b>${v==null?'—':v}${v==null?'':`<em>${u}</em>`}</b></div>`;
+  $('gStats').innerHTML=t('平均の単価（この期間）',L?fmtN(A/L,1):null,'円/L')+t('燃費（最近の平均）',eff?fmtN(eff,1):null,'km/L')
+    +t('走った距離（この期間）',km!=null?km.toLocaleString():null,'km')+t('1kmあたり',km&&spent?fmtN(spent/km,1):null,'円/km');
+}
+// SVG：棒グラフ
+function bars(data,ref,fmt){
+  const W=320,H=170,pt=16,pb=24,pl=4,pr=4;const ih=H-pt-pb;
+  const mx=Math.max(1,ref||0,...data.map(d=>d.v||0))*1.1;const n=data.length,bw=Math.min(30,(W-pl-pr)/n*.55),step=(W-pl-pr)/n;
+  let s=`<svg viewBox="0 0 ${W} ${H}"><line x1="0" x2="${W}" y1="${pt+ih+.5}" y2="${pt+ih+.5}" stroke="currentColor" opacity=".15"/>`;
+  if(ref){const y=pt+ih-ref/mx*ih;s+=`<line x1="0" x2="${W}" y1="${y}" y2="${y}" stroke="#c6a8ff" stroke-dasharray="4 4" opacity=".7"/><text x="${W}" y="${y-4}" text-anchor="end" font-size="9" fill="currentColor" opacity=".7">予算 ${man(ref)}</text>`;}
+  data.forEach((d,i)=>{const x=pl+step*i+step/2;const h=(d.v||0)/mx*ih;const y=pt+ih-h;
+    if(h>0)s+=`<path d="M${x-bw/2},${pt+ih} V${y+4} Q${x-bw/2},${y} ${x-bw/2+4},${y} H${x+bw/2-4} Q${x+bw/2},${y} ${x+bw/2},${y+4} V${pt+ih} Z" fill="${d.over?'#ff5577':GC}" opacity="${d.cur?1:.75}"/>`;
+    if(d.cur&&d.v)s+=`<text x="${x}" y="${y-5}" text-anchor="middle" font-size="9" fill="currentColor">${fmt(d.v)}</text>`;
+    s+=`<text x="${x}" y="${H-6}" text-anchor="middle" font-size="10" fill="currentColor" opacity="${d.cur?1:.6}" ${d.cur?'font-weight="800"':''}>${d.lab}</text>`;
+    s+=`<rect class="hit" x="${pl+step*i}" y="0" width="${step}" height="${H}" fill="transparent" data-i="${i}"/>`;});
+  return {svg:s+'</svg>',pos:i=>{const d=data[i];const x=pl+step*i+step/2;return [x/W,(pt+ih-(d.v||0)/mx*ih)/H];}};
+}
+// SVG：折れ線
+function line(data,fmt){
+  const W=320,H=170,pt=16,pb=24,pl=4,pr=4,ih=H-pt-pb;const vs=data.map(d=>d.v);
+  let lo=Math.min(...vs),hi=Math.max(...vs);const pad=(hi-lo)*.25||hi*.1||1;lo-=pad;hi+=pad;
+  const n=data.length,step=n>1?(W-pl-pr-20)/(n-1):0;const X=i=>pl+10+step*i,Y=v=>pt+ih-(v-lo)/(hi-lo)*ih;
+  let s=`<svg viewBox="0 0 ${W} ${H}"><line x1="0" x2="${W}" y1="${pt+ih+.5}" y2="${pt+ih+.5}" stroke="currentColor" opacity=".15"/>`;
+  if(n>1)s+=`<polyline points="${data.map((d,i)=>X(i)+','+Y(d.v)).join(' ')}" fill="none" stroke="${GC}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" style="filter:drop-shadow(0 0 4px ${GC})"/>`;
+  data.forEach((d,i)=>{s+=`<circle cx="${X(i)}" cy="${Y(d.v)}" r="4" fill="${GC}" stroke="#15102b" stroke-width="2"/>`;});
+  const last=data[n-1];s+=`<text x="${X(n-1)}" y="${Y(last.v)-9}" text-anchor="${n>1?'end':'middle'}" font-size="9" fill="currentColor">${fmt(last.v)}</text>`;
+  [0,n-1].filter((v,i,a)=>a.indexOf(v)===i).forEach(i=>{s+=`<text x="${X(i)}" y="${H-6}" text-anchor="${i===0&&n>1?'start':n>1?'end':'middle'}" font-size="10" fill="currentColor" opacity=".6">${data[i].lab}</text>`;});
+  data.forEach((d,i)=>{const w=n>1?step:W;s+=`<rect class="hit" x="${X(i)-w/2}" y="0" width="${w}" height="${H}" fill="transparent" data-i="${i}"/>`;});
+  return {svg:s+'</svg>',pos:i=>[X(i)/W,Y(data[i].v)/H]};
+}
+const md=d=>{const x=new Date(d+'T00:00');return (x.getMonth()+1)+'/'+x.getDate();};
+function drawGas(){
+  if(!$('gChart'))return;stats();
+  Q('#gSeg button').forEach(b=>b.classList.toggle('on',b.dataset.gv===gview));
+  let out=null,data=[],tip=()=>'',note='';
+  if(gview==='amt'||gview==='km'){
+    const ks=periodsBack(6);
+    data=ks.map(k=>{const v=gview==='amt'?EXP.filter(e=>e.category===GAS&&carOf(e)===GCAR&&e.date&&keyOf(e.date)===k).reduce((a,e)=>a+(+e.amount||0),0):kmOf(k)||0;
+      return {k,v,lab:(+k.split('-')[1])+'月',cur:k===P,over:gview==='amt'&&gasBudOf(GCAR)>0&&v>gasBudOf(GCAR)};});
+    if(data.every(d=>!d.v)){$('gChart').innerHTML=`<div class="gempty">${gview==='amt'?'給油を記録すると、ここに出るよ':'メーターの数字を入れると、走った距離が出るよ'}</div>`;$('gNote2').textContent='';return;}
+    out=bars(data,gview==='amt'?gasBudOf(GCAR):0,gview==='amt'?man:v=>v.toLocaleString()+'km');
+    tip=d=>`${labelOf(d.k)}<br><b>${gview==='amt'?yen(d.v):d.v.toLocaleString()+' km'}</b>`;
+    note=gview==='amt'?'給料期間（25日〜翌24日）ごとの合計。赤は予算オーバー':'給料期間ごとに走った距離（メーターの差）';
+  }else{
+    if(gview==='eff'){const ks=periodsBack(6);data=ks.map(k=>{const e=effOf(k);return e?{v:e.v,lab:(+k.split('-')[1])+'月',k,e}:null;}).filter(Boolean);
+      if(!data.length){$('gChart').innerHTML='<div class="gempty">メーターと給油量を入れていくと、燃費が出るよ</div>';$('gNote2').textContent='';return;}
+      out=line(data,v=>fmtN(v,1)+'km/L');tip=d=>`${labelOf(d.k)}・${d.e.km.toLocaleString()}km・${fmtN(d.e.lit,1)}L<br><b>${fmtN(d.v,1)} km/L</b>`;
+      note='給料期間ごとの燃費（走った距離 ÷ 入れた量）。満タンじゃなくても、続けるほど正確になるよ';
+    }else{
+    const R=fillRows().filter(r=>r.ppl).slice(-12);
+    data=R.map(r=>({v:gview==='ppl'?r.ppl:r.eff,lab:md(r.d),r}));
+    if(!data.length){$('gChart').innerHTML=`<div class="gempty">${gview==='ppl'?'給油量を入れると、1Lあたりの値段が出るよ':'メーターと給油量を2回以上入れると、燃費が出るよ'}</div>`;$('gNote2').textContent='';return;}
+    out=line(data,gview==='ppl'?v=>'¥'+fmtN(v,1):v=>fmtN(v,1)+'km/L');
+    tip=d=>gview==='ppl'?`${md(d.r.d)}・${fmtN(d.r.l,2)}L<br><b>¥${fmtN(d.v,1)}/L</b>`:`${md(d.r.d)}・${d.r.dist.toLocaleString()}km<br><b>${fmtN(d.v,1)} km/L</b>`;
+    note=gview==='ppl'?'給油ごとの1Lあたりの値段（最近12回）':'';
+  }}
+  $('gChart').innerHTML=out.svg+'<div class="gtip" id="gTip"></div>';$('gNote2').textContent=note;
+  const svg=$('gChart').querySelector('svg'),tp=$('gTip');
+  const show=i=>{const [px,py]=out.pos(i);tp.innerHTML=tip(data[i]);tp.style.left=(px*100)+'%';tp.style.transform=px>.7?'translate(-96%,-112%)':px<.3?'translate(-4%,-112%)':'translate(-50%,-112%)';tp.style.top=(py*svg.getBoundingClientRect().height)+'px';tp.classList.add('on');};
+  svg.addEventListener('pointermove',e=>{const h=e.target.closest('.hit');if(h)show(+h.dataset.i);});
+  svg.addEventListener('pointerdown',e=>{const h=e.target.closest('.hit');if(h)show(+h.dataset.i);});
+  svg.addEventListener('pointerleave',()=>tp.classList.remove('on'));
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-gv]');if(!b)return;gview=b.dataset.gv;drawGas();});
+document.addEventListener('gascar',()=>{if(gopen)drawGas();});
+const _r=window.render;window.render=function(){const r=_r.apply(this,arguments);try{if(gopen)drawGas();}catch(e){}return r;};
+gasFToggle();try{icons();}catch(e){}
+})();
+</script>
+
+<!-- ===== ガソリンカードの回るスポーツカー（オリジナルデザイン） ===== -->
+<style>
+  #carStage{position:relative;height:170px;margin:-4px -6px 8px;border-radius:12px;overflow:hidden;
+    background:radial-gradient(ellipse at 50% 85%,rgba(61,155,255,.28),transparent 60%),linear-gradient(180deg,rgba(8,12,30,.2),rgba(8,12,30,.55))}
+  #carStage canvas{display:block;width:100%!important;height:100%!important}
+  #carStage::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(180deg,rgba(106,184,255,.05) 0 1px,transparent 1px 3px)}
+  #carStage .ctag{position:absolute;left:10px;top:8px;font-family:"Orbitron",sans-serif;font-size:8.5px;letter-spacing:.22em;color:#9fd8ff;text-shadow:0 0 8px #3d9bff;z-index:2}
+  #carStage .ctag2{position:absolute;right:10px;top:8px;font-family:"Orbitron",sans-serif;font-size:8.5px;letter-spacing:.18em;color:#9fd8ff;opacity:.8;z-index:2}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(()=>{
+const card=$('gasCard');if(!card||!window.THREE)return;
+const st=document.createElement('div');st.id='carStage';st.innerHTML='<span class="ctag2" id="carKm"></span>';
+card.querySelector('h2').after(st);
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const T=THREE;
+let R;try{R=new T.WebGLRenderer({antialias:true,alpha:true});}catch(e){st.remove();return;}
+R.setPixelRatio(Math.min(2,devicePixelRatio||1));R.setClearColor(0x000000,0);st.appendChild(R.domElement);
+const scene=new T.Scene();scene.fog=new T.Fog(0x0b0716,9,16);
+const cam=new T.PerspectiveCamera(30,2,.1,50);cam.position.set(0,2.3,8.2);cam.lookAt(0,.45,0);
+
+scene.add(new T.HemisphereLight(0x9fd8ff,0x1a0f3a,.9));
+const key=new T.DirectionalLight(0xffffff,1.1);key.position.set(4,6,5);scene.add(key);
+const rimP=new T.PointLight(0xc6a8ff,2.2,12);rimP.position.set(-4,2,-3);scene.add(rimP);
+const rimB=new T.PointLight(0xff7ab6,1.4,10);rimB.position.set(4,1.2,-4);scene.add(rimB);
+
+// 車をつくる（どちらもオリジナルデザイン）
+function buildCar(sp){
+  const g=new T.Group();const L=sp.L,Wd=sp.W;
+  const prof=new T.Shape();sp.prof.forEach((p,i)=>i?prof.lineTo(p[0],p[1]):prof.moveTo(p[0],p[1]));
+  const [fx,rx]=sp.wx,wr=sp.wr,ar=wr+.1;
+  prof.lineTo(rx+ar,.34);prof.absarc(rx,.34,ar,0,Math.PI,false);prof.lineTo(fx+ar,.34);prof.absarc(fx,.34,ar,0,Math.PI,false);prof.lineTo(sp.prof[0][0],.34);
+  const geo=new T.ExtrudeGeometry(prof,{depth:Wd,bevelEnabled:true,bevelThickness:sp.bev,bevelSize:sp.bev*.7,bevelSegments:4,curveSegments:18});
+  geo.translate(-L/2,0,-Wd/2);
+  g.add(new T.Mesh(geo,new T.MeshStandardMaterial({color:sp.color,metalness:sp.metal??.55,roughness:sp.rough??.3,emissive:sp.emi,emissiveIntensity:.35})));
+  const edges=new T.LineSegments(new T.EdgesGeometry(geo,28),new T.LineBasicMaterial({color:sp.edge,transparent:true,opacity:.55}));g.add(edges);g.userData.edges=edges;
+  const glass=new T.MeshStandardMaterial({color:0x0a0f22,metalness:.9,roughness:.1,emissive:0x1b2b6a,emissiveIntensity:.4,side:T.DoubleSide});
+  const win=new T.Shape();sp.win.forEach((p,i)=>i?win.lineTo(p[0],p[1]):win.moveTo(p[0],p[1]));win.lineTo(sp.win[0][0],sp.win[0][1]);
+  [Wd/2+sp.bev+.005,-Wd/2-sp.bev-.005].forEach(z=>{const s=new T.ShapeGeometry(win);s.translate(-L/2,0,z);g.add(new T.Mesh(s,glass));});
+  const pane=(a,b)=>{const dx=b[0]-a[0],dy=b[1]-a[1];const m=new T.Mesh(new T.BoxGeometry(Math.hypot(dx,dy)*.92,.03,Wd-.1),glass);
+    m.position.set(-L/2+(a[0]+b[0])/2,(a[1]+b[1])/2+sp.bev*.8,0);m.rotation.z=Math.atan2(dy,dx);g.add(m);};
+  sp.panes.forEach(p=>pane(p[0],p[1]));
+  const headM=new T.MeshBasicMaterial({color:0xe6f6ff});const tailM=new T.MeshBasicMaterial({color:0xff3366});
+  [.5,-.5].map(z=>z*Wd/1.72).forEach(z=>{const hd=new T.Mesh(new T.BoxGeometry(.06,.08,sp.hw),headM);hd.position.set(-L/2-sp.bev+.03,sp.hy,z);g.add(hd);
+    const t=new T.Mesh(new T.BoxGeometry(.06,sp.th,.3),tailM);t.position.set(L/2+sp.bev-.03,sp.ty,z);g.add(t);});
+  const tireM=new T.MeshStandardMaterial({color:0x111018,roughness:.8});const rimM=new T.MeshStandardMaterial({color:0xd6dcff,metalness:.9,roughness:.25,emissive:0x222244,emissiveIntensity:.3});
+  [fx,rx].forEach(x=>[Wd/2+.02,-Wd/2-.02].forEach(z=>{const w=new T.Group();w.position.set(-L/2+x,.34,z);
+    const tire=new T.Mesh(new T.CylinderGeometry(wr,wr,.24,28),tireM);tire.rotation.x=Math.PI/2;w.add(tire);
+    const rim=new T.Mesh(new T.CylinderGeometry(wr*.66,wr*.66,.25,sp.spokes),rimM);rim.rotation.x=Math.PI/2;w.add(rim);
+    const ring=new T.Mesh(new T.TorusGeometry(wr*.7,.018,6,28),new T.MeshBasicMaterial({color:sp.edge}));ring.position.z=z>0?.13:-.13;w.add(ring);g.add(w);}));
+  return g;
+}
+// MARU：低くてシャープなクーペ（ブライトブルー）
+const carMe=buildCar({L:4.2,W:1.72,bev:.09,color:0x1e90ff,emi:0x0a2a66,edge:0x9fd8ff,spokes:10,wr:.36,wx:[.83,3.32],hw:.42,hy:.62,th:.06,ty:.72,
+  prof:[[0,.34],[.02,.58],[.35,.68],[1.45,.8],[2.05,1.14],[2.75,1.17],[3.55,.92],[4.12,.84],[4.2,.62],[4.16,.34]],
+  win:[[1.62,.86],[2.08,1.1],[2.72,1.12],[3.38,.9]],panes:[[[1.45,.8],[2.05,1.14]],[[2.75,1.17],[3.55,.92]]]});
+// KOKOA：まるくて背の高いコンパクトカー（ブラック）
+const carKo=buildCar({L:3.6,W:1.62,bev:.16,color:0x34343f,emi:0x16161f,edge:0xb8bcc8,metal:.35,rough:.22,spokes:6,wr:.33,wx:[.68,2.92],hw:.36,hy:.74,th:.22,ty:.95,
+  prof:[[0,.34],[.02,.66],[.2,.8],[.85,.9],[1.42,1.36],[1.75,1.48],[2.95,1.5],[3.42,1.38],[3.58,1.05],[3.6,.34]],
+  win:[[1.5,1.0],[1.82,1.36],[2.95,1.38],[3.32,1.26],[3.38,1.0]],panes:[[[.85,.9],[1.75,1.48]],[[3.42,1.38],[3.58,1.05]]]});
+const car=new T.Group();scene.add(car);car.add(carMe);car.add(carKo);
+const CARS={me:carMe,ko:carKo};
+carKo.visible=false;
+let showing='me',swapT=1,swapTo=null;
+document.addEventListener('gascar',()=>{if(window.GCAR!==showing){swapTo=window.GCAR;swapT=0;}});
+const edgesOf=()=>CARS[showing].userData.edges;
+const plat=new T.Group();scene.add(plat);
+const disc=new T.Mesh(new T.CircleGeometry(2.9,64),new T.MeshBasicMaterial({color:0x1a2a6a,transparent:true,opacity:.35}));disc.rotation.x=-Math.PI/2;plat.add(disc);
+[[2.9,.025,0x6ab8ff,.9],[2.5,.012,0xc6a8ff,.6],[2.05,.01,0x6ab8ff,.35]].forEach(([r,t,c,o])=>{const m=new T.Mesh(new T.TorusGeometry(r,t,6,96),new T.MeshBasicMaterial({color:c,transparent:true,opacity:o}));m.rotation.x=Math.PI/2;plat.add(m);});
+const ticks=new T.Group();for(let i=0;i<48;i++){const b=new T.Mesh(new T.BoxGeometry(.03,.005,i%4?.12:.25),new T.MeshBasicMaterial({color:0x9fd8ff,transparent:true,opacity:i%4?.35:.8}));const a=i/48*Math.PI*2;b.position.set(Math.cos(a)*3.1,0,Math.sin(a)*3.1);b.rotation.y=-a;ticks.add(b);}plat.add(ticks);
+const beam=new T.Mesh(new T.CylinderGeometry(2.9,2.9,1.6,64,1,true),new T.MeshBasicMaterial({color:0x3d9bff,transparent:true,opacity:.06,side:T.DoubleSide,depthWrite:false}));beam.position.y=.8;scene.add(beam);
+
+function size(){const w=st.clientWidth,h=st.clientHeight;if(!w)return;R.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();}
+size();addEventListener('resize',size);
+
+let drag=null,vel=0,ang=-.6;
+st.addEventListener('pointerdown',e=>{drag=e.clientX;try{st.setPointerCapture(e.pointerId);}catch(_){}});
+st.addEventListener('pointermove',e=>{if(drag===null)return;const dx=e.clientX-drag;drag=e.clientX;vel=dx*.012;ang+=vel;});
+['pointerup','pointercancel'].forEach(ev=>st.addEventListener(ev,()=>{drag=null;}));
+st.style.touchAction='pan-y';
+
+let vis=false;new IntersectionObserver(es=>{vis=es[0].isIntersecting;if(vis)loop();}).observe(st);
+let raf=0,t0=performance.now();
+function loop(){cancelAnimationFrame(raf);
+  const f=t=>{if(!vis||document.hidden)return;const dt=Math.min(.05,(t-t0)/1000);t0=t;
+    if(drag===null){vel*=.94;ang+=(RM?0:.45*dt)+vel;}
+    car.rotation.y=ang;ticks.rotation.y-=dt*.25;
+    if(swapT<1){swapT=Math.min(1,swapT+dt*2.4);let s;
+      if(swapT<.5){s=1-swapT*2;}else{if(swapTo&&showing!==swapTo){CARS[showing].visible=false;showing=swapTo;CARS[showing].visible=true;km();ang+=1.2;}s=(swapT-.5)*2;}
+      const e=s<1?1-Math.pow(1-s,3):1;car.scale.set(e||.001,e||.001,e||.001);beam.material.opacity=.06+(1-e)*.25;}
+    car.position.y=.02+Math.sin(t/900)*.02;
+    edgesOf().material.opacity=(showing==='ko'?.75:.4)+.2*Math.sin(t/600);
+    R.render(scene,cam);raf=requestAnimationFrame(f);};
+  raf=requestAnimationFrame(f);}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&vis){t0=performance.now();loop();}});
+
+function km(){const L=EXP.filter(e=>e.category==='ガソリン'&&carOf(e)===showing&&+e.odo>0).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  $('carKm').textContent=L.length?'ODO '+(+L[L.length-1].odo).toLocaleString()+' km':'ODO ---,--- km';}
+const _r=window.render;window.render=function(){const r=_r.apply(this,arguments);try{km();}catch(e){}return r;};km();
+})();
+</script>
+
+
+
+<!-- ===== 設定の金額を ¥ と , で表示 ===== -->
+<script>
+(()=>{
+const D=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
+const DAY='#sNotify,#dDay,[data-fdy],[data-sd],[data-pd],[data-gy]';
+const fmt=s=>{s=String(s??'');const neg=/^\s*[-−]/.test(s);const d=s.replace(/[^\d]/g,'');if(!d)return neg?'-':'';return (neg?'-':'')+'¥'+(+d).toLocaleString('ja-JP');};
+const raw=s=>{s=String(s??'');const neg=/^\s*[-−]/.test(s);const d=s.replace(/[^\d]/g,'');return d?(neg?'-':'')+d:'';};
+function money(el){
+  if(el._money)return;el._money=1;const cur=D.get.call(el);
+  el.type='text';el.inputMode='numeric';el.autocomplete='off';el.style.textAlign='right';
+  Object.defineProperty(el,'value',{configurable:true,get(){return raw(D.get.call(this));},set(v){D.set.call(this,fmt(v));}});
+  D.set.call(el,fmt(cur));
+  el.addEventListener('input',()=>{const before=D.get.call(el);const pos=el.selectionStart;const digitsBefore=before.slice(0,pos).replace(/[^\d]/g,'').length;
+    const f=fmt(before);D.set.call(el,f);let n=0,p=0;for(;p<f.length&&n<digitsBefore;p++)if(/\d/.test(f[p]))n++;
+    if(!digitsBefore)p=f.indexOf('¥')+1||f.length;try{el.setSelectionRange(p,p);}catch(e){}});
+}
+function apply(){document.querySelectorAll('#tab-set input[type=number]').forEach(el=>{if(!el.matches(DAY))money(el);});}
+const _rs=window.renderSettings;window.renderSettings=function(){const r=_rs.apply(this,arguments);try{apply();}catch(e){}return r;};
+new MutationObserver(()=>apply()).observe($('tab-set'),{childList:true,subtree:true});
+apply();
+})();
+</script>
+<!-- ===== ガソリン：いくら入れたら持つ？シミュレーター＋AI相談 ===== -->
+<style>
+  .gsim{margin-top:12px;border-top:1px solid var(--line);padding-top:4px}
+  .gsim>summary{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 0;font-size:12px;font-weight:700;color:#ffc58f;letter-spacing:.06em}
+  .gsim>summary::after{display:none}
+  .gsim>summary svg.lucide{width:15px;height:15px}
+  .gsim .sg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+  .gsim .sf small{display:block;font-size:10px;color:var(--sub);margin:0 0 3px 2px}
+  .gsim .sf .gi{position:relative}
+  .gsim .sf input{width:100%;padding-right:40px;box-sizing:border-box}
+  .gsim .sf.big{grid-column:1/-1}
+  .gsim .sf.big input{font-size:20px;font-family:"Orbitron","Noto Sans JP",sans-serif;padding:12px 44px 12px 12px}
+  .gsim .sf .gi span{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--sub);pointer-events:none}
+  .gsim input::-webkit-inner-spin-button,.gsim input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+  .gsim input{-moz-appearance:textfield}
+  .gsim .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+  .gsim .chips button{flex:1;min-width:56px;padding:7px 0;border-radius:9px;border:1px solid rgba(255,159,67,.4);background:rgba(255,159,67,.08);color:#ffc58f;font-size:12px;font-weight:700}
+  .gres{margin-top:12px;border-radius:12px;padding:12px;border:1px solid var(--line);background:rgba(190,155,255,.05)}
+  .gres .gv{font-size:15px;font-weight:800;display:flex;align-items:center;gap:6px}
+  .gres .gv svg.lucide{width:18px;height:18px}
+  .gres.ok{border-color:rgba(80,230,160,.5);background:rgba(80,230,160,.07)} .gres.ok .gv{color:#7dffc4}
+  .gres.warn{border-color:rgba(255,200,90,.55);background:rgba(255,200,90,.07)} .gres.warn .gv{color:#ffd77a}
+  .gres.ng{border-color:rgba(255,85,119,.55);background:rgba(255,85,119,.07)} .gres.ng .gv{color:#ff8fa8}
+  .gres .gl{display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px dashed var(--line)}
+  .gres .gl:last-of-type{border-bottom:none}
+  .gres .gl b{font-family:"Orbitron","Noto Sans JP",sans-serif;color:#fff}
+  .gres .gm{font-size:12px;color:var(--sub);margin-top:6px;line-height:1.6}
+  .gres .gm b{color:#ffc58f}
+  .gmeter{height:8px;border-radius:5px;background:rgba(255,255,255,.07);margin:8px 0 4px;position:relative;overflow:hidden}
+  .gmeter i{position:absolute;left:0;top:0;bottom:0;border-radius:5px;background:linear-gradient(90deg,#ff9f43,#ffc58f);box-shadow:0 0 8px rgba(255,159,67,.6)}
+  .gmeter u{position:absolute;top:-2px;bottom:-2px;width:2px;background:#fff;opacity:.85}
+</style>
+<script>
+(()=>{
+const GAS='ガソリン';
+const card=$('gasCard');if(!card||$('gSim'))return;
+const CN={me:'MARUの車（GR86）',ko:'KOKOAの車（PASSO）'},RES=5,TANK={me:50,ko:36},DEF={me:{ppl:185,eff:12,full:8000},ko:{ppl:172,eff:18,full:5000}};let fullMode=false;
+const LS='kgsim_v1';let mem={};try{mem=JSON.parse(localStorage.getItem(LS)||'{}')||{};}catch(e){mem={};}
+const save=()=>{try{localStorage.setItem(LS,JSON.stringify(mem));}catch(e){}};
+const r1=(n,d=1)=>(Math.round(n*10**d)/10**d).toLocaleString('ja-JP',{maximumFractionDigits:d});
+const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const nextPay=()=>{const t=new Date(todayD);let d=new Date(t.getFullYear(),t.getMonth(),25);if(d<=t)d=new Date(t.getFullYear(),t.getMonth()+1,25);return d;};
+const fills=w=>EXP.filter(e=>e.category===GAS&&carOf(e)===w).sort((a,b)=>(a.date||'').localeCompare(b.date||'')||((+a.ts||0)-(+b.ts||0)));
+function hist(w){ // 記録からの推定
+  const F=fills(w);const P=F.filter(e=>+e.liters>0&&+e.amount>0).slice(-3);
+  const ppl=P.length?P.reduce((a,e)=>a+e.amount/e.liters,0)/P.length:null;
+  const O=F.filter(e=>+e.odo>0&&+e.liters>0).slice(-8);let eff=null,day=null;
+  if(O.length>=2){const dist=+O[O.length-1].odo-+O[0].odo,lit=O.slice(1).reduce((a,e)=>a+(+e.liters||0),0);if(dist>0&&lit>0)eff=dist/lit;
+    const dd=(new Date(O[O.length-1].date+'T00:00')-new Date(O[0].date+'T00:00'))/864e5;if(dist>0&&dd>=3)day=dist/dd;}
+  return {ppl,eff,day};
+}
+const box=document.createElement('details');box.className='gsim';box.id='gSim';
+box.innerHTML=`<summary><i data-lucide="calculator"></i>給油シミュレーター</summary>
+  <div class="sg">
+    <div class="sf big"><small>入れる金額</small><div class="gi"><input type="number" id="sAmt" inputmode="numeric" placeholder="3000"><span>円</span></div>
+      <div class="chips" id="sChips"><button data-a="2000">¥2,000</button><button data-a="3000">¥3,000</button><button data-a="5000">¥5,000</button><button data-a="full" id="sFullB">満タン</button></div></div>
+    <div class="sf big"><small>いつまで持たせたい？</small><div class="gi"><input type="date" id="sDate" style="padding-right:12px"></div></div>
+    <div class="sf"><small>今の航続可能距離（メーター）</small><div class="gi"><input type="number" id="sLeft" inputmode="numeric"><span>km</span></div></div>
+    <div class="sf"><small>いつもの満タン金額</small><div class="gi"><input type="number" id="sFull" inputmode="numeric"><span>円</span></div></div>
+    <div class="sf"><small>1日に走る距離</small><div class="gi"><input type="number" id="sDay" inputmode="decimal"><span>km</span></div></div>
+    <div class="sf"><small>燃費</small><div class="gi"><input type="number" id="sEff" inputmode="decimal" step="0.1"><span>km/L</span></div></div>
+    <div class="sf"><small>1Lの値段</small><div class="gi"><input type="number" id="sPpl" inputmode="decimal"><span>円</span></div></div>
+  </div>
+  <div class="gnote" id="sSrc" style="font-size:10px;color:var(--sub);margin-top:6px"></div>
+  <div class="gres" id="sRes"></div>`;
+const anchor=$('gasX');anchor?card.insertBefore(box,anchor):card.appendChild(box);
+
+let car=window.GCAR||'me';
+function fill(){ // 車ごとの初期値
+  car=window.GCAR||'me';const h=hist(car),m=mem[car]||{};
+  $('sEff').value=m.eff??(h.eff?r1(h.eff,1).replace(/,/g,''):DEF[car].eff);
+  $('sPpl').value=m.ppl??(h.ppl?Math.round(h.ppl):DEF[car].ppl);
+  $('sDay').value=m.day??(h.day?Math.round(h.day):20);
+  $('sFull').value=m.full??DEF[car].full;
+  if(!$('sDate').value)$('sDate').value=iso(nextPay());
+  const src=[];src.push(m.eff!=null?'燃費:自分で入力':h.eff?'燃費:記録から':'燃費:目安');src.push(m.ppl!=null?'単価:自分で入力':h.ppl?'単価:最近の給油から':'単価:目安');src.push(m.day!=null?'距離:自分で入力':h.day?'距離:記録から':'距離:目安');
+  $('sSrc').textContent=`${CN[car]}（タンク約${TANK[car]}L）・${src.join('・')}`;
+  calcSim();
+}
+let last=null;
+function calcSim(){
+  const ppl0=+$('sPpl').value||0,fullY=+$('sFull').value||0,leftRaw=$('sLeft').value;
+  const usual=ppl0&&fullY?Math.max(0,TANK[car]-fullY/ppl0):0;
+  const amt=+$('sAmt').value||0,day=+$('sDay').value||0,eff=+$('sEff').value||0,left=leftRaw===''?usual:(eff?Math.max(0,+leftRaw||0)/eff:0),ppl=+$('sPpl').value||0;
+  const to=$('sDate').value?new Date($('sDate').value+'T00:00'):nextPay();
+  const days=Math.max(1,Math.round((to-todayD)/864e5));
+  const res=$('sRes');
+  if(!eff||!ppl){res.className='gres';res.innerHTML='<div class="gm">燃費と1Lの値段を入れてね</div>';last=null;return;}
+  const tank=TANK[car];let lit=fullMode?Math.max(0,tank-left):amt/ppl;let capped=false;if(!fullMode&&left+lit>tank+.5){lit=Math.max(0,tank-left);capped=true;}
+  const total=left+lit,range=total*eff,need=day*days;
+  const needL=Math.max(0,need/eff+RES-left),needYen=Math.ceil(needL*ppl/100)*100;
+  const g=calc().gasBy[car],budLeft=g.b>0?g.b-g.used:null;
+  const reach=day>0?Math.floor(range/day):null;const reachD=reach!=null?new Date(todayD.getTime()+reach*864e5):null;
+  const md=d=>`${d.getMonth()+1}/${d.getDate()}`;
+  let cls,ic,title;
+  if(!amt&&!fullMode){cls='';ic='fuel';title='金額を入れてみてね';}
+  else if(day<=0){cls='ok';ic='check-circle';title=`約 ${r1(range,0)}km 走れるよ`;}
+  else if(range-RES*eff>=need){cls='ok';ic='check-circle';title=`${md(to)}まで十分もつよ`;}
+  else if(range>=need){cls='warn';ic='alert-triangle';title=`${md(to)}までギリギリもつ`;}
+  else{cls='ng';ic='x-circle';title=`${md(to)}までは足りないかも`;}
+  const pct=need>0?Math.min(100,range/Math.max(range,need*1.3)*100):100,mk=need>0?Math.min(100,need/Math.max(range,need*1.3)*100):null;
+  let msg=[];
+  if(leftRaw===''&&(amt||fullMode))msg.push(`航続可能距離が空なので、いつもの給油どき（あと約${r1(usual*eff,0)}km）で計算してるよ`);
+  if(fullMode)msg.push(`満タンで約 <b>${r1(tank,0)}L</b>・入るのは約${r1(lit,1)}L（${yen(Math.round(lit*ppl/10)*10)}くらい）`);
+  if(capped)msg.push(`タンクは約${tank}Lなので、入るのは<b>${r1(lit,1)}L（約${yen(Math.round(lit*ppl))}）</b>まで`);
+  if(day>0&&cls==='ng')msg.push(`${md(to)}まで持たせるなら、最低 <b>${yen(needYen)}</b> くらい（残り${RES}L の余裕込み）`);
+  if(day>0&&cls==='ok'&&needYen<amt)msg.push(`ちなみに ${md(to)}までなら <b>${yen(needYen)}</b> でも足りる計算（余裕${RES}L込み）`);
+  if(day>0&&reachD&&cls!=='ok')msg.push(`この量だと <b>${md(reachD)}</b> ごろまで`);
+  if(budLeft!=null&&amt)msg.push(amt>budLeft?`今月のガソリン予算の残り ${yen(Math.max(0,budLeft))} を <b>${yen(amt-Math.max(0,budLeft))}</b> こえるよ`:`今月のガソリン予算の残りは入れたあと ${yen(budLeft-amt)}`);
+  msg.push(`<span style="opacity:.7">※ 「十分」は着いた時に${RES}L以上残る計算。燃費は走り方で変わるよ</span>`);
+  res.className='gres '+cls;
+  res.innerHTML=`<div class="gv"><i data-lucide="${ic}"></i>${title}</div>
+    ${need>0?`<div class="gmeter"><i style="width:${pct}%"></i>${mk!=null?`<u style="left:${mk}%"></u>`:''}</div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--sub)"><span>走れる距離</span><span>｜= ${md(to)}までに必要</span></div>`:''}
+    <div class="gl" style="margin-top:6px"><span>入る量</span><b>${r1(lit,1)} L</b></div>
+    <div class="gl"><span>走れる距離（残り込み）</span><b>${r1(range,0)} km</b></div>
+    ${day>0?`<div class="gl"><span>${md(to)}まで（${days}日）に必要</span><b>${r1(need,0)} km</b></div>`:''}
+    <div class="gm">${msg.join('<br>')}</div>`;
+  last={tank,amt,left,day,eff,ppl,days,to:iso(to),lit:+lit.toFixed(1),range:Math.round(range),need:Math.round(need),needYen};
+  try{icons();}catch(e){}
+}
+['sLeft','sDate'].forEach(id=>$(id).addEventListener('input',calcSim));$('sAmt').addEventListener('input',()=>{fullMode=false;calcSim();});
+[['sEff','eff'],['sPpl','ppl'],['sDay','day'],['sFull','full']].forEach(([id,k])=>$(id).addEventListener('input',()=>{const v=$(id).value;mem[car]=mem[car]||{};if(v==='')delete mem[car][k];else mem[car][k]=+v;save();calcSim();}));
+$('sChips').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;e.preventDefault();
+  if(b.dataset.a==='full'){fullMode=true;calcSim();const ppl=+$('sPpl').value||DEF[car].ppl;const lr=$('sLeft').value;
+    $('sAmt').value=lr===''?(+$('sFull').value||DEF[car].full):Math.round(Math.max(0,TANK[car]-(+lr||0)/(+$('sEff').value||DEF[car].eff))*ppl/10)*10;}
+  else{fullMode=false;$('sAmt').value=b.dataset.a;}calcSim();});
+box.addEventListener('toggle',()=>{if(box.open)fill();});
+document.addEventListener('gascar',()=>{if(box.open)fill();});
+
+try{icons();}catch(e){}
+})();
+</script>
+
+<script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}</script>
+</body>
+</html>

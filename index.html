@@ -1984,6 +1984,16 @@ const key=new T.DirectionalLight(0xffffff,1.1);key.position.set(4,6,5);scene.add
 const rimP=new T.PointLight(0xc6a8ff,2.2,12);rimP.position.set(-4,2,-3);scene.add(rimP);
 const rimB=new T.PointLight(0xff7ab6,1.4,10);rimB.position.set(4,1.2,-4);scene.add(rimB);
 
+// 側面の平らな面にできる余計な線を消して、外側の輪郭だけ光らせる
+function cleanEdges(geo,shape,L,Wd){
+  const zc=Math.max(...Array.from(geo.attributes.position.array).filter((v,i)=>i%3===2).map(Math.abs));
+  const onCap=z=>Math.abs(Math.abs(z)-zc)<1e-4;
+  const src=new T.EdgesGeometry(geo,28).attributes.position.array,out=[];
+  for(let i=0;i<src.length;i+=6){if(onCap(src[i+2])&&onCap(src[i+5]))continue;out.push(...src.slice(i,i+6));}
+  const pts=shape.extractPoints(18).shape;
+  [zc,-zc].forEach(z=>pts.forEach((p,i)=>{const q=pts[(i+1)%pts.length];if(p.distanceTo(q)<1e-6)return;out.push(p.x-L/2,p.y,z,q.x-L/2,q.y,z);}));
+  const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(out,3));return g;
+}
 // 車をつくる（どちらもオリジナルデザイン）
 function buildCar(sp){
   const g=new T.Group();const L=sp.L,Wd=sp.W;
@@ -1993,7 +2003,7 @@ function buildCar(sp){
   const geo=new T.ExtrudeGeometry(prof,{depth:Wd,bevelEnabled:true,bevelThickness:sp.bev,bevelSize:sp.bev*.7,bevelSegments:4,curveSegments:18});
   geo.translate(-L/2,0,-Wd/2);
   g.add(new T.Mesh(geo,new T.MeshStandardMaterial({color:sp.color,metalness:sp.metal??.55,roughness:sp.rough??.3,emissive:sp.emi,emissiveIntensity:.35})));
-  const edges=new T.LineSegments(new T.EdgesGeometry(geo,28),new T.LineBasicMaterial({color:sp.edge,transparent:true,opacity:.55}));g.add(edges);g.userData.edges=edges;
+  const edges=new T.LineSegments(cleanEdges(geo,prof,L,Wd),new T.LineBasicMaterial({color:sp.edge,transparent:true,opacity:.55}));g.add(edges);g.userData.edges=edges;
   const glass=new T.MeshStandardMaterial({color:0x0a0f22,metalness:.9,roughness:.1,emissive:0x1b2b6a,emissiveIntensity:.4,side:T.DoubleSide});
   const win=new T.Shape();sp.win.forEach((p,i)=>i?win.lineTo(p[0],p[1]):win.moveTo(p[0],p[1]));win.lineTo(sp.win[0][0],sp.win[0][1]);
   [Wd/2+sp.bev+.005,-Wd/2-sp.bev-.005].forEach(z=>{const s=new T.ShapeGeometry(win);s.translate(-L/2,0,z);g.add(new T.Mesh(s,glass));});

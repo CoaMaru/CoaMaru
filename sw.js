@@ -1,5 +1,5 @@
 // こあまる家：オフラインでも開けるようにする
-const CACHE = 'coamaru-v9';
+const CACHE = 'coamaru-v10';
 const CORE = ['./', 'index.html', 'firebase-bridge.js', 'firebase-config.js', 'lucide.min.js', 'logo.png', 'icon-192.png', 'icon-512.png', 'manifest.json', 'firebase-all.js'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => {

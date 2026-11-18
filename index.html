@@ -63,6 +63,7 @@
 
   .item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
   .item:last-child{border-bottom:none}
+  .wrow .wchev{flex:0 0 auto;margin-left:2px;color:var(--accent);opacity:.7;display:flex;transition:transform .2s}.wrow .wchev svg{width:16px;height:16px}.wrow.op .wchev{transform:rotate(180deg)}
   .ic{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;border:1px solid var(--line)}
   .item .mid{flex:1;min-width:0}
   .item .mid .n{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -705,6 +706,10 @@ const PF={'マル':false,'心愛':false};
 function pfSum(w,L){const bal=L.filter(m=>!isCredit(m)).map(m=>balOf(m,w)).filter(b=>b!==null);return `${L.length}件`+(bal.length?`・残高 ${yen(bal.reduce((a,b)=>a+b,0))}`:'');}
 document.addEventListener('toggle',e=>{const d=e.target;if(d.dataset&&d.dataset.pf)PF[d.dataset.pf]=d.open;},true);
 const WD=new Set();
+function walletCount(w,m){const key=w+'|'+m.name;let n=EXP.filter(e=>matchRec(e,w,m)&&e.date&&keyOf(e.date)===P).length;
+  if(!isCredit(m)){n+=MOV.filter(v=>{const ts=+v.ts||0;return ts&&keyOf(dsOf(ts))===P&&(v.to===key||v.from===key);}).length;
+    n+=Object.values(S.extraIncome||{}).flat().filter(x=>x&&x.to===key&&+x.ts&&keyOf(dsOf(+x.ts))===P).length;}
+  return n;}
 function walletDetail(w,m){
   const key=w+'|'+m.name,md=d=>{const x=new Date(d);return (x.getMonth()+1)+'/'+x.getDate();};
   const L=[];
@@ -736,8 +741,8 @@ function renderPays(){
       right=b===null?`<b class="num">${yen(s)}</b><div class="muted">この期間</div>`:`<b class="num"${b<0?' style="color:var(--ng)"':''}>${yen(b)}</b><div class="muted">残高</div>`;
 
     }
-    const wk=w+'|'+m.name,op=WD.has(wk);
-    return `<div class="item wrow" data-wd="${esc(wk)}" style="flex-wrap:wrap;cursor:pointer"><div class="ic" style="color:var(--accent);background:rgba(190,155,255,.1)">${LI(t[1])}</div><div class="mid"><div class="n">${esc(m.name)}</div><div class="muted">${t[0]}</div></div><div class="rt">${right}<div class="muted" style="font-size:10px;color:var(--accent)">${op?'閉じる ▲':'内訳を見る ▼'}</div></div>${extra?`<div style="flex-basis:100%;padding-left:48px">${extra}</div>`:''}${op?walletDetail(w,m):''}</div>`;
+    const wk=w+'|'+m.name,has=walletCount(w,m)>0,op=has&&WD.has(wk);
+    return `<div class="item wrow${has?' can':''}${op?' op':''}"${has?` data-wd="${esc(wk)}"`:''} style="flex-wrap:wrap${has?';cursor:pointer':''}"><div class="ic" style="color:var(--accent);background:rgba(190,155,255,.1)">${LI(t[1])}</div><div class="mid"><div class="n">${esc(m.name)}</div><div class="muted">${t[0]}</div></div><div class="rt">${right}</div>${has?`<span class="wchev">${LI('chevron-down')}</span>`:''}${extra?`<div style="flex-basis:100%;padding-left:48px">${extra}</div>`:''}${op?walletDetail(w,m):''}</div>`;
   }).join('')+'</details>':'';
   const html=sec('マル',S.methods.me)+sec('心愛',S.methods.ko);
   {const cr=[...S.methods.me.map(m=>['マル',m]),...S.methods.ko.map(m=>['心愛',m])].filter(([o,m])=>isCredit(m)&&+m.limit);
@@ -1751,9 +1756,29 @@ window.calc=function(k=P){
   c.gb=gb;c.gasUsed=gasUsed;c.gasOver=gasOver;c.gasBy=by;
   c.free=c.free-gasUsed+gasOver;
   c.freeBudget-=gb;
+  // 「手元に合わせた」日より後の記録は、予算の残りではなく利用可能額から引く
+  const sd=settleDateOf(k);
+  if(sd){
+    const cat=e=>OLDMAP[e.category]||e.category,amt=e=>+e.amount||0;
+    const pre=c.rows.filter(e=>e.date<=sd),post=c.rows.filter(e=>e.date>sd);
+    const livB=pre.filter(e=>LIVING.includes(cat(e))).reduce((a,e)=>a+amt(e),0);
+    const freeB=pre.filter(e=>{const x=cat(e);return x!==GAS&&!LIVING.includes(x)&&!FIXEDC.includes(x);}).reduce((a,e)=>a+amt(e),0);
+    let gasOvB=0;['me','ko'].forEach(w=>{const u=pre.filter(e=>e.category===GAS&&carOf(e)===w).reduce((a,e)=>a+amt(e),0);gasOvB+=Math.max(0,u-gasBudOf(w));});
+    const postAll=post.filter(e=>{const x=cat(e);return x===GAS||!FIXEDC.includes(x);}).reduce((a,e)=>a+amt(e),0);
+    c.over=Math.max(0,livB-c.lb);c.free=freeB+gasOvB+postAll;c.settle=sd;
+  }
   c.left=c.freeBudget-c.over-c.free;
   return c;
 };
+function settleDateOf(k){
+  let d='';(S.extras[k]||[]).forEach(x=>{if(!x)return;let t='';
+    if(x.settle||/手元/.test(x.label||'')){
+      if(x.date)t=x.date;else{const m=String(x.label||'').match(/(\d{1,2})\/(\d{1,2})\s*時点/);
+        if(m){const [y,mo]=k.split('-').map(Number);const mm=+m[1];const yy=mm<mo?y+1:y;t=yy+'-'+String(mm).padStart(2,'0')+'-'+String(+m[2]).padStart(2,'0');}}
+    }
+    if(t>d)d=t;});
+  return d;
+}
 
 // 収支の詳細に「ガソリンの予算」
 const _rf=window.renderFlow;
@@ -1848,7 +1873,7 @@ const grid=$('catGrid');
 if(grid&&!$('gasF')){const d=document.createElement('div');d.id='gasF';
   d.innerHTML=`<div class="gh"><i data-lucide="fuel"></i>給油のくわしい記録（なくてもOK）</div>
   <div class="gcars" id="fCars" style="margin-bottom:8px"><button data-fcar="me" style="flex:1">MARUの車</button><button data-fcar="ko" style="flex:1">KOKOAの車</button></div>
-  <div class="grid2"><div class="gi"><input type="number" id="gLit" step="0.01" inputmode="decimal" placeholder="給油量"><span>L</span></div>
+  <div class="grid2"><div class="gi"><input type="text" id="gLit" inputmode="numeric" placeholder="0.00" autocomplete="off"><span>L</span></div>
   <div class="gi"><input type="number" id="gOdo" inputmode="numeric" placeholder="メーター"><span>km</span></div></div>
   <div class="gn" id="gNote"></div>`;grid.after(d);}
 const fills=(w=GCAR)=>EXP.filter(e=>e.category===GAS&&carOf(e)===w).sort((a,b)=>(a.date||'').localeCompare(b.date||'')||((+a.ts||0)-(+b.ts||0)));
@@ -1863,6 +1888,7 @@ function fcarUI(){document.querySelectorAll('#fCars button').forEach(b=>{b.class
 document.addEventListener('click',e=>{const b=e.target.closest('[data-fcar]');if(!b)return;e.preventDefault();window.FCAR=b.dataset.fcar;fcarUI();gasNote();});
 function gasFToggle(){const f=$('gasF');if(!f)return;f.classList.toggle('on',selCat===GAS);if(selCat===GAS&&!window.FCAR)window.FCAR=selWho==='心愛'?'ko':'me';fcarUI();if(selCat===GAS){gasNote();try{icons();}catch(e){}}}
 const _cg=window.renderCatGrid;window.renderCatGrid=function(){const r=_cg.apply(this,arguments);gasFToggle();return r;};
+{const gl=$('gLit');if(gl)gl.addEventListener('input',()=>{const dg=gl.value.replace(/\D/g,'').replace(/^0+/,'').slice(0,5);gl.value=dg?(+dg/100).toFixed(2):'';});}
 ['fAmount','gLit','gOdo'].forEach(id=>{const el=$(id);if(el)el.addEventListener('input',gasNote);});
 window.gasExtra=()=>{const o={car:window.FCAR||'me'};const l=+$('gLit').value,od=+$('gOdo').value;if(l>0)o.liters=l;if(od>0)o.odo=od;return o;};
 window.gasClear=()=>{if($('gLit'))$('gLit').value='';if($('gOdo'))$('gOdo').value='';gasNote();};
@@ -2302,7 +2328,7 @@ function startRec(id){
   selWho=e.who||'自分';document.querySelectorAll('#whoSeg button').forEach(b=>b.classList.toggle('on',b.dataset.w===selWho));
   window.FCAR=e.car==='ko'?'ko':'me';
   selCat=OLDMAP[e.category]||e.category||'その他';renderCatGrid();
-  if($('gLit'))$('gLit').value=e.liters||'';if($('gOdo'))$('gOdo').value=e.odo||'';try{window.fcarUI&&fcarUI();}catch(_){}
+  if($('gLit'))$('gLit').value=+e.liters>0?(+e.liters).toFixed(2):'';if($('gOdo'))$('gOdo').value=e.odo||'';try{window.fcarUI&&fcarUI();}catch(_){}
   selPay=e.method?payerOf(e)+'|'+e.method:'';renderPaySeg();
   card.classList.add('editing');$('fAdd').textContent='保存する';$('fMsg').textContent='';
   setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'start'}),60);

@@ -704,6 +704,22 @@ function balOf(m,owner){
 const PF={'マル':false,'心愛':false};
 function pfSum(w,L){const bal=L.filter(m=>!isCredit(m)).map(m=>balOf(m,w)).filter(b=>b!==null);return `${L.length}件`+(bal.length?`・残高 ${yen(bal.reduce((a,b)=>a+b,0))}`:'');}
 document.addEventListener('toggle',e=>{const d=e.target;if(d.dataset&&d.dataset.pf)PF[d.dataset.pf]=d.open;},true);
+const WD=new Set();
+function walletDetail(w,m){
+  const key=w+'|'+m.name,md=d=>{const x=new Date(d);return (x.getMonth()+1)+'/'+x.getDate();};
+  const L=[];
+  EXP.filter(e=>matchRec(e,w,m)&&e.date&&keyOf(e.date)===P).forEach(e=>L.push({ts:recTs(e),t:md(e.date+'T00:00'),n:e.item||e.shop||(OLDMAP[e.category]||e.category),sub:OLDMAP[e.category]||e.category,a:-(+e.amount||0)}));
+  if(!isCredit(m)){
+    MOV.forEach(v=>{const ts=+v.ts||0;if(!ts||keyOf(dsOf(ts))!==P)return;
+      if(v.to===key)L.push({ts,t:md(ts),n:'チャージ・入金',sub:keyHtml(v.from)+' から',a:+v.amount||0,h:1});
+      if(v.from===key)L.push({ts,t:md(ts),n:'移動',sub:keyHtml(v.to)+' へ',a:-(+v.amount||0),h:1});});
+    Object.values(S.extraIncome||{}).flat().forEach(x=>{const ts=+x.ts||0;if(x&&x.to===key&&ts&&keyOf(dsOf(ts))===P)L.push({ts,t:md(ts),n:x.label||'臨時収入',sub:'臨時収入',a:+x.amount||0});});
+  }
+  L.sort((a,b)=>b.ts-a.ts);
+  const rows=L.map(r=>`<div style="display:flex;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line);font-size:12px"><span class="muted" style="width:34px">${r.t}</span><span style="flex:1;min-width:0"><span>${esc(r.n)}</span><div class="muted" style="font-size:10px">${r.h?r.sub:esc(r.sub||'')}</div></span><b class="num" style="color:${r.a<0?'var(--text)':'var(--ok)'}">${r.a<0?'−':'+'}${yen(Math.abs(r.a))}</b></div>`).join('');
+  return `<div style="flex-basis:100%;padding:4px 0 2px 48px" data-wdbody="1"><div class="muted" style="font-size:11px;margin-bottom:2px">この期間の内訳（${L.length}件）</div>${rows||'<div class="muted" style="padding:6px 0">この期間の記録はまだないよ</div>'}</div>`;
+}
+document.addEventListener('click',e=>{const r=e.target.closest('[data-wd]');if(!r||e.target.closest('[data-wdbody]'))return;const k=r.dataset.wd;WD.has(k)?WD.delete(k):WD.add(k);renderPays();icons();});
 function renderPays(){
   const sec=(w,L)=>L.length?`<details class="pfold" data-pf="${w}"${PF[w]?' open':''}><summary>${otag(w)}<span class="muted">${pfSum(w,L)}</span></summary>`+L.map(m=>{
     const t=PT[m.type]||PT.cash;const lim=+m.limit||0;
@@ -720,7 +736,8 @@ function renderPays(){
       right=b===null?`<b class="num">${yen(s)}</b><div class="muted">この期間</div>`:`<b class="num"${b<0?' style="color:var(--ng)"':''}>${yen(b)}</b><div class="muted">残高</div>`;
 
     }
-    return `<div class="item" style="flex-wrap:wrap"><div class="ic" style="color:var(--accent);background:rgba(190,155,255,.1)">${LI(t[1])}</div><div class="mid"><div class="n">${esc(m.name)}</div><div class="muted">${t[0]}</div></div><div class="rt">${right}</div>${extra?`<div style="flex-basis:100%;padding-left:48px">${extra}</div>`:''}</div>`;
+    const wk=w+'|'+m.name,op=WD.has(wk);
+    return `<div class="item wrow" data-wd="${esc(wk)}" style="flex-wrap:wrap;cursor:pointer"><div class="ic" style="color:var(--accent);background:rgba(190,155,255,.1)">${LI(t[1])}</div><div class="mid"><div class="n">${esc(m.name)}</div><div class="muted">${t[0]}</div></div><div class="rt">${right}<div class="muted" style="font-size:10px;color:var(--accent)">${op?'閉じる ▲':'内訳を見る ▼'}</div></div>${extra?`<div style="flex-basis:100%;padding-left:48px">${extra}</div>`:''}${op?walletDetail(w,m):''}</div>`;
   }).join('')+'</details>':'';
   const html=sec('マル',S.methods.me)+sec('心愛',S.methods.ko);
   {const cr=[...S.methods.me.map(m=>['マル',m]),...S.methods.ko.map(m=>['心愛',m])].filter(([o,m])=>isCredit(m)&&+m.limit);

@@ -96,6 +96,49 @@
     };
   }
 
+
+  // レシート読み取り：Firebase AI Logic（Gemini）で写真を読む
+  const AI_MODEL = 'gemini-4-hydrogen';
+  function shrink(file){
+    return new Promise((res, rej) => {
+      const img = new Image(), url = URL.createObjectURL(file);
+      img.onload = () => {
+        const m = 1600, k = Math.min(1, m / Math.max(img.width, img.height));
+        const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+        res(c.toDataURL('image/jpeg', 0.85).split(',')[1]);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); rej(Object.assign(new Error('bad image'), { code: 'image_rejected' })); };
+      img.src = url;
+    });
+  }
+  function receiptReader(){
+    const { getAI, getGenerativeModel, GoogleAIBackend } = window.fbAI;
+    const app = firebase.app()._delegate || firebase.app();
+    const model = getGenerativeModel(getAI(app, { backend: new GoogleAIBackend() }), {
+      model: AI_MODEL, generationConfig: { responseMimeType: 'application/json', temperature: 0.1 }
+    });
+    return {
+      limits: async () => ({ images: true }),
+      json: async (prompt, opt) => {
+        opt = opt || {};
+        const parts = [prompt];
+        for (const f of (opt.images || [])) parts.push({ inlineData: { data: await shrink(f), mimeType: 'image/jpeg' } });
+        if (opt.signal && opt.signal.aborted) throw Object.assign(new Error('cancelled'), { code: 'cancelled' });
+        let r;
+        try { r = await model.generateContent(parts); }
+        catch (e) {
+          const m = String(e && (e.message || e.code) || '');
+          if (/429|quota|RESOURCE_EXHAUSTED/i.test(m)) throw Object.assign(new Error(m), { code: 'quota' });
+          if (/503|overloaded|UNAVAILABLE/i.test(m)) throw Object.assign(new Error(m), { code: 'rate_limited' });
+          throw e;
+        }
+        const t = r.response.text().trim().replace(/^```(?:json)?\s*/i, '').replace(/```$/, '');
+        try { return JSON.parse(t); } catch (e) { throw Object.assign(new Error('json'), { code: 'invalid_json' }); }
+      }
+    };
+  }
+
   window.claude = {
     use: async name => {
       if (name === 'db') {
@@ -103,7 +146,11 @@
         if (!db) throw Object.assign(new Error('no db'), { code: 'not_configured' });
         return db;
       }
-      // レシート読み取り（Claude専用機能）はアプリ版では使えない
+      if (name === 'sample') {
+        const db = await init();
+        if (!db || !window.fbAI) throw Object.assign(new Error('no ai'), { code: 'not_granted' });
+        return receiptReader();
+      }
       throw Object.assign(new Error('unavailable'), { code: 'not_granted' });
     }
   };

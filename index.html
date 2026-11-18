@@ -660,7 +660,7 @@ function render0(){
   rows.forEach(e=>{
     if(e.date!==last){last=e.date;const d=new Date(e.date+'T00:00');html+=`<div class="dayhead">${d.getMonth()+1}月${d.getDate()}日（${'日月火水木金土'[d.getDay()]}）</div>`;}
     const ct=OLDMAP[e.category]||e.category;
-    html+=`<div class="item">${icon(ct)}<div class="mid"><div class="n">${esc(e.item||e.shop||ct)}</div><div class="muted">${esc(ct)}${e.shop&&e.item?'・'+esc(e.shop):''} <span class="who ${whoCls(e.who)}">${esc(whoDisp(e.who))}</span>${e.method?` <span class="tag later" style="margin:0">${esc(e.method)}</span>`:''}</div></div><div class="rt"><b class="num">${yen(e.amount)}</b><button class="mini" data-del="${esc(e.id)}">×</button></div></div>`;
+    html+=`<div class="item">${icon(ct)}<div class="mid"><div class="n">${esc(e.item||e.shop||ct)}</div><div class="muted">${esc(ct)}${e.shop&&e.item?'・'+esc(e.shop):''} <span class="who ${whoCls(e.who)}">${esc(whoDisp(e.who))}</span>${e.method?` <span class="tag later" style="margin:0">${esc(e.method)}</span>`:''}</div></div><div class="rt"><b class="num">${yen(e.amount)}</b><button class="mini" data-recedit="${esc(e.id)}" aria-label="編集">${LI('pencil')}</button><button class="mini" data-del="${esc(e.id)}">×</button></div></div>`;
   });
   $('recs').innerHTML=html||'<div class="muted">この期間の記録はまだないよ</div>';
 
@@ -786,7 +786,7 @@ function renderFlow(c){
     <div class="s"><span>MARU${st(ia.meFix)}</span><span class="num">${yen(ia.me)}</span></div>
     <div class="s"><span>KOKOA${st(ia.koFix)}</span><span class="num">${yen(ia.ko)}</span></div>
     <button class="link" id="incOpen" style="margin-top:4px">${LI('pencil')} この期間の月収を入力</button></div></details>`+
-    (c.xin.length?`<details class="fl2"><summary><span class="k">臨時収入</span><span class="num" style="color:var(--ok)">+${yen(c.xinSum)}</span></summary><div class="flsub">${c.xin.map((x,i)=>`<div class="s"><span>${esc(whoDisp(x.who))}｜${esc(x.label||'臨時収入')}</span><span style="display:flex;align-items:center;gap:6px"><span class="num">${yen(x.amount)}</span><button class="mini" data-xidel="${P}:${i}">×</button></span></div>`).join('')}</div></details>`:'')+
+    (c.xin.length?`<details class="fl2"><summary><span class="k">臨時収入</span><span class="num" style="color:var(--ok)">+${yen(c.xinSum)}</span></summary><div class="flsub">${c.xin.map((x,i)=>`<div class="s"><span>${esc(whoDisp(x.who))}｜${esc(x.label||'臨時収入')}</span><span style="display:flex;align-items:center;gap:6px"><span class="num">${yen(x.amount)}</span><button class="mini" data-xied="${P}:${i}" aria-label="編集">${LI('pencil')}</button><button class="mini" data-xidel="${P}:${i}">×</button></span></div>`).join('')}</div></details>`:'')+
     grp('固定費',c.fix,sub(fixAll,x=>`${x.o==='心愛'?'KOKOA':'MARU'}｜${x.label||''}`,x=>fid(x.o==='心愛'?'ko':'me',x)))+
     grp('サブスク',c.subs,sub(S.subs||[],x=>x.name||'',sid))+
     (c.carry.length?`<div class="fl" style="border-bottom:none"><span style="color:var(--ng)">先月分の未払い</span><span class="num" style="color:var(--ng)">−${yen(c.carrySum)}</span></div>`+c.carry.map(x=>`<div class="exitem xp od">${chk(x.pk)}${icon(x.c)}<div class="nw">${nameHtml(x.n)}<div class="n2" style="color:var(--ng)">${x.date.getMonth()+1}/${x.date.getDate()}の分・未払い</div></div><b class="num" style="font-size:13px;color:var(--ng)">${yen(x.a)}</b></div>`).join(''):'')+
@@ -1532,7 +1532,7 @@ setCore('home');
   .lockbar.open{border-color:rgba(255,200,87,.5);background:linear-gradient(90deg,rgba(255,200,87,.12),transparent);color:#ffe7b3}
   .lockbar.open svg.lucide{color:var(--warn);filter:drop-shadow(0 0 5px var(--warn))}
   .lockbar.open button{border-color:rgba(255,200,87,.6);background:rgba(255,200,87,.1);color:var(--warn)}
-  .plock #exOpen,.plock #xiOpen,.plock #incOpen,.plock [data-exed],.plock [data-exdel],.plock [data-xidel],.plock #recs [data-del],.plock #exAdd{opacity:.28;filter:grayscale(1)}
+  .plock #exOpen,.plock #xiOpen,.plock #incOpen,.plock [data-exed],.plock [data-exdel],.plock [data-xidel],.plock [data-xied],.plock #recs [data-recedit],.plock #recs [data-del],.plock #exAdd{opacity:.28;filter:grayscale(1)}
   .lockpill{display:inline-flex;align-items:center;gap:3px;margin-left:6px;font-family:"Orbitron",sans-serif;font-size:8.5px;letter-spacing:.16em;color:#0b0716;background:linear-gradient(90deg,#6ab8ff,#c6a8ff);border-radius:4px;padding:2px 6px 1px;vertical-align:2px;box-shadow:0 0 8px rgba(106,184,255,.6)}
   #lockToast{position:fixed;left:50%;bottom:110px;transform:translate(-50%,20px);z-index:60;opacity:0;pointer-events:none;transition:.3s;
     background:rgba(14,9,30,.95);border:1px solid rgba(106,184,255,.6);box-shadow:0 0 20px rgba(106,184,255,.35);color:#d9e9ff;border-radius:12px;padding:10px 14px;font-size:12px;white-space:nowrap;display:flex;align-items:center;gap:8px}
@@ -1620,7 +1620,7 @@ addEventListener('click',e=>{
   if(rl){e.stopImmediatePropagation();e.preventDefault();delete UNLOCK[rl.dataset.relock];render();renderSettings();return;}
   if(!t)return;
   let block=false;
-  if(isLocked(P)&&(t.matches('#incOpen,#incSave,#incReset,#exOpen,#xiOpen,#exAdd,[data-exed],[data-exdel],[data-xidel]')||t.closest('#recs [data-del]')))block=true;
+  if(isLocked(P)&&(t.matches('#incOpen,#incSave,#incReset,#exOpen,#xiOpen,#exAdd,[data-exed],[data-exdel],[data-xidel],[data-xied]')||t.closest('#recs [data-del],#recs [data-recedit]')))block=true;
   if(t.id==='fAdd'){const d=$('fDate').value||todayStr;if(isLocked(keyOf(d)))block=true;}
   if(t.id==='xAdd'){const d=$('xDate').value;const k=d?keyOf(d):P;if(isLocked(k))block=true;}
   if(t.id==='xiAdd'){const d=$('xiDate').value||todayStr;if(isLocked(keyOf(d)))block=true;}
@@ -2256,6 +2256,85 @@ const watch=()=>document.querySelectorAll('.tab>*').forEach(el=>{if(!el._ro){el.
 watch();lay();
 new MutationObserver(()=>{watch();lay();}).observe(document.querySelector('.wrap')||document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
 (mq.addEventListener?mq.addEventListener('change',lay):mq.addListener(lay));addEventListener('resize',lay);
+})();
+</script>
+<!-- ===== 記録と臨時収入の編集 ===== -->
+<style>
+  #fCancel,#xiCancel{display:none;margin-top:8px}
+  .editing #fCancel,.xiediting #xiCancel{display:block}
+  #tab-rec .card.editing{box-shadow:var(--shadow),0 0 0 1px var(--accent),0 0 18px rgba(198,168,255,.35)}
+  .editbadge{display:none;font-size:11px;color:var(--accent);letter-spacing:.06em;margin:0 0 8px}
+  .editing .editbadge{display:block}
+</style>
+<script>
+(()=>{
+const card=$('fAdd').closest('.card');
+card.querySelector('h2').insertAdjacentHTML('afterend','<div class="editbadge">✎ 記録を編集中（「保存する」で上書きされるよ）</div>');
+$('fAdd').insertAdjacentHTML('afterend','<button class="btn sub" id="fCancel">編集をやめる</button>');
+const xiAdd=$('xiAdd');xiAdd.insertAdjacentHTML('afterend','<button class="btn sub" id="xiCancel">編集をやめる</button>');
+const xiBox=xiAdd.parentElement;
+let REC=null,XI=null;
+
+function endRec(msg){REC=null;card.classList.remove('editing');$('fAdd').textContent='記録する';
+  $('fItem').value='';$('fAmount').value='';$('fShop').value='';$('fDate').value=todayStr;window.gasClear&&gasClear();
+  if(msg){$('fMsg').textContent=msg;setTimeout(()=>$('fMsg').textContent='',2500);}}
+function startRec(id){
+  const e=EXP.find(x=>x.id===id);if(!e)return;REC=id;
+  showTab('rec');
+  $('fAmount').value=e.amount||'';$('fItem').value=e.item||'';$('fShop').value=e.shop||'';$('fDate').value=e.date||todayStr;
+  selWho=e.who||'自分';document.querySelectorAll('#whoSeg button').forEach(b=>b.classList.toggle('on',b.dataset.w===selWho));
+  window.FCAR=e.car==='ko'?'ko':'me';
+  selCat=OLDMAP[e.category]||e.category||'その他';renderCatGrid();
+  if($('gLit'))$('gLit').value=e.liters||'';if($('gOdo'))$('gOdo').value=e.odo||'';try{window.fcarUI&&fcarUI();}catch(_){}
+  selPay=e.method?payerOf(e)+'|'+e.method:'';renderPaySeg();
+  card.classList.add('editing');$('fAdd').textContent='保存する';$('fMsg').textContent='';
+  setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'start'}),60);
+}
+const _fAdd=$('fAdd').onclick;
+$('fAdd').onclick=async function(){
+  if(!REC)return _fAdd.apply(this,arguments);
+  const amt=+$('fAmount').value||0;if(amt<=0){$('fAmount').focus();$('fMsg').textContent='金額を入れてね';return;}
+  const old=EXP.find(x=>x.id===REC)||{};const dt=$('fDate').value||todayStr;
+  const rec={item:$('fItem').value.trim(),date:dt,amount:amt,category:selCat,who:selWho,
+    kind:selWho==='2人'||LIVING.includes(selCat)?'2人の生活費':'個人',shop:$('fShop').value.trim(),
+    method:(selPay.split('|')[1]||''),payer:(selPay.split('|')[0]||''),
+    ts:dt===old.date&&old.ts?old.ts:(dt===todayStr?Date.now():new Date(dt+'T12:00').getTime())};
+  if(selCat==='ガソリン'&&window.gasExtra){const g=gasExtra();rec.car=g.car;rec.liters=g.liters||null;rec.odo=g.odo||null;}
+  if(!db){const i=EXP.findIndex(x=>x.id===REC);if(i>=0)EXP[i]={...EXP[i],...rec};render();endRec(`${yen(amt)} に直したよ`);return;}
+  try{await db.collection('expenses').doc(REC).update(rec);endRec(`${yen(amt)} に直したよ`);}
+  catch(err){$('fMsg').textContent='保存できなかった：'+(err&&err.code||'');}
+};
+
+function endXi(){XI=null;xiBox.classList.remove('xiediting');xiAdd.textContent='臨時収入を追加';$('xiLabel').value='';$('xiAmt').value='';}
+function startXi(k,i){
+  const x=((S.extraIncome||{})[k]||[])[+i];if(!x)return;XI={k,i:+i};
+  const f=$('xiForm');f.classList.add('on');
+  $('xiWho').value=x.who||'自分';try{xiToOpts();}catch(_){}
+  $('xiLabel').value=x.label||'';$('xiAmt').value=x.amount||'';$('xiDate').value=x.date||todayStr;
+  $('xiTo').value=x.to?x.to.split('|').slice(1).join('|'):'';
+  xiBox.classList.add('xiediting');xiAdd.textContent='保存する';
+  setTimeout(()=>f.scrollIntoView({behavior:'smooth',block:'center'}),60);
+}
+const _xiAdd=xiAdd.onclick;
+xiAdd.onclick=async function(){
+  if(!XI)return _xiAdd.apply(this,arguments);
+  const amt=+$('xiAmt').value||0,label=$('xiLabel').value.trim(),dt=$('xiDate').value||todayStr;if(amt<=0){$('xiAmt').focus();return;}
+  const who=$('xiWho').value,to=$('xiTo').value,k=keyOf(dt);
+  const L=(S.extraIncome[XI.k]||[]),old=L[XI.i]||{};
+  const it={label:label||'臨時収入',amount:amt,who,date:dt,to:to?whoName(who)+'|'+to:'',ts:dt===old.date&&old.ts?old.ts:(dt===todayStr?Date.now():new Date(dt+'T12:00').getTime())};
+  if(k===XI.k)L[XI.i]=it;else{L.splice(XI.i,1);(S.extraIncome[k]=S.extraIncome[k]||[]).push(it);}
+  $('xiForm').classList.remove('on');endXi();render();await save($('status'));$('status').textContent=`臨時収入を ${yen(amt)} に直したよ`;
+};
+
+addEventListener('click',e=>{
+  const r=e.target.closest('[data-recedit]');if(r){e.preventDefault();startRec(r.dataset.recedit);return;}
+  const x=e.target.closest('[data-xied]');if(x){e.preventDefault();const [k,i]=x.dataset.xied.split(':');startXi(k,i);return;}
+  if(e.target.closest('#fCancel')){endRec('');return;}
+  if(e.target.closest('#xiCancel')){$('xiForm').classList.remove('on');endXi();return;}
+  if(e.target.closest('#xiOpen')&&XI)endXi();
+});
+// 下のメニューで別のタブに移ったら編集をやめる
+document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{if(REC&&b.dataset.tab!=='rec')endRec('');}));
 })();
 </script>
 <script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}</script>

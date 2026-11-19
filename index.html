@@ -3040,6 +3040,66 @@ window.render=function(){const r=_r.apply(this,arguments);if(busy)return r;busy=
 try{render();}catch(e){console.error(e);}
 })();
 </script>
+<!-- ===== v4：レシートで読み込んだ記録は「明細」で何を買ったか見られる ===== -->
+<style>
+  .rcd-tag{display:inline-flex;align-items:center;gap:3px;margin-left:4px;padding:1px 7px;border-radius:999px;font-size:10px;font-weight:700;line-height:1.5;
+    color:var(--accent);border:1px solid rgba(190,155,255,.45);background:rgba(190,155,255,.1);cursor:pointer;vertical-align:middle;font-family:inherit}
+  .rcd-tag svg.lucide{width:11px;height:11px}
+  .rcd-tag.on{background:rgba(190,155,255,.25);box-shadow:0 0 10px rgba(190,155,255,.35)}
+  .rcd{margin:6px 0 10px 48px;padding:9px 11px;border-radius:11px;border:1px dashed rgba(190,155,255,.45);background:rgba(190,155,255,.06);font-size:12px;color:var(--sub)}
+  #flow .rcd{margin-left:40px}
+  .rcd .h{display:flex;align-items:center;gap:5px;font-weight:700;color:var(--accent);margin-bottom:5px}
+  .rcd .h svg.lucide{width:13px;height:13px;filter:drop-shadow(0 0 4px rgba(190,155,255,.6))}
+  .rcd .r{display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-bottom:1px dashed var(--line)}
+  .rcd .r span:first-child{color:var(--ink);word-break:break-all}
+  .rcd .r .num{flex-shrink:0}
+  .rcd .r.minus .num{color:var(--ok)}
+  .rcd .f{display:flex;justify-content:space-between;margin-top:6px;color:var(--ink);font-weight:700}
+  .rcd .note{font-size:10.5px;margin-top:4px}
+</style>
+<script>
+(()=>{
+const OPEN=new Set();
+// 保存してある memo（「品名 値段 / 品名 値段」）を品物リストに戻す
+function parseItems(memo){
+  return String(memo||'').split(' / ').map(s=>s.trim()).filter(Boolean).map(s=>{
+    const m=s.match(/^(.*\S)\s+(-?[\d,]+(?:\.\d+)?)$/);
+    return m?{name:m[1],price:Math.round(+m[2].replace(/,/g,''))}:{name:s,price:null};
+  });
+}
+function detailHtml(e){
+  const L=parseItems(e.memo);if(!L.length)return '';
+  const sum=L.reduce((a,x)=>a+(x.price||0),0),tot=+e.amount||0;
+  return `<div class="rcd" data-rcd="${esc(e.id)}"><div class="h">${LI('scan-line')}${esc(e.shop||'レシート')}の明細<span class="muted" style="margin-left:auto;font-weight:400">${L.length}点</span></div>`+
+    L.map(x=>`<div class="r${x.price<0?' minus':''}"><span>${esc(x.name)}</span><span class="num">${x.price===null?'':(x.price<0?'−'+yen(-x.price):yen(x.price))}</span></div>`).join('')+
+    `<div class="f"><span>払った金額</span><span class="num">${yen(tot)}</span></div>`+
+    (sum&&Math.abs(sum-tot)>0?`<div class="note">※品物の合計（${yen(sum)}）と違うのは、税・割引・読み取れなかった品物のぶんだよ</div>`:'')+`</div>`;
+}
+function addTags(){
+  document.querySelectorAll('#recs [data-recedit], #flow [data-recedit]').forEach(btn=>{
+    const id=btn.dataset.recedit,e=EXP.find(x=>x.id===id);
+    const row=btn.closest('.item,.exitem');if(!row||row.dataset.rcdDone)return;row.dataset.rcdDone=1;
+    if(!e||!parseItems(e.memo).length)return;
+    const sub=row.querySelector('.muted,.n2');if(!sub)return;
+    const on=OPEN.has(id);
+    sub.insertAdjacentHTML('beforeend',`<button class="rcd-tag${on?' on':''}" data-rcdtog="${esc(id)}">${LI('receipt')}明細</button>`);
+    if(on)row.insertAdjacentHTML('afterend',detailHtml(e));
+  });
+  try{icons();}catch(_){}
+}
+document.addEventListener('click',ev=>{
+  const b=ev.target.closest('[data-rcdtog]');if(!b)return;
+  ev.preventDefault();ev.stopPropagation();
+  const id=b.dataset.rcdtog,row=b.closest('.item,.exitem'),e=EXP.find(x=>x.id===id);
+  const nx=row&&row.nextElementSibling;
+  if(nx&&nx.matches('.rcd')){nx.remove();OPEN.delete(id);b.classList.remove('on');return;}
+  if(!e||!row)return;
+  row.insertAdjacentHTML('afterend',detailHtml(e));OPEN.add(id);b.classList.add('on');try{icons();}catch(_){}
+},true);
+const _r=window.render;window.render=function(){const r=_r.apply(this,arguments);try{addTags();}catch(e){console.error(e);}return r;};
+try{addTags();}catch(e){console.error(e);}
+})();
+</script>
 <script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}</script>
 </body>
 </html>

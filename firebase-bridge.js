@@ -132,10 +132,14 @@
           const m = String(e && (e.message || e.code) || '');
           if (/429|quota|RESOURCE_EXHAUSTED/i.test(m)) throw Object.assign(new Error(m), { code: 'quota' });
           if (/503|overloaded|UNAVAILABLE/i.test(m)) throw Object.assign(new Error(m), { code: 'rate_limited' });
+          if (/api-not-enabled|SERVICE_DISABLED|has not been used|not been enabled|firebasevertexai/i.test(m)) throw Object.assign(new Error(m), { code: 'not_enabled' });
+          if (/404|not found|is not supported/i.test(m)) throw Object.assign(new Error(m), { code: 'no_model' });
+          if (/403|PERMISSION_DENIED|API_KEY|api key|referer|app-check|appcheck/i.test(m)) throw Object.assign(new Error(m), { code: 'denied' });
+          if (/SAFETY|blocked/i.test(m)) throw Object.assign(new Error(m), { code: 'image_rejected' });
           throw e;
         }
         const t = r.response.text().trim().replace(/^```(?:json)?\s*/i, '').replace(/```$/, '');
-        try { return JSON.parse(t); } catch (e) { throw Object.assign(new Error('json'), { code: 'invalid_json' }); }
+        try { return JSON.parse(t); } catch (e) { const i = t.indexOf('{'), j = t.lastIndexOf('}'); if (i >= 0 && j > i) { try { return JSON.parse(t.slice(i, j + 1)); } catch (_) {} } throw Object.assign(new Error('json: ' + t.slice(0, 120)), { code: 'invalid_json' }); }
       }
     };
   }

@@ -1281,8 +1281,10 @@ async function readReceipt(file){
     $('camMsg').innerHTML=`<b style="color:var(--ok)">読み取ったよ！</b> 金額とカテゴリーを確認して「記録する」を押してね`;
   }catch(e){
     $('scanWrap').classList.remove('busy');
-    const M={not_granted:'レシート読み取りが使えない状態だよ',quota:'今日の読み取り回数の上限に達したみたい。明日また試してね',sampling_disabled:'このアカウントでは使えないみたい',images_unavailable:'この画面では写真を送れないよ',image_rejected:'この写真は読めなかった。別の写真で試してね',rate_limited:'今は混んでるみたい。少し待ってからもう一度',invalid_json:'うまく読み取れなかった。もう一度撮ってみてね',session_expired:'もう一度ログインしてね',cancelled:'やめたよ'};
-    $('camMsg').textContent=M[e&&e.code]||'読み取りに失敗した。もう一度試してね';
+    const M={not_granted:'レシート読み取りが使えない状態だよ',quota:'今日の読み取り回数の上限に達したみたい。明日また試してね',sampling_disabled:'このアカウントでは使えないみたい',images_unavailable:'この画面では写真を送れないよ',image_rejected:'この写真は読めなかった。別の写真で試してね',rate_limited:'今は混んでるみたい。少し待ってからもう一度',invalid_json:'うまく読み取れなかった。もう一度撮ってみてね',session_expired:'もう一度ログインしてね',cancelled:'やめたよ',
+      not_enabled:'FirebaseでAI（AI Logic）がまだオンになってないみたい',no_model:'読み取り用のAIが見つからなかった（設定の問題）',denied:'Firebaseに読み取りを断られた（APIキーの設定の問題）'};
+    const raw=String(e&&(e.message||e.code)||'').replace(/\s+/g,' ').slice(0,220);
+    $('camMsg').innerHTML=esc(M[e&&e.code]||'読み取りに失敗した。もう一度試してね')+(e&&e.code==='cancelled'?'':`<div class="muted" style="font-size:10px;margin-top:6px;word-break:break-all;user-select:text">エラー内容：${esc((e&&e.code?e.code+' / ':'')+raw)}</div>`);
   }
 }
 $('albIn').onchange=e=>{readReceipt(e.target.files[0]);e.target.value='';};

@@ -430,7 +430,7 @@
         <input type="text" id="fShop" placeholder="お店（なくてOK）">
       </div>
       <div class="seg" style="margin-top:10px" id="whoSeg"><button class="on" data-w="自分">MARU</button><button data-w="心愛">KOKOA</button><button data-w="2人">BOTH</button></div>
-      <div class="muted" style="margin-top:2px">支払い方法</div>
+      <div class="muted" style="margin-top:2px">ウォレット</div>
       <div class="seg" style="margin-top:4px;flex-wrap:wrap" id="paySeg"></div>
       <button class="btn grad" id="fAdd">記録する</button>
       <div class="msg" id="fMsg"></div>
@@ -527,12 +527,12 @@
     </details></div>
 
     <div class="card"><details id="payBox">
-      <summary><i data-lucide="wallet-cards"></i> お財布・支払い方法</summary>
+      <summary><i data-lucide="wallet-cards"></i> ウォレット</summary>
       <div class="muted" style="margin-top:6px">後払い・カードは「上限」「使った額」「確認した日」を入れると、その日以降の記録を自動で足して残りを出すよ</div>
       <div class="h3">MARU</div><div id="payMe"></div>
-      <button class="btn sub" data-padd="me">＋ 支払い方法を追加</button>
+      <button class="btn sub" data-padd="me">＋ ウォレットを追加</button>
       <div class="h3">KOKOA</div><div id="payKo"></div>
-      <button class="btn sub" data-padd="ko">＋ 支払い方法を追加</button>
+      <button class="btn sub" data-padd="ko">＋ ウォレットを追加</button>
     </details></div>
 
     <div class="card"><details>
@@ -768,7 +768,7 @@ function renderPays(){
    const yS=n=>(n<0?'−':'')+'¥'+Math.abs(Math.round(n||0)).toLocaleString('ja-JP');
    const bs=[...S.methods.me.map(m=>['マル',m]),...S.methods.ko.map(m=>['心愛',m])].filter(([o,m])=>!isCredit(m)).map(([o,m])=>balOf(m,o)).filter(b=>b!==null);
    $('paySum').innerHTML=(bs.length?`<span class="ptot"><em>合計残高</em><b>${yS(bs.reduce((a,b)=>a+b,0))}</b></span>`:'')+cr.map(([o,m])=>{const l=+m.limit-usedOf(m,o);return `<span><em>${esc(m.name)}</em>残り<b class="${l<+m.limit*.1?'low':''}">${yS(l)}</b></span>`;}).join('');}
-  $('pays').innerHTML=html||'<div class="muted">設定タブで支払い方法を入れてね</div>';
+  $('pays').innerHTML=html||'<div class="muted">設定タブでウォレットを入れてね</div>';
 }
 function payOptions(){return [...S.methods.me.map(m=>['マル',m]),...S.methods.ko.map(m=>['心愛',m])];}
 function renderPaySeg(){
@@ -2556,7 +2556,7 @@ window.readSettings=function(){const r=_rset.apply(this,arguments);
 
 // ---- 臨時収入：入金先を選ぶ（給料口座が最初）→ お財布の残高に入る ----
 window.xiToOpts=function(){const L=($('xiWho').value==='心愛'?S.methods.ko:S.methods.me).filter(m=>!isCredit(m)).sort((a,b)=>(b.salary?1:0)-(a.salary?1:0));
-  $('xiTo').innerHTML=L.map(m=>`<option value="${esc(m.name)}">${esc(m.name)}</option>`).join('')+'<option value="">入金先なし（お財布に入れない）</option>';try{syncSels();}catch(e){}};
+  $('xiTo').innerHTML=L.map(m=>`<option value="${esc(m.name)}">${esc(m.name)}</option>`).join('')+'<option value="">入金先なし（ウォレットに入れない）</option>';try{syncSels();}catch(e){}};
 $('xiWho').onchange=window.xiToOpts;
 const _xa=$('xiAdd').onclick;
 $('xiAdd').onclick=async function(){
@@ -2589,8 +2589,8 @@ function spItems(){
   EXP.filter(e=>e.date&&keyOf(e.date)===k&&e.date<=todayStr).forEach(e=>{const c=OLDMAP[e.category]||e.category||'その他';L.push({n:e.item||e.shop||c,d:e.date,a:+e.amount||0,c,src:e.method||'',who:e.who,t:'記録'});});
   const fx=[...S.fixed.me.map(f=>({f,o:'me',w:'自分'})),...S.fixed.ko.map(f=>({f,o:'ko',w:'心愛'}))];
   const due=(pk,occ)=>/^\d{4}-\d{2}-\d{2}$/.test(occ)&&occ<=todayStr; // チェックは確認用だけ。お金の動きは日付で決まる
-  fx.forEach(({f,o,w})=>{const occ=occOf(f.day,k);if(due(fid(o,f)+'|'+occ,occ))L.push({n:f.label,d:/^\d{4}-\d{2}-\d{2}$/.test(occ)?occ:'',a:+f.amount||0,c:catOf(f),src:f.from||'',who:w,t:'固定費'});});
-  (S.subs||[]).forEach(s=>{const occ=occOf(s.day,k);if(due(sid(s)+'|'+occ,occ))L.push({n:s.name,d:/^\d{4}-\d{2}-\d{2}$/.test(occ)?occ:'',a:+s.amount||0,c:'サブスク',src:s.from||'',who:s.who,t:'サブスク'});});
+  fx.forEach(({f,o,w})=>{const occ=occOf(f.day,k);if(due(fid(o,f)+'|'+occ,occ)&&!movedTo(fid(o,f)+'|'+occ))L.push({n:f.label,d:/^\d{4}-\d{2}-\d{2}$/.test(occ)?occ:'',a:+f.amount||0,c:catOf(f),src:f.from||'',who:w,t:'固定費'});});
+  (S.subs||[]).forEach(s=>{const occ=occOf(s.day,k);if(due(sid(s)+'|'+occ,occ)&&!movedTo(sid(s)+'|'+occ))L.push({n:s.name,d:/^\d{4}-\d{2}-\d{2}$/.test(occ)?occ:'',a:+s.amount||0,c:'サブスク',src:s.from||'',who:s.who,t:'サブスク'});});
   (S.extras[k]||[]).forEach(x=>{if(due(xid(x)+'|'+(x.date||k),x.date||''))L.push({n:splitL(x.label)[0],d:x.date||'',a:+x.amount||0,c:catOf(x),src:(x.from||'').split('|').slice(1).join('|'),who:x.who,t:'変動費'});});
   // 入ってきたお金
   const ia=incOf(k);const pd=k+'-25';const sal=w=>{const L2=w==='心愛'?S.methods.ko:S.methods.me;const m=L2.find(m=>m.salary);return m?m.name:'';};
@@ -2766,6 +2766,108 @@ addEventListener('click',e=>{const b=e.target.closest('#exOpen');if(!b)return;
   $('exForm').classList.remove('on');try{sfx('tab');}catch(_){}
   showTab('rec');setTimeout(()=>{const a=$('fAmount');if(a){a.scrollIntoView({behavior:'smooth',block:'center'});a.focus();}},350);
 },true);
+})();
+</script>
+<!-- ===== 利用可能額＝ウォレットの合計／変動費もプルダウン／延期した支払いの金額を直す ===== -->
+<style>
+  #flow details.fl2.exfold .flsub .exitem,#flow details.fl2.exfold .flsub .exg{margin:0}
+  .item.xp.deo{flex-wrap:wrap}
+  .budleft{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding:9px 12px;border-radius:10px;border:1px dashed rgba(190,155,255,.35);background:rgba(190,155,255,.05);font-size:12px;color:#cbbde9}
+  .budleft small{display:block;font-size:10px;color:var(--sub);margin-top:1px}
+  .budleft b{font-size:16px;color:#eadfff}.budleft b.neg{color:var(--ng)}
+  #flow .fl.budrow{border-top:none;color:var(--sub);font-size:12px}
+  .item.xp .rt .mini[data-dued]{vertical-align:2px;margin-left:2px;color:var(--accent)}
+</style>
+<script>
+(()=>{
+// ---- 利用可能額 ＝ ウォレットの合計残高（ホームの「合計残高」と同じ。後払い・カードはふくめない）----
+function walletSum(){
+  const B=[...S.methods.me.map(m=>['マル',m]),...S.methods.ko.map(m=>['心愛',m])].filter(([o,m])=>!isCredit(m))
+    .map(([o,m])=>balOf(m,o)).filter(b=>b!==null&&b!==undefined&&!isNaN(b));
+  return B.length?B.reduce((a,b)=>a+b,0):null;}
+window.walletSum=walletSum;
+const _calc=window.calc;
+window.calc=function(k=P){const c=_calc.apply(this,arguments);if(k!==NOWK)return c;
+  const t=walletSum();if(t===null)return c;c.budgetLeft=c.left;c.walletTotal=t;c.left=t;return c;};
+function heroBar(){const c=calc(P);
+  // 予算（目安）で見た残り：別の枠で出す
+  const bl=c.walletTotal!=null?c.budgetLeft:c.left;
+  let el=$('budLeft');if(!el){$('perday').insertAdjacentHTML('beforebegin','<div class="budleft" id="budLeft"></div>');el=$('budLeft');}
+  el.innerHTML=`<span>予算の残り（目安）<small>決めた予算 − 今の出費</small></span><b class="num${bl<0?' neg':''}">${yen(bl)}</b>`;
+  const fl=$('flow');if(fl&&!fl.querySelector('.budrow')){const sr=fl.querySelector('.fl.sumrow');if(sr)sr.insertAdjacentHTML('afterend',`<div class="fl budrow"><span>予算の残り（目安）</span><span class="num"${bl<0?' style="color:var(--ng)"':''}>${yen(bl)}</span></div>`);}
+  if(P!==NOWK||c.walletTotal==null)return;
+  const b=$('leftBar');if(b)b.style.width=(c.inc>0?Math.max(0,Math.min(100,c.walletTotal/c.inc*100)):0)+'%';}
+
+// ---- 延期した支払い：元の日にはウォレットから引かない（延期先の日に引く）----
+const movedDate=pk=>{const v=(S.paid||{})[pk];return typeof v==='string'&&v[0]==='→'&&/^\d{4}-\d{2}-\d{2}$/.test(v.slice(1))?v.slice(1):'';};
+const _bal=window.balOf;
+window.balOf=function(m,owner){const b=_bal.apply(this,arguments);if(b===null||b===undefined||!S.paid)return b;
+  let st;if(m.balance===undefined||m.balance===null||m.balance===''){const [py,pm]=NOWK.split('-').map(Number);st=new Date(py,pm-1,24);}
+  else{st=new Date(+m.balAt||0);st.setHours(0,0,0,0);}
+  const a=ds(st);let adj=0;
+  const back=(id,amt)=>Object.keys(S.paid).forEach(k=>{if(!k.startsWith(id+'|')||!movedDate(k))return;const d=k.slice(id.length+1);if(d>a&&d<=todayStr)adj+=+amt||0;});
+  const o=owner==='心愛'?'ko':'me';
+  (S.fixed[o]||[]).filter(f=>f.from===m.name).forEach(f=>back(fid(o,f),f.amount));
+  (S.subs||[]).filter(s=>s.from===m.name&&(whoName(s.who)===owner||(owner==='マル'&&s.who==='2人'))).forEach(s=>back(sid(s),s.amount));
+  return b+adj;};
+
+// ---- ホーム「収支の詳細」：変動費もプルダウンに ----
+let EXO=false;
+function foldEx(){const fl=$('flow');if(!fl||fl.querySelector(':scope>details.exfold'))return;
+  const hd=[...fl.querySelectorAll(':scope>.fl')].find(r=>r.firstElementChild&&r.firstElementChild.textContent.trim()==='変動費');if(!hd)return;
+  const items=[];let n=hd.nextElementSibling;while(n&&!n.matches('.fl,details.fl2')){items.push(n);n=n.nextElementSibling;}
+  const num=hd.querySelector('.num');const d=document.createElement('details');d.className='fl2 exfold exhead2';if(EXO)d.open=true;
+  d.innerHTML=`<summary><span class="k">変動費</span><span class="num" style="color:var(--warn)">${num?esc(num.textContent):''}</span></summary><div class="flsub"></div>`;
+  const box=d.querySelector('.flsub');items.forEach(x=>box.appendChild(x));
+  if(!items.length)box.innerHTML='<div class="muted" style="padding:6px 0">この期間の変動費はまだないよ</div>';
+  d.addEventListener('toggle',()=>{EXO=d.open;});hd.replaceWith(d);}
+
+// ---- 支払い予定：延期した支払い・変動費は ✎ で金額を直せる ----
+let DE=null;
+function extraByPk(pk){for(const [k,L] of Object.entries(S.extras||{})){if(!Array.isArray(L))continue;for(let i=0;i<L.length;i++){const x=L[i];if(x&&x.date&&xid(x)+'|'+x.date===pk)return {k,i,x};}}return null;}
+function srcOf(pk){const base=pk.slice(0,pk.lastIndexOf('|'));
+  let m=base.match(/^f:(me|ko):(.*)$/s);if(m){const o=m[1];const f=(S.fixed[o]||[]).find(f=>(f.label||'')===m[2]);if(!f)return null;const ow=o==='ko'?'心愛':'マル';
+    return {label:f.label,amount:+f.amount||0,cat:catOf(f),who:o==='ko'?'心愛':'自分',from:f.from?ow+'|'+f.from:''};}
+  if(base.startsWith('s:')){const s=(S.subs||[]).find(s=>(s.name||'')===base.slice(2));if(!s)return null;
+    return {label:s.name,amount:+s.amount||0,cat:'サブスク',who:s.who||'自分',from:s.from?(s.who==='心愛'?'心愛':'マル')+'|'+s.from:''};}
+  return null;}
+function destOf(pk){const md=movedDate(pk),src=srcOf(pk);if(!md||!src)return null;const b=exBase(src.label);let hit=null;
+  Object.entries(S.extras||{}).forEach(([k,L])=>(Array.isArray(L)?L:[]).forEach((x,i)=>{if(hit||!x)return;
+    if(x.of===pk||(x.date===md&&(exBase(x.label)===b||String(x.label||'').startsWith(src.label))))hit={k,i,x};}));
+  return {md,src,hit};}
+function movePaid(a,b){if(a===b||!S.paid||!(a in S.paid))return;S.paid[b]=S.paid[a];delete S.paid[a];}
+const _dr=window.dueRow;
+window.dueRow=function(x,N){let h=_dr.apply(this,arguments);
+  const mv=movedDate(x.pk),once=!!x.once;if(!mv&&!once)return h;
+  let cur=+x.a||0;
+  if(mv){const d=destOf(x.pk);if(d&&d.hit){cur=+d.hit.x.amount||0;h=h.replace(/(<div class="rt"><b class="num">)[^<]*(<\/b>)/,`$1${yen(cur)}$2`);}}
+  h=h.replace(/(<div class="rt"><b class="num">[^<]*<\/b>)/,`$1<button class="mini" data-dued="${esc(x.pk)}" aria-label="金額を直す">${LI('pencil')}</button>`);
+  if(DE===x.pk){const lab=mv?`${+mv.slice(5,7)}/${+mv.slice(8)}に払う金額`:'金額';
+    h=h.replace('class="item xp','class="item xp deo').replace(/<\/div>$/,`<div class="wedit" data-dueditbox="1"><small>${lab}</small><div class="wer"><div class="wein"><span>¥</span><input type="text" inputmode="numeric" autocomplete="off" value="${Math.round(cur).toLocaleString('ja-JP')}"></div><button class="btn grad" data-desave="${esc(x.pk)}">保存</button><button class="mini" data-decancel="1">×</button></div></div></div>`);}
+  return h;};
+document.addEventListener('input',e=>{const i=e.target;if(!i.closest||!i.closest('[data-dueditbox]'))return;const v=i.value.replace(/[^\d]/g,'');i.value=v?(+v).toLocaleString('ja-JP'):'';},true);
+document.addEventListener('click',async e=>{
+  const p=e.target.closest('[data-dued]'),sv=e.target.closest('[data-desave]'),cc=e.target.closest('[data-decancel]');
+  if(e.target.closest('[data-dueditbox]')&&!sv&&!cc){e.stopPropagation();return;}
+  if(!p&&!sv&&!cc)return;e.preventDefault();e.stopPropagation();
+  if(cc){DE=null;render();return;}
+  if(p){const k=p.dataset.dued;DE=DE===k?null:k;render();
+    setTimeout(()=>{const i=[...document.querySelectorAll('[data-dueditbox] input')].find(el=>el.offsetParent);if(i){i.focus();i.select();}},60);return;}
+  const pk=sv.dataset.desave;const inp=sv.closest('[data-dueditbox]').querySelector('input');const n=+String(inp.value).replace(/[^\d]/g,'');
+  if(!n){inp.focus();return;}
+  let name='';const mv=movedDate(pk);
+  if(mv){const d=destOf(pk);if(!d){DE=null;render();return;}name=d.src.label;
+    if(d.hit){const old=xid(d.hit.x)+'|'+d.hit.x.date;d.hit.x.amount=n;d.hit.x.of=pk;movePaid(old,xid(d.hit.x)+'|'+d.hit.x.date);}
+    else{const od=pk.slice(pk.lastIndexOf('|')+1);const it={label:`${d.src.label}（${+od.slice(5,7)}/${+od.slice(8)}の分）`,amount:n,cat:d.src.cat,who:d.src.who,date:mv,of:pk};
+      if(d.src.from)it.from=d.src.from;const k=keyOf(mv);(S.extras[k]=S.extras[k]||[]).push(it);}}
+  else{const f=extraByPk(pk);if(!f){DE=null;render();return;}name=splitL(f.x.label)[0];f.x.amount=n;movePaid(pk,xid(f.x)+'|'+f.x.date);}
+  DE=null;render();try{renderSettings();}catch(_){}
+  await save($('status'));$('status').textContent=`「${name}」を ${yen(n)} にしたよ`;
+},true);
+
+// ---- 再描画のたびに反映 ----
+const _r=window.render;window.render=function(){const r=_r.apply(this,arguments);try{foldEx();heroBar();icons();}catch(e){console.error(e);}return r;};
+try{render();}catch(e){console.error(e);}
 })();
 </script>
 <script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}</script>

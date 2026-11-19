@@ -103,10 +103,11 @@
     return new Promise((res, rej) => {
       const img = new Image(), url = URL.createObjectURL(file);
       img.onload = () => {
-        const m = 1600, k = Math.min(1, m / Math.max(img.width, img.height));
+        // 長いレシートでも文字がつぶれないよう、画素数で縮める（最大約400万画素・長い辺3072px）
+        const k = Math.min(1, Math.sqrt(4000000 / (img.width * img.height)), 3072 / Math.max(img.width, img.height));
         const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
         c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
-        res(c.toDataURL('image/jpeg', 0.85).split(',')[1]);
+        res(c.toDataURL('image/jpeg', 0.9).split(',')[1]);
       };
       img.onerror = () => { URL.revokeObjectURL(url); rej(Object.assign(new Error('bad image'), { code: 'image_rejected' })); };
       img.src = url;

@@ -1263,6 +1263,7 @@ async function readReceipt(file){
 - スーパーの食材は「食費」、飲食店は「外食」、ドラッグストアの日用品は「日用品」、ガソリンスタンドは「車」。
 - 年が読めないときは今日(${todayStr})に近い日付にしてください。
 - itemsは主な品物を最大15個まで。
+- totalは「合計」「お買上計」など実際に払った金額。「小計」「お預り」「お釣り」「ポイント」の数字は使わないでください。割引があれば割引後の金額にしてください。
 - レシートではない、または読めないときは {"error":"理由を日本語で短く"} だけを返してください。`;
   try{
     const r=await samp.json(prompt,{images:[file],signal:scanCtl.signal});
@@ -2868,6 +2869,62 @@ document.addEventListener('click',async e=>{
 // ---- 再描画のたびに反映 ----
 const _r=window.render;window.render=function(){const r=_r.apply(this,arguments);try{foldEx();heroBar();icons();}catch(e){console.error(e);}return r;};
 try{render();}catch(e){console.error(e);}
+})();
+</script>
+<!-- ===== レシート：押したら「撮影する／写真から選ぶ」を選べる＋読み取りのコツ ===== -->
+<style>
+  #camRow input[type=file],#fab input[type=file]{pointer-events:none}
+  .rcsheet{position:fixed;inset:0;z-index:150;display:none}
+  .rcsheet.on{display:block}
+  .rcsheet .rcbg{position:absolute;inset:0;background:rgba(8,4,20,.6);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);animation:rcfade .2s}
+  .rcsheet .rcpanel{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:520px;box-sizing:border-box;
+    padding:18px 16px calc(18px + env(safe-area-inset-bottom));border-radius:20px 20px 0 0;background:rgba(24,16,44,.97);
+    border:1px solid rgba(190,155,255,.4);border-bottom:none;box-shadow:0 -6px 30px rgba(190,155,255,.25);animation:rcup .25s ease-out}
+  .rcsheet .rch{font-size:14px;font-weight:800;color:#fff;letter-spacing:.04em;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+  .rcsheet .rch svg.lucide{width:18px;height:18px;color:var(--accent)}
+  .rcopts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .rcopt{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px 8px;border-radius:14px;cursor:pointer;
+    border:1px solid rgba(190,155,255,.5);background:rgba(190,155,255,.1);color:#fff;box-shadow:0 0 12px rgba(190,155,255,.2)}
+  .rcopt:active{background:rgba(190,155,255,.22)}
+  .rcopt svg.lucide{width:28px;height:28px;color:var(--accent);filter:drop-shadow(0 0 5px rgba(190,155,255,.7))}
+  .rcopt b{font-size:14px}.rcopt small{font-size:10px;color:var(--sub)}
+  .rcopt input{position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:0;cursor:pointer}
+  .rctips{margin-top:12px;border:1px dashed rgba(190,155,255,.35);border-radius:12px;padding:8px 12px;background:rgba(190,155,255,.04)}
+  .rctips summary{font-size:12px;font-weight:700;color:var(--accent);cursor:pointer}
+  .rctips ul{margin:8px 0 2px;padding-left:18px;font-size:12px;line-height:1.7;color:#e3d8ff}
+  .rcsheet .rcclose{width:100%;margin-top:12px}
+  @keyframes rcup{from{transform:translate(-50%,100%)}to{transform:translate(-50%,0)}}
+  @keyframes rcfade{from{opacity:0}to{opacity:1}}
+</style>
+<script>
+(()=>{
+document.body.insertAdjacentHTML('beforeend',`<div class="rcsheet" id="rcSheet">
+  <div class="rcbg" data-rcclose="1"></div>
+  <div class="rcpanel">
+    <div class="rch"><i data-lucide="scan-line"></i>レシートを読み取る</div>
+    <div class="rcopts">
+      <label class="rcopt"><i data-lucide="camera"></i><b>撮影する</b><small>カメラが開くよ</small><input type="file" id="rcCam" accept="image/*" capture="environment"></label>
+      <label class="rcopt"><i data-lucide="images"></i><b>写真から選ぶ</b><small>アルバムから</small><input type="file" id="rcPick" accept="image/*"></label>
+    </div>
+    <details class="rctips"><summary>上手く読み取るコツ</summary><ul>
+      <li>レシートを<b>平らに</b>のばして、暗い色の机に置く</li>
+      <li><b>真上から</b>、レシートが画面いっぱいになるように撮る</li>
+      <li>明るい場所で。<b>影・光の反射</b>が文字にかからないように</li>
+      <li>店名・日付・<b>合計</b>が1枚に入るように（長いレシートは折らずに少し離れて）</li>
+      <li>ピントが合ってから撮る（文字がにじんでたら撮り直し）</li>
+    </ul></details>
+    <button class="btn sub rcclose" data-rcclose="1">やめる</button>
+  </div></div>`);
+const sh=$('rcSheet');
+const open=()=>{sh.classList.add('on');try{icons();}catch(e){}};
+const close=()=>sh.classList.remove('on');
+addEventListener('click',e=>{
+  if(e.target.closest('#rcSheet')){if(e.target.closest('[data-rcclose]')){e.preventDefault();close();}return;}
+  const b=e.target.closest('#camRow,#fab');if(!b)return;
+  e.preventDefault();e.stopImmediatePropagation();try{sfx('tab');}catch(_){}open();
+},true);
+['rcCam','rcPick'].forEach(id=>$(id).addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';close();if(f)readReceipt(f);}));
+try{icons();}catch(e){}
 })();
 </script>
 <script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}</script>

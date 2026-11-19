@@ -2929,6 +2929,117 @@ addEventListener('click',e=>{
 try{icons();}catch(e){}
 })();
 </script>
+<!-- ===== 締め（24日）：来月以降の利用可能額は「未確定」／締めたらウォレット・未払い・変動費を次の期間へ引き継ぐ ===== -->
+<style>
+  .hero .big.pendbig{font-size:30px;color:#b9acdc;text-shadow:0 0 14px rgba(190,155,255,.35);letter-spacing:.08em}
+  .hero .big.pendbig small{font-size:11px;letter-spacing:.06em;color:var(--sub);margin-left:8px;font-weight:600;text-shadow:none}
+  .pendnote{display:flex;align-items:center;gap:8px;margin-top:10px;padding:9px 12px;border-radius:10px;border:1px dashed rgba(106,184,255,.45);background:rgba(106,184,255,.06);font-size:11.5px;line-height:1.5;color:#cfe6ff}
+  .pendnote svg.lucide{width:16px;height:16px;flex:none;color:#6ab8ff;filter:drop-shadow(0 0 5px #6ab8ff)}
+  #flow details.carryin>summary .k{color:#9fd0ff}
+  #flow details.carryin>summary .num{color:#9fd0ff}
+  #flow .carryin .ch{font-size:10px;color:var(--sub);letter-spacing:.06em;margin:6px 0 2px}
+  .lockbar .lt small{display:block;color:#9fd0ff;font-size:10.5px;margin-top:2px}
+</style>
+<script>
+(()=>{
+let setReady=false,expReady=false,busy=false,stm=null;
+const _n=window.normalize;window.normalize=function(d){const s=_n.apply(this,arguments);s.close=s.close||{};setReady=true;return s;};
+const noBal=m=>m.balance===undefined||m.balance===null||m.balance==='';
+const WL=()=>[...S.methods.me.map(m=>['マル',m]),...S.methods.ko.map(m=>['心愛',m])].filter(([o,m])=>!isCredit(m));
+const md=k=>{const [y,m]=k.split('-').map(Number);return {y,m};};
+const endLab=k=>{const {m}=md(k);return (m%12+1)+'/24';};          // その期間が締まる日
+// 今のウォレット残高（後払い・カードはふくめない）
+function wallets(){const w={};let t=0,n=0;
+  WL().forEach(([o,m])=>{const b=balOf(m,o);if(b===null||b===undefined||isNaN(b))return;w[o+'|'+m.name]=Math.round(b);t+=b;n++;});
+  return n?{w,t:Math.round(t)}:null;}
+
+// 期間を締める：ウォレット・未払い・残った変動費を次の期間へ
+function finalize(k,c){
+  const nk=shiftKey(k,1);
+  // ① ウォレット：締めの時の残高をそのまま次の期間のスタートにする（残高を入れてないお財布も¥0に戻らない）
+  WL().forEach(([o,m])=>{const key=o+'|'+m.name;if(c.w&&c.w[key]!=null&&noBal(m)){m.balance=c.w[key];m.balAt=c.ts;m.balCarry=k;}});
+  // ② 日付のある支払いで、まだチェックしてない分（次の期間に「先月分の未払い」として出る）
+  c.unpaid=overdueList().filter(x=>x.k===k).map(x=>({n:x.n,a:+x.a||0,d:ds(x.date),w:x.w||''}));
+  // ③ 日付なしの変動費で、まだ払ってない分は次の期間へ移す（予算・手元合わせは移さない）
+  const L=S.extras[k]||[],keep=[],mv=[];
+  L.forEach(x=>{if(x&&!x.date&&!x.settle&&!/手元|予算/.test(x.label||'')&&!isPaid(xid(x)+'|'+k))mv.push(x);else keep.push(x);});
+  if(mv.length){S.extras[k]=keep;S.extras[nk]=S.extras[nk]||[];mv.forEach(x=>S.extras[nk].push({...x,carry:k}));}
+  c.moved=mv.map(x=>({n:x.label||'変動費',a:+x.amount||0}));
+  c.done=1;c.at=Date.now();delete c.run;
+}
+// 開くたびに「今の期間の残高」を控えておく → 24日を過ぎて最初に開いたときに、それで締める
+function track(){
+  if(!setReady||!expReady||!db||P===undefined)return {ch:false,fin:false};
+  S.close=S.close||{};let ch=false,fin=false;
+  Object.keys(S.close).sort().forEach(k=>{const c=S.close[k];if(c&&!c.done&&k<NOWK){finalize(k,c);ch=fin=true;}});
+  const w=wallets();
+  if(w){const cur=S.close[NOWK];if(!cur||(!cur.done&&JSON.stringify(cur.w||{})!==JSON.stringify(w.w))){S.close[NOWK]={w:w.w,t:w.t,ts:Date.now(),run:1};ch=true;}}
+  return {ch,fin};
+}
+const closeOf=k=>{const c=(S.close||{})[k];return c&&c.done?c:null;};
+
+// 締まった期間の利用可能額 ＝ 締めの時のウォレット合計（確定）
+const _calc=window.calc;
+window.calc=function(k=P){const c=_calc.apply(this,arguments);
+  const cl=k<NOWK?closeOf(k):null;
+  if(cl){c.budgetLeft=c.left;c.walletTotal=cl.t;c.left=cl.t;c.closed=cl;}
+  if(k>NOWK)c.pending=true;
+  return c;};
+
+let LAB0=null;
+function hero(){
+  const lab=document.querySelector('#tab-home .hero .lab'),big=$('leftBig');if(!lab||!big)return;
+  if(LAB0===null)LAB0=lab.innerHTML;
+  let pb=$('leftPend');if(!pb){big.insertAdjacentHTML('afterend','<div class="big num pendbig" id="leftPend" style="display:none"></div>');pb=$('leftPend');}
+  let nt=$('pendNote');if(!nt){$('perday').insertAdjacentHTML('beforebegin','<div class="pendnote" id="pendNote" style="display:none"></div>');nt=$('pendNote');}
+  const c=calc(P);lab.innerHTML=LAB0;big.style.display='';pb.style.display='none';nt.style.display='none';
+  const fl=$('flow'),sr=fl&&fl.querySelector('.fl.sumrow');
+  if(P>NOWK){
+    // 来月以降：予算額は出す。利用可能額は前の期間が締まるまでわからない
+    big.style.display='none';pb.style.display='';pb.innerHTML='未確定<small>PENDING</small>';
+    $('leftBar').style.width='0%';
+    $('usedTxt').innerHTML=`予算額 <b class="num">${yen(c.freeBudget)}</b>`;
+    nt.style.display='flex';
+    nt.innerHTML=`<i data-lucide="hourglass"></i><span>${P===shiftKey(NOWK,1)?`${endLab(NOWK)}で今の期間が締まって、ウォレットが引き継がれたら決まるよ`:`この前の期間が締まって、ウォレットが引き継がれたら決まるよ`}</span>`;
+    const bl=$('budLeft');if(bl)bl.innerHTML=`<span>予算額（目安）<small>月収 − 固定費・サブスク・変動費・貯金</small></span><b class="num${c.freeBudget<0?' neg':''}">${yen(c.freeBudget)}</b>`;
+    if(sr){sr.querySelector('span').textContent='予算額（目安）';const n=sr.querySelector('.num');n.textContent=yen(c.freeBudget);n.style.color=c.freeBudget<0?'var(--ng)':'';}
+    fl&&fl.querySelectorAll('.budrow').forEach(r=>r.remove());
+  }else if(c.closed){
+    // 締まった期間：締めの時の残高（確定）
+    lab.innerHTML='<span class="num" style="letter-spacing:.18em;font-size:10px;opacity:.8">CLOSED</span>　締めの時の残高（確定）';
+    $('leftBar').style.width='100%';
+    $('budTxt').innerHTML=`次の期間に引き継ぎ`;
+    if(sr){sr.querySelector('span').textContent='締めの時の残高（確定）';sr.querySelector('.num').textContent=yen(c.closed.t);}
+  }
+  // 今の期間：前の期間から引き継いだもの
+  if(P===NOWK&&fl&&!fl.querySelector('.carryin')){const pk=shiftKey(NOWK,-1),cl=closeOf(pk);
+    if(cl){const W=Object.entries(cl.w||{}),U=cl.unpaid||[],M=cl.moved||[];
+      const row=(a,b)=>`<div class="s"><span>${a}</span><span class="num">${b}</span></div>`;
+      const d=document.createElement('details');d.className='fl2 carryin';
+      d.innerHTML=`<summary><span class="k">前の期間から引き継ぎ</span><span class="num">${yen(cl.t)}</span></summary><div class="flsub">
+        <div class="ch">${esc(labelOf(pk))} の締めのウォレット</div>${W.map(([k,v])=>row(keyHtml(k),yen(v))).join('')}
+        ${U.length?`<div class="ch">チェックしてない支払い（下の「先月分の未払い」）</div>${U.map(x=>row(esc(splitL(x.n)[0])+` <span class="muted">${+x.d.slice(5,7)}/${+x.d.slice(8)}</span>`,yen(x.a))).join('')}`:''}
+        ${M.length?`<div class="ch">払ってない変動費 → この期間に移したよ</div>${M.map(x=>row(esc(splitL(x.n)[0]),yen(x.a))).join('')}`:''}
+      </div>`;
+      fl.prepend(d);}}
+  // ロックの帯に「引き継いだ額」
+  const bar=$('lockBar');if(bar&&P<NOWK){const cl=closeOf(P),lt=bar.querySelector('.lt');if(cl&&lt&&!lt.querySelector('small'))lt.insertAdjacentHTML('beforeend',`<small>ウォレット ${yen(cl.t)} は次の期間に引き継いだよ</small>`);}
+  try{icons();}catch(e){}
+}
+
+const _r=window.render;
+window.render=function(){const r=_r.apply(this,arguments);if(busy)return r;busy=true;
+  try{
+    if(!expReady&&/記録\d+件/.test(($('status')||{}).textContent||''))expReady=true;
+    const t=track();
+    if(t.fin){_r.apply(this,arguments);try{renderSettings();}catch(e){}}
+    hero();
+    if(t.ch){clearTimeout(stm);stm=setTimeout(()=>save($('status')),t.fin?200:1500);}
+  }catch(e){console.error(e);}finally{busy=false;}
+  return r;};
+try{render();}catch(e){console.error(e);}
+})();
+</script>
 <script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}</script>
 </body>
 </html>

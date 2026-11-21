@@ -1,7 +1,7 @@
 // こあまる家：オフラインでも開けるようにする
-const CACHE = 'coamaru-v14';
+const CACHE = 'coamaru-v15';
 const CORE = ['./', 'index.html', 'firebase-bridge.js', 'firebase-config.js', 'lucide.min.js', 'logo.png', 'icon-192.png', 'icon-512.png', 'manifest.json', 'firebase-all.js'];
-self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
+self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
@@ -12,7 +12,7 @@ self.addEventListener('fetch', e => {
   if (/googleapis\.com$|firebaseio\.com$/.test(u.hostname) && !/fonts\./.test(u.hostname)) return;
   // 自分のファイルは「新しいのを取りに行って、だめならキャッシュ」
   if (u.origin === location.origin) {
-    e.respondWith(fetch(e.request).then(r => { const c = r.clone(); caches.open(CACHE).then(x => x.put(e.request, c)); return r; })
+    e.respondWith(fetch(e.request, { cache: 'no-cache' }).then(r => { const c = r.clone(); caches.open(CACHE).then(x => x.put(e.request, c)); return r; })
       .catch(() => caches.match(e.request).then(r => r || caches.match('index.html'))));
     return;
   }

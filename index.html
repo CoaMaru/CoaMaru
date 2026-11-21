@@ -421,7 +421,7 @@
         <label class="btn grad" style="flex:1;position:relative;text-align:center;overflow:hidden"><i data-lucide="image"></i> レシートの写真を選ぶ<input type="file" id="albIn" accept="image/*" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:0;cursor:pointer"></label>
       </div>
       <div id="camBox" hidden><div class="scan" id="scanWrap"><img id="camImg" alt="レシート"></div><div class="scanmsg" id="camMsg"></div><div class="scanitems" id="camItems"></div></div>
-      <div class="muted" id="camOff" style="display:none;text-align:center;margin-top:6px">この画面ではレシート読み取りが使えないよ（手入力はできるよ）</div>
+      <div class="muted" id="camOff" style="display:none;text-align:center;margin-top:6px">この画面ではレシート読み取りを利用できません（手入力は可能です）</div>
       <div class="amt"><span>¥</span><input type="number" id="fAmount" inputmode="numeric" placeholder="0"></div>
       <div class="catgrid" id="catGrid"></div>
       <input class="full" type="text" id="fItem" placeholder="内容（例：スーパーで食材）">
@@ -438,7 +438,7 @@
 
     <div class="card">
       <h2><span class="t"><i data-lucide="arrow-left-right"></i> チャージ・お金の移動</span></h2>
-      <div class="muted" style="margin-bottom:6px">銀行からPayPayにチャージしたときなど。出費には数えないよ</div>
+      <div class="muted" style="margin-bottom:6px">銀行からPayPayへのチャージなど。出費には含まれません</div>
       <div class="grid2"><select id="mvFrom"></select><select id="mvTo"></select></div>
       <div class="grid2" style="margin-top:8px"><input type="number" id="mvAmt" placeholder="金額" inputmode="numeric"><input type="date" id="mvDate"></div>
       <button class="btn grad" id="mvAdd">移動を記録</button>
@@ -493,7 +493,7 @@
       <div class="row"><label>KOKOAの月収<small>いつもの金額（確定前はこれで計算）</small></label><input type="number" class="w120" id="sIncKo" inputmode="numeric"></div>
       <div class="row"><label>生活費の予算<small>食費・日用品・光熱費（2人分）</small></label><input type="number" class="w120" id="sLiving" inputmode="numeric"></div>
       <div class="row"><label>毎月の貯金<small>結婚・出産用。先に取っておく</small></label><input type="number" class="w120" id="sSave" inputmode="numeric"></div>
-      <div class="row"><label>支払いを知らせる日数<small>この日数前から黄色になる</small></label><input type="number" class="w50" id="sNotify" inputmode="numeric"></div>
+      <div class="row"><label>支払いを知らせる日数<small>この日数前から黄色で表示</small></label><input type="number" class="w50" id="sNotify" inputmode="numeric"></div>
     </details></div>
 
     <div class="card"><details>
@@ -520,7 +520,7 @@
 
     <div class="card"><details id="goalBox">
       <summary><i data-lucide="gem"></i> 貯金の目標</summary>
-      <div class="row"><label>今の貯金額<small>2人の合計。たまに更新してね</small></label><input type="number" class="w120" id="sSavedNow" inputmode="numeric"></div>
+      <div class="row"><label>今の貯金額<small>2人の合計</small></label><input type="number" class="w120" id="sSavedNow" inputmode="numeric"></div>
       <div class="row"><label>賞与のときの追加貯金<small>7月・12月にそれぞれ</small></label><input type="number" class="w120" id="sBonus" inputmode="numeric"></div>
       <div id="goalRows"></div>
       <button class="btn sub" id="goalAdd">＋ 目標を追加</button>
@@ -528,7 +528,7 @@
 
     <div class="card"><details id="payBox">
       <summary><i data-lucide="wallet-cards"></i> ウォレット</summary>
-      <div class="muted" style="margin-top:6px">後払い・カードは「上限」「使った額」「確認した日」を入れると、その日以降の記録を自動で足して残りを出すよ</div>
+      <div class="muted" style="margin-top:6px">後払い・カードは「上限」「使った額」「確認した日」を入力すると、残りを自動で計算します</div>
       <div class="h3">MARU</div><div id="payMe"></div>
       <button class="btn sub" data-padd="me">＋ ウォレットを追加</button>
       <div class="h3">KOKOA</div><div id="payKo"></div>
@@ -639,7 +639,7 @@ function render0(){
   $('livUsed').textContent=yen(c.living);$('livBud').textContent=`予算 ${yen(c.lb)}`;
   $('livBar').style.width=(c.lb>0?Math.min(100,c.living/c.lb*100):0)+'%';
   $('livBarW').classList.toggle('green',c.living<=c.lb);
-  $('livSub').textContent=c.living>c.lb?`${yen(c.over)} オーバー（自由なお金から引いてるよ）`:`あと ${yen(c.lb-c.living)} 使えるよ`;
+  $('livSub').textContent=c.living>c.lb?`${yen(c.over)} オーバー（自由なお金から差し引き）`:`残り ${yen(c.lb-c.living)}`;
 
   renderDues();renderCal();
 
@@ -649,7 +649,7 @@ function render0(){
     const L=S.extras[k];
     return `<div class="dayhead">${labelOf(k)} の期間 <button class="link" data-go="${k}">この期間を見る ›</button></div>`+
       L.map(x=>`<div class="item xp">${icon(catOf(x))}<div class="mid">${nameHtml(x.label)}</div><div class="rt"><b class="num">${yen(x.amount)}</b></div></div>`).join('');
-  }).join(''):'<div class="muted">変動費はないよ</div>';
+  }).join(''):'<div class="muted">変動費はありません</div>';
 
   // 円グラフ
   const by={};const add=(k,v)=>{if(v>0)by[k]=(by[k]||0)+v;};
@@ -658,7 +658,7 @@ function render0(){
   const items=Object.entries(by).sort((a,b)=>b[1]-a[1]);
   const total=items.reduce((a,b)=>a+b[1],0);
   $('chart').innerHTML=total>0?donut(items,total):'';
-  $('legend').innerHTML=total>0?items.map(([k,v])=>`<div class="l"><span><span class="dot" style="background:${COLORS[k]||'#999'}"></span>${esc(k)}</span><span class="num">${yen(v)} <span class="muted">${Math.round(v/total*100)}%</span></span></div>`).join(''):'<div class="muted" style="padding:20px 0">この期間の記録はまだないよ</div>';
+  $('legend').innerHTML=total>0?items.map(([k,v])=>`<div class="l"><span><span class="dot" style="background:${COLORS[k]||'#999'}"></span>${esc(k)}</span><span class="num">${yen(v)} <span class="muted">${Math.round(v/total*100)}%</span></span></div>`).join(''):'<div class="muted" style="padding:20px 0">この期間の記録はありません</div>';
 
   // 記録一覧（日付ごと）
   const rows=[...c.rows].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
@@ -669,7 +669,7 @@ function render0(){
     const ct=OLDMAP[e.category]||e.category;
     html+=`<div class="item">${icon(ct)}<div class="mid"><div class="n">${esc(e.item||e.shop||ct)}</div><div class="muted">${esc(ct)}${e.shop&&e.item?'・'+esc(e.shop):''} <span class="who ${whoCls(e.who)}">${esc(whoDisp(e.who))}</span>${e.method?` <span class="tag later" style="margin:0">${esc(e.method)}</span>`:''}</div></div><div class="rt"><b class="num">${yen(e.amount)}</b><button class="mini" data-recedit="${esc(e.id)}" aria-label="編集">${LI('pencil')}</button><button class="mini" data-del="${esc(e.id)}">×</button></div></div>`;
   });
-  $('recs').innerHTML=html||'<div class="muted">この期間の記録はまだないよ</div>';
+  $('recs').innerHTML=html||'<div class="muted">この期間の記録はありません</div>';
 
   renderFlow(c);renderPays();renderPaySeg();renderMoves();
   renderTrend();
@@ -723,7 +723,7 @@ document.addEventListener('click',async e=>{
     const v=$('weIn').value;if(v===''){$('weIn').focus();return;}const n=+v;
     if(isCredit(m)){const lim=+m.limit||0;m.used=lim?Math.max(0,lim-n):n;m.usedAt=Date.now();m.asOf=todayStr;}
     else{m.balance=n;m.balAt=Date.now();}
-    WE=null;render();try{renderSettings();}catch(_){}await save($('status'));$('status').textContent=`${nm} を ${yen(n)} にしたよ`;return;}
+    WE=null;render();try{renderSettings();}catch(_){}await save($('status'));$('status').textContent='更新しました';return;}
   if(bl&&!e.target.closest('[data-wedit]')){e.stopPropagation();const k=bl.dataset.wbal;WE=WE===k?null:k;renderPays();icons();setTimeout(()=>{const i=$('weIn');if(i){i.focus();i.select();}},50);}
 },true);
 function walletCount(w,m){const key=w+'|'+m.name;let n=EXP.filter(e=>matchRec(e,w,m)&&e.date&&keyOf(e.date)===P).length;
@@ -742,7 +742,7 @@ function walletDetail(w,m){
   }
   L.sort((a,b)=>b.ts-a.ts);
   const rows=L.map(r=>`<div style="display:flex;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line);font-size:12px"><span class="muted" style="width:34px">${r.t}</span><span style="flex:1;min-width:0"><span>${esc(r.n)}</span><div class="muted" style="font-size:10px">${r.h?r.sub:esc(r.sub||'')}</div></span><b class="num" style="color:${r.a<0?'var(--text)':'var(--ok)'}">${r.a<0?'−':'+'}${yen(Math.abs(r.a))}</b></div>`).join('');
-  return `<div style="flex-basis:100%;padding:4px 0 2px 48px" data-wdbody="1"><div class="muted" style="font-size:11px;margin-bottom:2px">この期間の内訳（${L.length}件）</div>${rows||'<div class="muted" style="padding:6px 0">この期間の記録はまだないよ</div>'}</div>`;
+  return `<div style="flex-basis:100%;padding:4px 0 2px 48px" data-wdbody="1"><div class="muted" style="font-size:11px;margin-bottom:2px">この期間の内訳（${L.length}件）</div>${rows||'<div class="muted" style="padding:6px 0">この期間の記録はありません</div>'}</div>`;
 }
 document.addEventListener('click',e=>{const r=e.target.closest('[data-wd]');if(!r||e.target.closest('[data-wdbody],[data-wedit],[data-wbal]'))return;const k=r.dataset.wd;WD.has(k)?WD.delete(k):WD.add(k);renderPays();icons();});
 function renderPays(){
@@ -757,7 +757,7 @@ function renderPays(){
       else if(m.day){const d=nextDue(+m.day).date;extra=`<div class="muted">次の引き落とし ${d.getMonth()+1}/${d.getDate()}</div>`;}
     }else{
       const b=balOf(m,w);
-      right=b===null?`<b class="num" style="color:var(--sub)">未入力</b><div class="muted" style="color:var(--accent)">タップで残高を入れる</div>`:`<b class="num"${b<0?' style="color:var(--ng)"':''}>${yen(b)}</b><div class="muted">残高</div>`;
+      right=b===null?`<b class="num" style="color:var(--sub)">未入力</b><div class="muted" style="color:var(--accent)">タップで残高を入力</div>`:`<b class="num"${b<0?' style="color:var(--ng)"':''}>${yen(b)}</b><div class="muted">残高</div>`;
 
     }
     const wk=w+'|'+m.name,has=walletCount(w,m)>0,op=has&&WD.has(wk);
@@ -768,14 +768,14 @@ function renderPays(){
    const yS=n=>(n<0?'−':'')+'¥'+Math.abs(Math.round(n||0)).toLocaleString('ja-JP');
    const bs=[...S.methods.me.map(m=>['マル',m]),...S.methods.ko.map(m=>['心愛',m])].filter(([o,m])=>!isCredit(m)).map(([o,m])=>balOf(m,o)).filter(b=>b!==null);
    $('paySum').innerHTML=(bs.length?`<span class="ptot"><em>合計残高</em><b>${yS(bs.reduce((a,b)=>a+b,0))}</b></span>`:'')+cr.map(([o,m])=>{const l=+m.limit-usedOf(m,o);return `<span><em>${esc(m.name)}</em>残り<b class="${l<+m.limit*.1?'low':''}">${yS(l)}</b></span>`;}).join('');}
-  $('pays').innerHTML=html||'<div class="muted">設定タブでウォレットを入れてね</div>';
+  $('pays').innerHTML=html||'<div class="muted">設定タブでウォレットを登録してください</div>';
 }
 function payOptions(){return [...S.methods.me.map(m=>['マル',m]),...S.methods.ko.map(m=>['心愛',m])];}
 function renderPaySeg(){
   const L=selWho==='2人'?payOptions():methodsOf(selWho).map(m=>[whoName(selWho),m]);
   if(!L.some(([o,m])=>o+'|'+m.name===selPay))selPay=L[0]?L[0][0]+'|'+L[0][1].name:'';
   const grp=o=>{const G=L.filter(x=>x[0]===o);return G.length?`<div class="pgrp">${otag(o)}<div class="pchips">${G.map(([o,m])=>{const k=o+'|'+m.name;return `<button data-pm="${esc(k)}" class="${k===selPay?'on':''}">${esc(m.name)}</button>`;}).join('')}</div></div>`:'';};
-  $('paySeg').innerHTML=(grp('マル')+grp('心愛'))||'<span class="muted" style="padding:6px">設定タブで追加してね</span>';
+  $('paySeg').innerHTML=(grp('マル')+grp('心愛'))||'<span class="muted" style="padding:6px">設定タブで追加してください</span>';
 }
 function renderMoves(){
   const og=(o,L,lab)=>L.length?`<optgroup label="${lab}">${L.map(m=>`<option value="${esc(o+'|'+m.name)}">${esc(m.name)}</option>`).join('')}</optgroup>`:'';
@@ -862,7 +862,7 @@ function paydaysUntil(ym){
 }
 function renderGoals(){
   const G=S.goals||[];const now=+S.savedNow||0,sv=+S.saving||0,bs=+S.bonusSave||0;
-  if(!G.length){$('goals').innerHTML='<div class="muted">設定タブから目標を追加してね</div>';return;}
+  if(!G.length){$('goals').innerHTML='<div class="muted">設定タブで目標を追加してください</div>';return;}
   $('goals').innerHTML=`<div class="muted" style="margin-bottom:8px">今の貯金 <b class="num">${yen(now)}</b>・毎月 ${yen(sv)}${bs?`・賞与ごと ${yen(bs)}`:''}</div>`+G.map(g=>{
     if(!g.ym)return'';
     const [y,m]=g.ym.split('-').map(Number);const {n,b}=paydaysUntil(g.ym);
@@ -871,10 +871,10 @@ function renderGoals(){
     body+=`<div class="muted" style="margin-top:6px">今のペースだと、その時点で</div><div class="gbig num">${yen(proj)}</div>`;
     if(tg>0){
       const p=Math.min(100,now/tg*100);const need=n>0?Math.max(0,(tg-now-bs*b)/n):Math.max(0,tg-now);
-      body+=`<div class="pbar"><i style="width:${p}%"></i></div><div class="muted">目標 ${yen(tg)} のうち ${Math.round(p)}% たまってる</div>`;
+      body+=`<div class="pbar"><i style="width:${p}%"></i></div><div class="muted">目標 ${yen(tg)} のうち ${Math.round(p)}% 達成</div>`;
       body+=proj>=tg?`<div class="tag soon" style="background:var(--okbg);color:var(--ok);margin-top:6px">このペースで達成できる 🎉</div>`
         :`<div class="tag today" style="margin-top:6px">あと毎月 ${yen(need)} 貯めれば達成</div>`;
-    }else body+=`<div class="muted" style="margin-top:4px">目標額を入れると、達成できるか判定するよ</div>`;
+    }else body+=`<div class="muted" style="margin-top:4px">目標額を入力すると達成見込みを表示します</div>`;
     return `<div class="goal">${body}</div>`;
   }).join('');
 }
@@ -882,7 +882,7 @@ function renderGoals(){
 // 返済
 const pf=x=>(Math.round(x*10)/10).toFixed(1);
 function renderDebt(){
-  const d=S.debt||{};if(!d.end||!d.monthly){$('debt').innerHTML='<div class="muted">設定タブで返済の情報を入れてね</div>';return;}
+  const d=S.debt||{};if(!d.end||!d.monthly){$('debt').innerHTML='<div class="muted">設定タブで返済情報を入力してください</div>';return;}
   let y=todayD.getFullYear(),m=todayD.getMonth()+1;if(todayD.getDate()>(+d.day||27)){m++;if(m>12){m=1;y++;}}
   const [ey,em]=d.end.split('-').map(Number);
   const left=Math.max(0,(ey-y)*12+(em-m)+1);
@@ -891,12 +891,12 @@ function renderDebt(){
   if(C.length){st=C.reduce((a,c)=>a+(+c.settle||0),0);remain=C.reduce((a,c)=>a+(+c.remain||0),0);paid=st-remain;p=st?paid/st*100:0;}
   else{remain=left>0?(left-1)*(+d.monthly)+(+d.last||+d.monthly):0;let total=left;if(d.start){const [sy,sm]=d.start.split('-').map(Number);total=Math.max(left,(ey-sy)*12+(em-sm)+1);}p=total?(total-left)/total*100:100;}
   const credHtml=C.length?`<div class="h3" style="margin-top:14px">和解先ごと${d.asOf?`（${d.asOf.slice(5).replace('-','/')}時点）`:''}</div>`+C.map(c=>{const q=+c.settle?((+c.settle)-(+c.remain||0))/(+c.settle)*100:0;return `<div style="margin-top:8px"><div style="display:flex;justify-content:space-between;font-size:13px"><span>${esc(c.name)} <b class="num" style="color:var(--ok)">${pf(q)}%</b></span><span class="num">残り ${yen(c.remain)} <span class="muted">/ ${yen(c.settle)}</span></span></div><div class="pbar green" style="height:6px;margin:4px 0 0"><i style="width:${q}%"></i></div></div>`;}).join(''):'';
-  if(left===0){$('debt').innerHTML='<div class="gbig">完済おめでとう！🎉</div>';return;}
+  if(left===0){$('debt').innerHTML='<div class="gbig">完済しました 🎉</div>';return;}
   $('debt').innerHTML=`<div class="goal" style="margin:0"><div class="gt"><b>${ey}年${em}月に完済予定</b><span style="font-size:20px;font-weight:800" class="num">${pf(p)}%</span></div>
     <div class="pbar green"><i style="width:${p}%"></i></div>${C.length?`<div class="muted">返済ずみ <b class="num">${yen(paid)}</b> / 和解金 ${yen(st)}</div>`:""}
     <div class="count"><div><b class="num">${left}</b><small>残りの回数</small></div><div><b class="num" style="font-size:15px;line-height:1.9">${yen(remain)}</b><small>残りの金額</small></div><div><b class="num">${m}/${d.day}</b><small>次の支払い</small></div></div>
     ${C.length?'<div class="muted" style="margin-top:6px">残りの金額は事務所の「残債務額」の合計（管理費は別）</div>':''}${credHtml}
-    <div class="muted" style="margin-top:10px">終わったら毎月 ${yen(d.monthly)} がまるごと貯金に回せるよ</div></div>`;
+    <div class="muted" style="margin-top:10px">終わったら毎月 ${yen(d.monthly)} を貯金に回せます</div></div>`;
 }
 
 // 支払い日
@@ -944,7 +944,7 @@ function renderCal(){
       `<div class="calsum"><span>合計 <b class="num">${yen(tot)}</b></span><span>まだ <b class="num" style="color:${un?'var(--warn)':'var(--ok)'}">${yen(un)}</b></span></div>`+
       `<div class="wkstrip">${days.map(d=>{const L=evOn(d);const isT=+d===+todayD;const stt=L.length?(L.some(o=>o.od)?'od':L.every(o=>o.paid)?'pd':'up'):'';return `<div class="wd${isT?' t':''}${d.getDay()===0?' sun':d.getDay()===6?' sat':''}"><span class="w">${'日月火水木金土'[d.getDay()]}</span><span class="dn">${d.getDate()}</span><i class="cdot ${stt}"></i></div>`;}).join('')}</div>`;
     const grp=days.filter(d=>evOn(d).length);
-    $('calList').innerHTML=grp.length?grp.map(d=>`<div class="dayhead">${d.getMonth()+1}月${d.getDate()}日（${'日月火水木金土'[d.getDay()]}）${+d===+todayD?' ・今日':''}</div>`+evOn(d).map(o=>dueRow(o,N)).join('')).join(''):'<div class="muted" style="padding:10px 0;text-align:center">この週の支払いはないよ</div>';
+    $('calList').innerHTML=grp.length?grp.map(d=>`<div class="dayhead">${d.getMonth()+1}月${d.getDate()}日（${'日月火水木金土'[d.getDay()]}）${+d===+todayD?' ・今日':''}</div>`+evOn(d).map(o=>dueRow(o,N)).join('')).join(''):'<div class="muted" style="padding:10px 0;text-align:center">この週の支払いはありません</div>';
     return;}
   const ev=calEvents(calY,calM);const first=new Date(calY,calM,1).getDay(),last=new Date(calY,calM+1,0).getDate();
   const all=Object.values(ev).flat();const tot=all.reduce((a,o)=>a+(+o.a||0),0),un=all.filter(o=>!o.paid).reduce((a,o)=>a+(+o.a||0),0);
@@ -957,7 +957,7 @@ function renderCal(){
     <div class="cgrid">${['日','月','火','水','木','金','土'].map((w,i)=>`<div class="cw${i===0?' sun':i===6?' sat':''}">${w}</div>`).join('')}${cells}</div>
     <div class="clg"><span><i class="cdot up"></i>予定</span><span><i class="cdot od"></i>未払い</span><span><i class="cdot pd"></i>支払い済み</span></div>`;
   const L=ev[calSel]||[];const N=+S.notifyDays||10;
-  $('calList').innerHTML=`<div class="dayhead">${calM+1}月${calSel}日の支払い</div>`+(L.length?L.map(o=>dueRow(o,N)).join(''):'<div class="muted" style="padding:8px 0">この日の支払いはないよ</div>');
+  $('calList').innerHTML=`<div class="dayhead">${calM+1}月${calSel}日の支払い</div>`+(L.length?L.map(o=>dueRow(o,N)).join(''):'<div class="muted" style="padding:8px 0">この日の支払いはありません</div>');
 }
 document.addEventListener('click',e=>{const b=e.target.closest('[data-calm],[data-cald],[data-calv],[data-calw]');if(!b||!b.closest('#cal'))return;
   if(b.dataset.calv){if(b.dataset.calv==='m'){calView='month';calY=todayD.getFullYear();calM=todayD.getMonth();calSel=todayD.getDate();}else{calView='week';wkOff=+b.dataset.calv.slice(1);}}
@@ -973,17 +973,17 @@ function dueList(){
   return {L,miss:all.length-L.filter(x=>!x.once).length};
 }
 function dueRow(x,N){
-  const mv=movedTo(x.pk);const pd=isPaid(x.pk)&&!mv;const cls=mv?'mv':pd?'done':x.od?'today':x.diff<0?'later':x.diff===0?'today':x.diff<=N?'soon':'later';const lab=mv?`${mv}に延期`:pd?'支払い済み':x.od?(x.k<NOWK?'先月分・':'')+'未払い':x.diff<0?'過ぎた日':x.diff===0?'今日！':`あと${x.diff}日`;
+  const mv=movedTo(x.pk);const pd=isPaid(x.pk)&&!mv;const cls=mv?'mv':pd?'done':x.od?'today':x.diff<0?'later':x.diff===0?'today':x.diff<=N?'soon':'later';const lab=mv?`${mv}に延期`:pd?'支払い済み':x.od?(x.k<NOWK?'先月分・':'')+'未払い':x.diff<0?'過ぎた日':x.diff===0?'今日':`あと${x.diff}日`;
   return `<div class="item xp${pd?' paid':''}${mv?' moved':''}${x.od&&!pd&&!mv?' od':''}">${chk(x.pk)}${icon(x.c)}<div class="mid">${nameHtml(x.n)}<div class="muted">${x.once?'変動費':'毎月'+x.day+'日'} <span class="who ${whoCls(x.w)}">${esc(whoDisp(x.w))}</span></div></div><div class="rt"><b class="num">${yen(x.a)}</b><div><span class="tag ${cls}">${x.date.getMonth()+1}/${x.date.getDate()}・${lab}</span></div></div></div>`;
 }
 function renderDues(){
   const N=+S.notifyDays||10;const {L,miss}=dueList();
-  $('dueNote').textContent=`${N}日前から黄色で知らせるよ`+(miss?`・日付未登録 ${miss}件`:'');
+  $('dueNote').textContent=`${N}日前から黄色で表示`+(miss?`・日付未登録 ${miss}件`:'');
   const OD=overdueList().map(x=>({...x,od:1}));
-  $('dues').innerHTML=(OD.length||L.length)?[...OD,...L].map(x=>dueRow(x,N)).join(''):'<div class="muted">支払い日が登録されたものはまだないよ</div>';
+  $('dues').innerHTML=(OD.length||L.length)?[...OD,...L].map(x=>dueRow(x,N)).join(''):'<div class="muted">支払い日が登録された項目はありません</div>';
   const soon=[...OD,...L.filter(x=>x.diff<=N)];const unpaid=soon.filter(x=>!isPaid(x.pk));
   $('duesSoon').innerHTML=soon.length?soon.map(x=>dueRow(x,N)).join('')+`<div class="muted" style="text-align:right;margin-top:6px">${unpaid.length?`まだ払っていない分 <b class="num">${yen(sum(unpaid.map(x=>({amount:x.a}))))}</b>`:'<b style="color:var(--ok)">全部払い済み ✓</b>'}</div>`
-    :(L.length?`<div class="muted">${N}日以内の支払いはないよ。次は ${esc(L[0].n)}（${L[0].date.getMonth()+1}/${L[0].date.getDate()}）</div>`:'<div class="muted">設定タブで固定費に支払い日を入れると、ここに出るよ</div>');
+    :(L.length?`<div class="muted">${N}日以内の支払いはありません。次回：${esc(L[0].n)}（${L[0].date.getMonth()+1}/${L[0].date.getDate()}）</div>`:'<div class="muted">設定タブで固定費に支払い日を入力すると表示されます</div>');
 }
 
 // サブスク
@@ -994,7 +994,7 @@ function renderSubs(){
     <input type="number" class="w90" data-sa="${i}" value="${+s.amount||0}" inputmode="numeric">
     <input type="number" class="w50" data-sd="${i}" value="${s.day||''}" inputmode="numeric" placeholder="日">
     <select data-sw="${i}">${['自分','心愛','2人'].map(w=>`<option value="${w}"${w===s.who?' selected':''}>${whoDisp(w)}</option>`).join('')}</select>
-    <button class="mini" data-sx="${i}">×</button>${fromSel(`data-sf="${i}"`,s.who==='心愛'?'ko':'me',s.from)}</div>`).join(''):'<div class="muted">まだないよ</div>';
+    <button class="mini" data-sx="${i}">×</button>${fromSel(`data-sf="${i}"`,s.who==='心愛'?'ko':'me',s.from)}</div>`).join(''):'<div class="muted">ありません</div>';
   subTotals();
 }
 function subTotals(){const m=sum(S.subs||[]);$('subMonth').textContent=yen(m);$('subYear').textContent=yen(m*12);}
@@ -1050,9 +1050,9 @@ function readSettings(){
   readSubs();
 }
 async function save(msgEl){
-  if(!db){msgEl.textContent='今は保存できない状態だよ（画面の中だけ反映）';return;}
-  try{await db.doc('settings/main').set(JSON.parse(JSON.stringify(S)));msgEl.textContent=msgEl.id==='sMsg'?'保存完了':'保存したよ ✓';setTimeout(()=>msgEl.textContent='',2500);}
-  catch(err){msgEl.textContent='保存できなかった：'+(err&&err.code||'');}
+  if(!db){msgEl.textContent='保存できません（画面上のみ反映）';return;}
+  try{await db.doc('settings/main').set(JSON.parse(JSON.stringify(S)));msgEl.textContent='保存しました';setTimeout(()=>msgEl.textContent='',2500);}
+  catch(err){msgEl.textContent='保存できませんでした：'+(err&&err.code||'');}
 }
 
 // 効果音
@@ -1198,27 +1198,27 @@ function renderCatGrid(){renderCatGrid0();icons();}
 function renderCatGrid0(){$('catGrid').innerHTML=CATS.map(c=>`<button class="cat${c===selCat?' on':''}" data-cat="${c}">${LI(ICN[c])}${c.replace('・','<br>')}</button>`).join('');}
 $('fDate').value=todayStr;
 $('fAdd').onclick=async()=>{
-  const amt=+$('fAmount').value||0;if(amt<=0){$('fAmount').focus();$('fMsg').textContent='金額を入れてね';return;}
+  const amt=+$('fAmount').value||0;if(amt<=0){$('fAmount').focus();$('fMsg').textContent='金額を入力してください';return;}
   const rec={item:$('fItem').value.trim(),date:$('fDate').value||todayStr,amount:amt,category:selCat,who:selWho,kind:selWho==='2人'||LIVING.includes(selCat)?'2人の生活費':'個人',shop:$('fShop').value.trim(),memo:pendingMemo||'',method:(selPay.split('|')[1]||''),payer:(selPay.split('|')[0]||''),ts:($('fDate').value||todayStr)===todayStr?Date.now():new Date(($('fDate').value)+'T12:00').getTime()};
   if(rec.category==='ガソリン'&&window.gasExtra)Object.assign(rec,window.gasExtra());
-  const clear=()=>{pendingMemo='';window.gasClear&&gasClear();$('camBox').hidden=true;$('fItem').value='';$('fAmount').value='';$('fShop').value='';$('fMsg').textContent=`${yen(amt)} を記録したよ`;setTimeout(()=>$('fMsg').textContent='',2500);};
+  const clear=()=>{pendingMemo='';window.gasClear&&gasClear();$('camBox').hidden=true;$('fItem').value='';$('fAmount').value='';$('fShop').value='';$('fMsg').textContent='記録しました';setTimeout(()=>$('fMsg').textContent='',2500);};
   if(!db){EXP.push({...rec,id:'local'+Date.now()});render();clear();return;}
   try{await db.collection('expenses').add(rec);clear();}
-  catch(err){$('fMsg').textContent='追加できなかった：'+(err&&err.code||'');}
+  catch(err){$('fMsg').textContent='追加できませんでした：'+(err&&err.code||'');}
 };
 $('mvDate').value=todayStr;
 $('mvAdd').onclick=async()=>{
   const amt=+$('mvAmt').value||0,from=$('mvFrom').value,to=$('mvTo').value,dt=$('mvDate').value||todayStr;
-  if(amt<=0){$('mvMsg').textContent='金額を入れてね';return;}
-  if(!from||from===to){$('mvMsg').textContent='移動元と移動先を別にしてね';return;}
+  if(amt<=0){$('mvMsg').textContent='金額を入力してください';return;}
+  if(!from||from===to){$('mvMsg').textContent='移動元と移動先を別にしてください';return;}
   const v={from,to,amount:amt,date:dt,ts:dt===todayStr?Date.now():new Date(dt+'T12:00').getTime()};
-  const done=()=>{$('mvAmt').value='';$('mvMsg').textContent=`${from.split('|')[1]} → ${to.split('|')[1]} ${yen(amt)} を記録したよ`;setTimeout(()=>$('mvMsg').textContent='',2500);};
+  const done=()=>{$('mvAmt').value='';$('mvMsg').textContent='記録しました';setTimeout(()=>$('mvMsg').textContent='',2500);};
   if(!db){MOV.push({...v,id:'local'+Date.now()});render();done();return;}
-  try{await db.collection('moves').add(v);done();}catch(err){$('mvMsg').textContent='記録できなかった：'+(err&&err.code||'');}
+  try{await db.collection('moves').add(v);done();}catch(err){$('mvMsg').textContent='記録できませんでした：'+(err&&err.code||'');}
 };
 async function delMove(id){
   if(!db){MOV=MOV.filter(v=>v.id!==id);render();return;}
-  try{await db.collection('moves').doc(id).delete();}catch(err){$('status').textContent='削除できなかった';}
+  try{await db.collection('moves').doc(id).delete();}catch(err){$('status').textContent='削除できませんでした';}
 }
 function xiToOpts(){const L=$('xiWho').value==='心愛'?S.methods.ko:S.methods.me;$('xiTo').innerHTML='<option value="">入金先（なくてOK）</option>'+L.filter(m=>!isCredit(m)).map(m=>`<option value="${esc(m.name)}">${esc(m.name)}</option>`).join('');}
 $('xiWho').onchange=xiToOpts;
@@ -1226,7 +1226,7 @@ $('xiOpen').onclick=()=>{const f=$('xiForm');const on=!f.classList.contains('on'
 $('xiAdd').onclick=async()=>{const amt=+$('xiAmt').value||0,label=$('xiLabel').value.trim(),dt=$('xiDate').value||todayStr;if(amt<=0){$('xiAmt').focus();return;}
   const who=$('xiWho').value,to=$('xiTo').value;const k=keyOf(dt);S.extraIncome=S.extraIncome||{};
   (S.extraIncome[k]=S.extraIncome[k]||[]).push({label:label||'臨時収入',amount:amt,who,date:dt,to:to?whoName(who)+'|'+to:'',ts:dt===todayStr?Date.now():new Date(dt+'T12:00').getTime()});
-  $('xiForm').classList.remove('on');$('xiLabel').value='';$('xiAmt').value='';render();await save($('status'));$('status').textContent=`臨時収入 ${yen(amt)} を追加したよ`;};
+  $('xiForm').classList.remove('on');$('xiLabel').value='';$('xiAmt').value='';render();await save($('status'));$('status').textContent='追加しました';};
 document.addEventListener('click',e=>{const b=e.target.closest('[data-xidel]');if(!b)return;e.preventDefault();const [k,i]=b.dataset.xidel.split(':');((S.extraIncome||{})[k]||[]).splice(+i,1);render();save($('status'));});
 async function addExtra(){
   const amt=+$('xAmt').value||0,ttl=$('xLabel').value.trim(),memo=$('xMemo').value.trim(),label=ttl&&memo?`${ttl}（${memo}）`:ttl,dt=$('xDate').value;
@@ -1239,11 +1239,11 @@ async function addExtra(){
   else (S.extras[k]=S.extras[k]||[]).push(it);
   exOpen=false;$('exForm').classList.remove('on');$('xMemo').value='';$('xLabel').value='';$('xAmt').value='';$('xDate').value='';renderSettings();render();
   await save($('status'));
-  $('status').textContent=`「${label}」を保存したよ`;
+  $('status').textContent='保存しました';
 }
 async function delExp(id){
   if(!db){EXP=EXP.filter(e=>e.id!==id);render();return;}
-  try{await db.collection('expenses').doc(id).delete();}catch(err){$('status').textContent='削除できなかった';}
+  try{await db.collection('expenses').doc(id).delete();}catch(err){$('status').textContent='削除できませんでした';}
 }
 
 // レシート読み取り
@@ -1254,8 +1254,8 @@ async function readReceipt(file){
   showTab('rec');
   $('camBox').hidden=false;$('scanWrap').classList.add('busy');
   try{$('camImg').src=URL.createObjectURL(file);}catch(e){}
-  $('camMsg').textContent='読み取り中…（10〜30秒くらい）';$('camItems').innerHTML='';
-  if(!samp){$('camMsg').textContent='この画面ではレシート読み取りが使えないよ';$('scanWrap').classList.remove('busy');return;}
+  $('camMsg').textContent='読み取り中…';$('camItems').innerHTML='';
+  if(!samp){$('camMsg').textContent='この画面ではレシート読み取りを利用できません';$('scanWrap').classList.remove('busy');return;}
   scanCtl=new AbortController();
   const prompt=`これは日本のお店のレシートの写真です。内容を読み取って、次の形のJSONだけを返してください。
 {"shop":"店名","date":"YYYY-MM-DD または null","total":支払い合計(税込・整数),"category":"カテゴリー","item":"何を買ったかの短い要約(15文字以内)","items":[{"name":"品名","price":整数}]}
@@ -1268,7 +1268,7 @@ async function readReceipt(file){
   try{
     const r=await samp.json(prompt,{images:[file],signal:scanCtl.signal});
     $('scanWrap').classList.remove('busy');
-    if(!r||r.error){$('camMsg').textContent='読み取れなかった：'+(r&&r.error||'もう一度撮ってみてね');return;}
+    if(!r||r.error){$('camMsg').textContent='読み取れませんでした：'+(r&&r.error||'もう一度撮影してください');return;}
     const tot=Math.round(+String(r.total??'').replace(/[^\d.]/g,'')||0);
     if(tot>0)$('fAmount').value=tot;
     if(r.shop)$('fShop').value=String(r.shop).slice(0,40);
@@ -1278,13 +1278,13 @@ async function readReceipt(file){
     const its=Array.isArray(r.items)?r.items.slice(0,15):[];
     pendingMemo=its.map(x=>`${x.name} ${x.price}`).join(' / ').slice(0,600);
     $('camItems').innerHTML=its.map(x=>`<div><span>${esc(x.name)}</span><span class="num">${yen(+x.price||0)}</span></div>`).join('');
-    $('camMsg').innerHTML=`<b style="color:var(--ok)">読み取ったよ！</b> 金額とカテゴリーを確認して「記録する」を押してね`;
+    $('camMsg').innerHTML=`<b style="color:var(--ok)">読み取りました</b> 内容を確認して「記録する」を押してください`;
   }catch(e){
     $('scanWrap').classList.remove('busy');
-    const M={not_granted:'レシート読み取りが使えない状態だよ',quota:'今日の読み取り回数の上限に達したみたい。明日また試してね',sampling_disabled:'このアカウントでは使えないみたい',images_unavailable:'この画面では写真を送れないよ',image_rejected:'この写真は読めなかった。別の写真で試してね',rate_limited:'今は混んでるみたい。少し待ってからもう一度',invalid_json:'うまく読み取れなかった。もう一度撮ってみてね',session_expired:'もう一度ログインしてね',cancelled:'やめたよ',
-      not_enabled:'FirebaseでAI（AI Logic）がまだオンになってないみたい',no_model:'読み取り用のAIが見つからなかった（設定の問題）',denied:'Firebaseに読み取りを断られた（APIキーの設定の問題）'};
+    const M={not_granted:'レシート読み取りを利用できません',quota:'本日の読み取り上限に達しました',sampling_disabled:'このアカウントでは利用できません',images_unavailable:'この画面では写真を送信できません',image_rejected:'この写真は読み取れませんでした',rate_limited:'混み合っています。しばらくしてからお試しください',invalid_json:'読み取れませんでした。もう一度撮影してください',session_expired:'再度ログインしてください',cancelled:'キャンセルしました',
+      not_enabled:'FirebaseのAI Logicが有効になっていません',no_model:'読み取り用のAIが見つかりません（設定エラー）',denied:'Firebaseに読み取りを断られた（APIキーの設定の問題）'};
     const raw=String(e&&(e.message||e.code)||'').replace(/\s+/g,' ').slice(0,220);
-    $('camMsg').innerHTML=esc(M[e&&e.code]||'読み取りに失敗した。もう一度試してね')+(e&&e.code==='cancelled'?'':`<div class="muted" style="font-size:10px;margin-top:6px;word-break:break-all;user-select:text">エラー内容：${esc((e&&e.code?e.code+' / ':'')+raw)}</div>`);
+    $('camMsg').innerHTML=esc(M[e&&e.code]||'読み取りに失敗しました。もう一度お試しください')+(e&&e.code==='cancelled'?'':`<div class="muted" style="font-size:10px;margin-top:6px;word-break:break-all;user-select:text">エラー内容：${esc((e&&e.code?e.code+' / ':'')+raw)}</div>`);
   }
 }
 $('albIn').onchange=e=>{readReceipt(e.target.files[0]);e.target.value='';};
@@ -1301,26 +1301,26 @@ $('fabIn').onchange=e=>{readReceipt(e.target.files[0]);e.target.value='';};
 $('cBtn').onclick=()=>{
   const price=+$('cPrice').value||0,need=$('cNeed').value,item=$('cItem').value.trim()||'それ';
   const box=$('verdict');
-  if(price<=0){box.className='verdict show warn';box.innerHTML='<div class="v">値段を入れてね</div>';return;}
+  if(price<=0){box.className='verdict show warn';box.innerHTML='<div class="v">値段を入力してください</div>';return;}
   const c=calc(),left=c.left;
   const per=Math.max(1,c.inc-c.fix-c.subs-c.sv-c.lb);
   let cls,title,msg,tips=[];
   if(left<=0){
-    if(need==='must'){cls='warn';title='必要なら買う。でも工夫を';msg=`この期間の自由なお金はもう残ってない（${yen(left)}）。必要なら生活費を削るか、貯金から出して来月戻そう。`;tips=['中古・型落ち・ポイントで安くできないか先に見る'];}
-    else{cls='ng';title='この期間はやめておこう';msg=`この期間の自由なお金はもう残ってないよ（${yen(left)}）。次の給料日以降にもう一度判定してね。`;tips=['欲しいものリストにメモしておく','1週間たっても欲しいなら本物'];}
+    if(need==='must'){cls='warn';title='必要なら工夫して購入';msg=`この期間の自由なお金は残っていません（${yen(left)}）。生活費を削るか、貯金から出して来月戻してください。`;tips=['中古・型落ち・ポイント活用を検討'];}
+    else{cls='ng';title='この期間は見送り';msg=`この期間の自由なお金は残っていません（${yen(left)}）。次の給料日以降に再判定してください。`;tips=['欲しいものリストにメモしておく','1週間後も欲しければ検討'];}
   }else if(price<=left*0.5){
-    cls='ok';title='買ってOK！';msg=`${esc(item)}（${yen(price)}）を買っても、この期間はまだ${yen(left-price)}残るよ。`;
-    tips=need==='impulse'?['なんとなくなら、一晩おいてから決めるともっと安心']:['クーポンやポイント還元だけチェック'];
+    cls='ok';title='購入OK';msg=`${esc(item)}（${yen(price)}）を買っても、この期間は${yen(left-price)}残ります。`;
+    tips=need==='impulse'?['迷うなら一晩おいて判断']:['クーポン・ポイント還元を確認'];
   }else if(price<=left){
-    if(need==='impulse'){cls='warn';title='買えるけど、ちょっと待って';msg=`買うと残りが${yen(left-price)}になって、給料日前がきつくなるよ。`;tips=['3日待ってもまだ欲しいか確かめる'];}
-    else{cls='warn';title='買える。ただしこの期間はこれで最後';msg=`買うと残りは${yen(left-price)}。このあとの外食や買い物は控えめにね。`;tips=['セール・中古で安くできないか見る','2人の予定（デートなど）がないか確認'];}
+    if(need==='impulse'){cls='warn';title='購入可能。ただし慎重に';msg=`購入後の残りは${yen(left-price)}です。給料日前が厳しくなります。`;tips=['3日待ってから判断'];}
+    else{cls='warn';title='購入可能。この期間はこれで最後';msg=`購入後の残りは${yen(left-price)}です。以降の出費は控えめに。`;tips=['セール・中古を確認','2人の予定を確認'];}
   }else{
     const short=price-left,m=Math.ceil(short/per);
-    if(need==='must'){cls='warn';title='必要なら買う。でも計画的に';msg=`残り${yen(left)}では${yen(short)}足りない。貯金から出して、来月以降に戻そう。`;tips=['分割払い・リボ払いは使わない'];}
-    else if(m<=3){cls='warn';title=`今は待って、${m}ヶ月後に`;msg=`この期間だと${yen(short)}足りない。自由なお金を取っておけば、約${m}ヶ月後に貯金を減らさず買えるよ。`;tips=['賞与（7月・12月）のタイミングも狙い目','待つ間にセールや中古が出たらラッキー'];}
-    else{cls='ng';title='今は買わない方がいい';msg=`${yen(price)}は2人の自由なお金の約${Math.ceil(price/per)}ヶ月分。今買うと結婚・出産用の貯金に手をつけることになるよ。`;tips=['安いモデル・中古で代わりにならないか考える','分割払い・リボ払いは使わない'];}
+    if(need==='must'){cls='warn';title='必要なら買う。でも計画的に';msg=`残り${yen(left)}では${yen(short)}不足します。貯金から出し、来月以降に戻してください。`;tips=['分割・リボ払いは避ける'];}
+    else if(m<=3){cls='warn';title=`${m}ヶ月後の購入がおすすめ`;msg=`この期間だと${yen(short)}不足します。自由なお金を残せば、約${m}ヶ月後に貯金を減らさず購入できます。`;tips=['賞与（7月・12月）も検討','待つ間にセール・中古を確認'];}
+    else{cls='ng';title='今は購入を見送り';msg=`${yen(price)}は2人の自由なお金の約${Math.ceil(price/per)}ヶ月分。今買うと結婚・出産用の貯金を使うことになります。`;tips=['安いモデル・中古を検討','分割・リボ払いは避ける'];}
   }
-  if(c.ex>0&&cls!=='ok')tips.push('この期間は追加の支払いがある。次の給料期間まで待つだけで余裕が変わるよ');
+  if(c.ex>0&&cls!=='ok')tips.push('この期間は追加の支払いがあります。次の給料期間まで待つと余裕が出ます');
   box.className='verdict show '+cls;
   box.innerHTML=`<div class="v">${title}</div><div>${msg}</div>${tips.length?'<ul>'+tips.map(t=>'<li>'+t+'</li>').join('')+'</ul>':''}`;
 };
@@ -1335,20 +1335,20 @@ function normalize(d){
 $('xCat').innerHTML=CATS.map(c=>`<option${c==='その他'?' selected':''}>${c}</option>`).join('');
 renderCatGrid();renderSettings();renderSubs();render();icons();sndIcon();
 (async()=>{
-  const to=setTimeout(()=>{$('status').textContent='データにまだつながらないよ';},10000);
+  const to=setTimeout(()=>{$('status').textContent='データに接続できません';},10000);
   try{db=window.claude&&await window.claude.use('db');}catch(e){db=null;}
-  if(!db){clearTimeout(to);$('status').textContent='記録を読み込めない状態だよ';return;}
+  if(!db){clearTimeout(to);$('status').textContent='記録を読み込めません';return;}
   db.doc('settings/main').onSnapshot(snap=>{
     if(snap.exists)S=normalize(snap.data());
     renderSettings();renderSubs();render();
-  },()=>{$('status').textContent='設定を読み込めなかった';});
+  },()=>{$('status').textContent='設定を読み込めませんでした';});
   db.collection('moves').onSnapshot(snap=>{MOV=snap.docs.map(d=>({...d.data(),id:d.id}));render();},()=>{});
   db.collection('expenses').onSnapshot(snap=>{
     clearTimeout(to);
     EXP=snap.docs.map(d=>({...d.data(),id:d.id}));
-    $('status').textContent=`記録${EXP.length}件・2人で共有中`;
+    $('status').textContent=`同期済み・${EXP.length}件`;
     render();
-  },()=>{clearTimeout(to);$('status').textContent='記録を読み込めなかった';});
+  },()=>{clearTimeout(to);$('status').textContent='記録を読み込めませんでした';});
 })();
 </script>
 <!-- ===== FX LAYER ===== -->
@@ -1465,7 +1465,7 @@ renderCatGrid();renderSettings();renderSubs();render();icons();sndIcon();
 <div id="warp"></div>
 <div id="dial" aria-hidden="true">
   <div class="dbg"></div>
-  <div class="dt">NAVIGATION<small>行き先を選んでね</small></div>
+  <div class="dt">NAVIGATION<small>行き先を選択</small></div>
   <div class="hub">
     <div class="orb o2"></div><div class="orb o1"></div><div class="orb o3"></div>
     <svg class="beams"><defs><linearGradient id="beamg" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#c6a8ff" stop-opacity=".9"/><stop offset="1" stop-color="#6ab8ff" stop-opacity=".2"/></linearGradient></defs></svg>
@@ -1542,7 +1542,7 @@ let lpT=null,lp=false,eatClick=false,hov=null;const hint=dial.querySelector('.dt
 const nodeAt=(x,y)=>{const el=document.elementFromPoint(x,y);return el&&el.closest?el.closest('.node'):null;};
 function setHov(n){if(n===hov)return;if(hov)hov.classList.remove('hov');hov=n;
   if(n){n.classList.add('hov');hint.textContent='離すと「'+n.querySelector('b').textContent+'」へ';try{sfx('tap');}catch(e){}try{navigator.vibrate&&navigator.vibrate(8);}catch(e){}}
-  else hint.textContent=lp?'行きたいところまで指をすべらせてね':HINT0;}
+  else hint.textContent=lp?'行き先まで指をスライド':HINT0;}
 core.addEventListener('pointerdown',e=>{if(dial.classList.contains('on'))return;lp=false;core.classList.add('charging');
   lpT=setTimeout(()=>{lp=true;eatClick=true;core.classList.remove('charging');openDial();dial.classList.add('drag');setHov(null);try{navigator.vibrate&&navigator.vibrate(15);}catch(e){}},380);});
 const lpCancel=()=>{clearTimeout(lpT);core.classList.remove('charging');};
@@ -1633,8 +1633,8 @@ function lockUI(){
   else{
     if(!bar){bar=document.createElement('div');bar.id='lockBar';flow.before(bar);}
     bar.className='lockbar'+(L?'':' open');
-    bar.innerHTML=L?`<i data-lucide="lock"></i><div class="lt"><b>LOCKED・確定済み</b>この期間は締まったから編集できないよ</div><button data-unlock="${P}">解除</button>`
-      :`<i data-lucide="lock-open"></i><div class="lt"><b>UNLOCKED・編集中</b>画面を開き直すとまたロックされるよ</div><button data-relock="${P}">ロック</button>`;
+    bar.innerHTML=L?`<i data-lucide="lock"></i><div class="lt"><b>LOCKED・確定済み</b>締め済みのため編集できません</div><button data-unlock="${P}">解除</button>`
+      :`<i data-lucide="lock-open"></i><div class="lt"><b>UNLOCKED・編集中</b>画面を開き直すと再ロックされます</div><button data-relock="${P}">ロック</button>`;
   }
   const pl=$('pLabel');if(pl&&past&&!pl.querySelector('.lockpill'))pl.insertAdjacentHTML('beforeend',`<span class="lockpill">${L?'LOCK':'OPEN'}</span>`);
   Q('#extras input,#extras select,#extras button').forEach(el=>el.disabled=L);
@@ -1652,14 +1652,14 @@ const dsOf=ts=>{const d=new Date(ts);return d.getFullYear()+'-'+String(d.getMont
 const keyPeriod=pk=>{const s=String(pk).split('|').pop();if(/^\d{4}-\d{2}-\d{2}$/.test(s))return keyOf(s);if(/^\d{4}-\d{2}$/.test(s))return s;return null;};
 function chkLocked(b){const ks=(b.dataset.paidg!==undefined?b.dataset.paidg.split('\n'):[b.dataset.paid]);
   if(b.closest('#flow')&&isLocked(P))return true;return ks.some(k=>isLocked(keyPeriod(k)));}
-const LOCKMSG='この期間は確定済みだよ（解除すると編集できる）';
+const LOCKMSG='確定済みの期間です（解除すると編集できます）';
 
 // 編集をブロック
 addEventListener('click',e=>{
   const t=e.target.closest('button,input[type=date]');
   const u=e.target.closest('[data-unlock]');
   if(u){e.stopImmediatePropagation();e.preventDefault();
-    if(!u.classList.contains('sure')){u.classList.add('sure');u.textContent='本当に解除？';setTimeout(()=>{if(u.isConnected){u.classList.remove('sure');u.textContent='解除';}},3000);return;}
+    if(!u.classList.contains('sure')){u.classList.add('sure');u.textContent='解除しますか？';setTimeout(()=>{if(u.isConnected){u.classList.remove('sure');u.textContent='解除';}},3000);return;}
     UNLOCK[u.dataset.unlock]=1;render();renderSettings();return;}
   const rl=e.target.closest('[data-relock]');
   if(rl){e.stopImmediatePropagation();e.preventDefault();delete UNLOCK[rl.dataset.relock];render();renderSettings();return;}
@@ -1828,7 +1828,7 @@ function renderGas(){
   $('gasUsed').textContent=yen(g.used);$('gasBud').textContent=`予算 ${yen(g.b)}`;
   const q=g.b>0?Math.min(100,g.used/g.b*100):0;$('gasBar').style.width=q+'%';
   $('gasBarW').classList.toggle('green',g.used<=g.b*.8);$('gasBarW').classList.toggle('over',g.used>g.b);
-  $('gasSub').textContent=(g.b<=0?`設定タブで${CARNAME[GCAR]}の予算を入れてね`:g.used>g.b?`${yen(g.over)} オーバー（自由なお金から引いてるよ）`:`あと ${yen(g.b-g.used)} 入れられるよ`)+(g.n?`・給油 ${g.n}回`:'');
+  $('gasSub').textContent=(g.b<=0?`設定タブで${CARNAME[GCAR]}の予算を入力してください`:g.used>g.b?`${yen(g.over)} オーバー（自由なお金から差し引き）`:`残り ${yen(g.b-g.used)}`)+(g.n?`・給油 ${g.n}回`:'');
   $('gasTot').innerHTML=`<span>2台の合計</span><span class="num">${yen(c.gasUsed)} / ${yen(c.gb)}</span>`;
 }
 const _r=window.render;window.render=function(){const r=_r.apply(this,arguments);try{renderGas();icons();}catch(e){}
@@ -1905,7 +1905,7 @@ function gasNote(){
   if(!$('gNote'))return;const amt=+$('fAmount').value||0,l=+$('gLit').value||0,o=+$('gOdo').value||0,lo=lastOdo();
   const p=[];if(amt&&l)p.push(`1Lあたり <b>¥${fmtN(amt/l,1)}</b>`);
   if(o&&lo&&o>lo)p.push(`前回から <b>${(o-lo).toLocaleString()}</b>km`);
-  $('gNote').innerHTML=p.length?p.join('・'):(lo?`前回のメーター ${lo.toLocaleString()}km`:'メーターを入れると、走った距離と燃費が出るよ');
+  $('gNote').innerHTML=p.length?p.join('・'):(lo?`前回のメーター ${lo.toLocaleString()}km`:'メーターを入力すると走行距離と燃費を表示します');
 }
 function fcarUI(){document.querySelectorAll('#fCars button').forEach(b=>{b.classList.toggle('on',b.dataset.fcar===(window.FCAR||'me'));});}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-fcar]');if(!b)return;e.preventDefault();window.FCAR=b.dataset.fcar;fcarUI();gasNote();});
@@ -1990,19 +1990,19 @@ function drawGas(){
     const ks=periodsBack(6);
     data=ks.map(k=>{const v=gview==='amt'?EXP.filter(e=>e.category===GAS&&carOf(e)===GCAR&&e.date&&keyOf(e.date)===k).reduce((a,e)=>a+(+e.amount||0),0):kmOf(k)||0;
       return {k,v,lab:(+k.split('-')[1])+'月',cur:k===P,over:gview==='amt'&&gasBudOf(GCAR)>0&&v>gasBudOf(GCAR)};});
-    if(data.every(d=>!d.v)){$('gChart').innerHTML=`<div class="gempty">${gview==='amt'?'給油を記録すると、ここに出るよ':'メーターの数字を入れると、走った距離が出るよ'}</div>`;$('gNote2').textContent='';return;}
+    if(data.every(d=>!d.v)){$('gChart').innerHTML=`<div class="gempty">${gview==='amt'?'給油を記録すると表示されます':'メーターを入力すると走行距離を表示します'}</div>`;$('gNote2').textContent='';return;}
     out=bars(data,gview==='amt'?gasBudOf(GCAR):0,gview==='amt'?man:v=>v.toLocaleString()+'km');
     tip=d=>`${labelOf(d.k)}<br><b>${gview==='amt'?yen(d.v):d.v.toLocaleString()+' km'}</b>`;
     note=gview==='amt'?'給料期間（25日〜翌24日）ごとの合計。赤は予算オーバー':'給料期間ごとに走った距離（メーターの差）';
   }else{
     if(gview==='eff'){const ks=periodsBack(6);data=ks.map(k=>{const e=effOf(k);return e?{v:e.v,lab:(+k.split('-')[1])+'月',k,e}:null;}).filter(Boolean);
-      if(!data.length){$('gChart').innerHTML='<div class="gempty">メーターと給油量を入れていくと、燃費が出るよ</div>';$('gNote2').textContent='';return;}
+      if(!data.length){$('gChart').innerHTML='<div class="gempty">メーターと給油量を入力すると燃費を表示します</div>';$('gNote2').textContent='';return;}
       out=line(data,v=>fmtN(v,1)+'km/L');tip=d=>`${labelOf(d.k)}・${d.e.km.toLocaleString()}km・${fmtN(d.e.lit,1)}L<br><b>${fmtN(d.v,1)} km/L</b>`;
-      note='給料期間ごとの燃費（走った距離 ÷ 入れた量）。満タンじゃなくても、続けるほど正確になるよ';
+      note='給料期間ごとの燃費（走った距離 ÷ 入れた量）。記録が増えるほど正確になります';
     }else{
     const R=fillRows().filter(r=>r.ppl).slice(-12);
     data=R.map(r=>({v:gview==='ppl'?r.ppl:r.eff,lab:md(r.d),r}));
-    if(!data.length){$('gChart').innerHTML=`<div class="gempty">${gview==='ppl'?'給油量を入れると、1Lあたりの値段が出るよ':'メーターと給油量を2回以上入れると、燃費が出るよ'}</div>`;$('gNote2').textContent='';return;}
+    if(!data.length){$('gChart').innerHTML=`<div class="gempty">${gview==='ppl'?'給油量を入力すると1Lあたりの値段を表示します':'メーターと給油量を2回以上入力すると燃費を表示します'}</div>`;$('gNote2').textContent='';return;}
     out=line(data,gview==='ppl'?v=>'¥'+fmtN(v,1):v=>fmtN(v,1)+'km/L');
     tip=d=>gview==='ppl'?`${md(d.r.d)}・${fmtN(d.r.l,2)}L<br><b>¥${fmtN(d.v,1)}/L</b>`:`${md(d.r.d)}・${d.r.dist.toLocaleString()}km<br><b>${fmtN(d.v,1)} km/L</b>`;
     note=gview==='ppl'?'給油ごとの1Lあたりの値段（最近12回）':'';
@@ -2214,7 +2214,7 @@ box.innerHTML=`<summary><i data-lucide="calculator"></i>給油シミュレータ
   <div class="sg">
     <div class="sf big"><small>入れる金額</small><div class="gi"><input type="number" id="sAmt" inputmode="numeric" placeholder="3000"><span>円</span></div>
       <div class="chips" id="sChips"><button data-a="2000">¥2,000</button><button data-a="3000">¥3,000</button><button data-a="5000">¥5,000</button><button data-a="full" id="sFullB">満タン</button></div></div>
-    <div class="sf big"><small>いつまで持たせたい？</small><div class="gi"><input type="date" id="sDate" style="padding-right:12px"></div></div>
+    <div class="sf big"><small>いつまで持たせますか</small><div class="gi"><input type="date" id="sDate" style="padding-right:12px"></div></div>
     <div class="sf"><small>今の航続可能距離（メーター）</small><div class="gi"><input type="number" id="sLeft" inputmode="numeric"><span>km</span></div></div>
     <div class="sf"><small>いつもの満タン金額</small><div class="gi"><input type="number" id="sFull" inputmode="numeric"><span>円</span></div></div>
     <div class="sf"><small>1日に走る距離</small><div class="gi"><input type="number" id="sDay" inputmode="decimal"><span>km</span></div></div>
@@ -2245,7 +2245,7 @@ function calcSim(){
   const to=$('sDate').value?new Date($('sDate').value+'T00:00'):nextPay();
   const days=Math.max(1,Math.round((to-todayD)/864e5));
   const res=$('sRes');
-  if(!eff||!ppl){res.className='gres';res.innerHTML='<div class="gm">燃費と1Lの値段を入れてね</div>';last=null;return;}
+  if(!eff||!ppl){res.className='gres';res.innerHTML='<div class="gm">燃費と1Lの値段を入力してください</div>';last=null;return;}
   const tank=TANK[car];let lit=fullMode?Math.max(0,tank-left):amt/ppl;let capped=false;if(!fullMode&&left+lit>tank+.5){lit=Math.max(0,tank-left);capped=true;}
   const total=left+lit,range=total*eff,need=day*days;
   const needL=Math.max(0,need/eff+RES-left),needYen=Math.ceil(needL*ppl/100)*100;
@@ -2253,21 +2253,21 @@ function calcSim(){
   const reach=day>0?Math.floor(range/day):null;const reachD=reach!=null?new Date(todayD.getTime()+reach*864e5):null;
   const md=d=>`${d.getMonth()+1}/${d.getDate()}`;
   let cls,ic,title;
-  if(!amt&&!fullMode){cls='';ic='fuel';title='金額を入れてみてね';}
-  else if(day<=0){cls='ok';ic='check-circle';title=`約 ${r1(range,0)}km 走れるよ`;}
-  else if(range-RES*eff>=need){cls='ok';ic='check-circle';title=`${md(to)}まで十分もつよ`;}
-  else if(range>=need){cls='warn';ic='alert-triangle';title=`${md(to)}までギリギリもつ`;}
-  else{cls='ng';ic='x-circle';title=`${md(to)}までは足りないかも`;}
+  if(!amt&&!fullMode){cls='';ic='fuel';title='金額を入力してください';}
+  else if(day<=0){cls='ok';ic='check-circle';title=`約 ${r1(range,0)}km 走行可能`;}
+  else if(range-RES*eff>=need){cls='ok';ic='check-circle';title=`${md(to)}まで十分もちます`;}
+  else if(range>=need){cls='warn';ic='alert-triangle';title=`${md(to)}までギリギリもちます`;}
+  else{cls='ng';ic='x-circle';title=`${md(to)}までは不足する可能性があります`;}
   const pct=need>0?Math.min(100,range/Math.max(range,need*1.3)*100):100,mk=need>0?Math.min(100,need/Math.max(range,need*1.3)*100):null;
   let msg=[];
-  if(leftRaw===''&&(amt||fullMode))msg.push(`航続可能距離が空なので、いつもの給油どき（あと約${r1(usual*eff,0)}km）で計算してるよ`);
+  if(leftRaw===''&&(amt||fullMode))msg.push(`航続可能距離が空なので、いつもの給油どき（あと約${r1(usual*eff,0)}km）で計算しています`);
   if(fullMode)msg.push(`満タンで約 <b>${r1(tank,0)}L</b>・入るのは約${r1(lit,1)}L（${yen(Math.round(lit*ppl/10)*10)}くらい）`);
   if(capped)msg.push(`タンクは約${tank}Lなので、入るのは<b>${r1(lit,1)}L（約${yen(Math.round(lit*ppl))}）</b>まで`);
   if(day>0&&cls==='ng')msg.push(`${md(to)}まで持たせるなら、最低 <b>${yen(needYen)}</b> くらい（残り${RES}L の余裕込み）`);
   if(day>0&&cls==='ok'&&needYen<amt)msg.push(`ちなみに ${md(to)}までなら <b>${yen(needYen)}</b> でも足りる計算（余裕${RES}L込み）`);
   if(day>0&&reachD&&cls!=='ok')msg.push(`この量だと <b>${md(reachD)}</b> ごろまで`);
-  if(budLeft!=null&&amt)msg.push(amt>budLeft?`今月のガソリン予算の残り ${yen(Math.max(0,budLeft))} を <b>${yen(amt-Math.max(0,budLeft))}</b> こえるよ`:`今月のガソリン予算の残りは入れたあと ${yen(budLeft-amt)}`);
-  msg.push(`<span style="opacity:.7">※ 「十分」は着いた時に${RES}L以上残る計算。燃費は走り方で変わるよ</span>`);
+  if(budLeft!=null&&amt)msg.push(amt>budLeft?`今月のガソリン予算の残り ${yen(Math.max(0,budLeft))} を <b>${yen(amt-Math.max(0,budLeft))}</b> 超えます`:`今月のガソリン予算の残りは入れたあと ${yen(budLeft-amt)}`);
+  msg.push(`<span style="opacity:.7">※ 「十分」は着いた時に${RES}L以上残る計算。燃費は走り方で変わります</span>`);
   res.className='gres '+cls;
   res.innerHTML=`<div class="gv"><i data-lucide="${ic}"></i>${title}</div>
     ${need>0?`<div class="gmeter"><i style="width:${pct}%"></i>${mk!=null?`<u style="left:${mk}%"></u>`:''}</div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--sub)"><span>走れる距離</span><span>｜= ${md(to)}までに必要</span></div>`:''}
@@ -2335,9 +2335,9 @@ new MutationObserver(()=>{watch();lay();}).observe(document.querySelector('.wrap
 <script>
 (()=>{
 const card=$('fAdd').closest('.card');
-card.querySelector('h2').insertAdjacentHTML('afterend','<div class="editbadge">✎ 記録を編集中（「保存する」で上書きされるよ）</div>');
-$('fAdd').insertAdjacentHTML('afterend','<button class="btn sub" id="fCancel">編集をやめる</button>');
-const xiAdd=$('xiAdd');xiAdd.insertAdjacentHTML('afterend','<button class="btn sub" id="xiCancel">編集をやめる</button>');
+card.querySelector('h2').insertAdjacentHTML('afterend','<div class="editbadge">✎ 編集中（「保存する」で上書きされます）</div>');
+$('fAdd').insertAdjacentHTML('afterend','<button class="btn sub" id="fCancel">キャンセル</button>');
+const xiAdd=$('xiAdd');xiAdd.insertAdjacentHTML('afterend','<button class="btn sub" id="xiCancel">キャンセル</button>');
 const xiBox=xiAdd.parentElement;
 let REC=null,XI=null;
 
@@ -2359,16 +2359,16 @@ function startRec(id){
 const _fAdd=$('fAdd').onclick;
 $('fAdd').onclick=async function(){
   if(!REC)return _fAdd.apply(this,arguments);
-  const amt=+$('fAmount').value||0;if(amt<=0){$('fAmount').focus();$('fMsg').textContent='金額を入れてね';return;}
+  const amt=+$('fAmount').value||0;if(amt<=0){$('fAmount').focus();$('fMsg').textContent='金額を入力してください';return;}
   const old=EXP.find(x=>x.id===REC)||{};const dt=$('fDate').value||todayStr;
   const rec={item:$('fItem').value.trim(),date:dt,amount:amt,category:selCat,who:selWho,
     kind:selWho==='2人'||LIVING.includes(selCat)?'2人の生活費':'個人',shop:$('fShop').value.trim(),
     method:(selPay.split('|')[1]||''),payer:(selPay.split('|')[0]||''),
     ts:dt===old.date&&old.ts?old.ts:(dt===todayStr?Date.now():new Date(dt+'T12:00').getTime())};
   if(selCat==='ガソリン'&&window.gasExtra){const g=gasExtra();rec.car=g.car;rec.liters=g.liters||null;rec.odo=g.odo||null;}
-  if(!db){const i=EXP.findIndex(x=>x.id===REC);if(i>=0)EXP[i]={...EXP[i],...rec};render();endRec(`${yen(amt)} に直したよ`);return;}
-  try{await db.collection('expenses').doc(REC).update(rec);endRec(`${yen(amt)} に直したよ`);}
-  catch(err){$('fMsg').textContent='保存できなかった：'+(err&&err.code||'');}
+  if(!db){const i=EXP.findIndex(x=>x.id===REC);if(i>=0)EXP[i]={...EXP[i],...rec};render();endRec('更新しました');return;}
+  try{await db.collection('expenses').doc(REC).update(rec);endRec('更新しました');}
+  catch(err){$('fMsg').textContent='保存できませんでした：'+(err&&err.code||'');}
 };
 
 function endXi(){XI=null;xiBox.classList.remove('xiediting');xiAdd.textContent='臨時収入を追加';$('xiLabel').value='';$('xiAmt').value='';}
@@ -2389,7 +2389,7 @@ xiAdd.onclick=async function(){
   const L=(S.extraIncome[XI.k]||[]),old=L[XI.i]||{};
   const it={label:label||'臨時収入',amount:amt,who,date:dt,to:to?whoName(who)+'|'+to:'',ts:dt===old.date&&old.ts?old.ts:(dt===todayStr?Date.now():new Date(dt+'T12:00').getTime())};
   if(k===XI.k)L[XI.i]=it;else{L.splice(XI.i,1);(S.extraIncome[k]=S.extraIncome[k]||[]).push(it);}
-  $('xiForm').classList.remove('on');endXi();render();await save($('status'));$('status').textContent=`臨時収入を ${yen(amt)} に直したよ`;
+  $('xiForm').classList.remove('on');endXi();render();await save($('status'));$('status').textContent='更新しました';
 };
 
 addEventListener('click',e=>{
@@ -2399,7 +2399,7 @@ addEventListener('click',e=>{
   if(e.target.closest('#xiCancel')){$('xiForm').classList.remove('on');endXi();return;}
   if(e.target.closest('#xiOpen')&&XI)endXi();
 });
-// 下のメニューで別のタブに移ったら編集をやめる
+// 下のメニューで別のタブに移ったらキャンセル
 document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{if(REC&&b.dataset.tab!=='rec')endRec('');}));
 })();
 </script>
@@ -2547,7 +2547,7 @@ window.addExtra=async function(){
   else (S.extras[k]=S.extras[k]||[]).push(it);
   exOpen=false;$('exForm').classList.remove('on');$('xMemo').value='';$('xLabel').value='';$('xAmt').value='';$('xDate').value='';renderSettings();render();
   await save($('status'));
-  $('status').textContent=`「${label}」を保存したよ`;
+  $('status').textContent='保存しました';
 };
 // 設定タブの変動費にも支払い元
 const _fr=window.fixRow;
@@ -2603,7 +2603,7 @@ function spItems(){
 }
 function renderSpend(){
   const L=spItems();$('spLabel').textContent=`${L.length}件`;
-  if(!L.length){$('spBody').innerHTML='<div class="muted">この期間の入出金はまだないよ</div>';return;}
+  if(!L.length){$('spBody').innerHTML='<div class="muted">この期間の入出金はありません</div>';return;}
   const show=ALL?L:L.slice(0,8);
   $('spBody').innerHTML=show.map(x=>{const d=x.d?new Date(x.d+'T00:00'):null;
     const ic=x.inc?`<div class="ic" style="background:rgba(46,242,176,.12);color:var(--ok)">${LI(x.t?'gift':'banknote')}</div>`:icon(x.c);
@@ -2669,14 +2669,14 @@ function fixRecs(){
     else{const x=o.ex,ct=catOf(x),fut=x.date&&x.date>todayStr;tot+=+x.amount||0;const src=(x.from||'').split('|').slice(1).join('|');
       html+=`<div class="item"${fut?' style="opacity:.6"':''}>${icon(ct)}<div class="mid"><div class="n">${esc(splitL(x.label)[0]||'変動費')}</div><div class="muted">${esc(ct)} <span class="who ${whoCls(x.who)}">${esc(whoDisp(x.who))}</span> <span class="tag later" style="margin:0">${fut?'変動費・予定':'変動費'}</span>${src?` <span class="src">${esc(src)}から</span>`:''}</div></div><div class="rt"><b class="num">${yen(x.amount)}</b><button class="mini" data-exed="${P}:${o.i}" aria-label="編集">${LI('pencil')}</button><button class="mini" data-exdel="${P}:${o.i}">×</button></div></div>`;}
   });
-  box.innerHTML=html||'<div class="muted">この期間の記録はまだないよ</div>';
+  box.innerHTML=html||'<div class="muted">この期間の記録はありません</div>';
   if($('recCount'))$('recCount').textContent=`${L.length}件・${yen(tot)}`;
   try{icons();}catch(e){}
 }
 document.addEventListener('click',e=>{if(e.target.closest('#recs [data-exed]'))setTimeout(()=>{showTab('home');setTimeout(()=>$('exForm').scrollIntoView({behavior:'smooth',block:'center'}),350);},0);});
 const _r0x=window.render0;window.render0=function(){const r=_r0x.apply(this,arguments);try{const c=calc(P);if($('hFix'))$('hFix').textContent=man(c.fix+c.subs+(c.ex||0)+c.spent);}catch(e){}return r;};
 const _r=window.render;window.render=function(){const r=_r.apply(this,arguments);try{fixFlow();fixRecs();
-  if($('budTxt'))$('budTxt').textContent=$('budTxt').textContent.replace('予算','全部で');const t=s=>s.replace('（自由なお金から引いてるよ）','');if($('livSub'))$('livSub').textContent=t($('livSub').textContent);if($('gasSub'))$('gasSub').textContent=t($('gasSub').textContent);}catch(e){console.error(e);}return r;};
+  if($('budTxt'))$('budTxt').textContent=$('budTxt').textContent.replace('予算','全部で');const t=s=>s.replace('（自由なお金から差し引き）','');if($('livSub'))$('livSub').textContent=t($('livSub').textContent);if($('gasSub'))$('gasSub').textContent=t($('gasSub').textContent);}catch(e){console.error(e);}return r;};
 try{render();}catch(e){console.error(e);}
 const _r2=window.render;window.render=function(){const r=_r2.apply(this,arguments);try{heroSpent();}catch(e){}return r;};try{heroSpent();}catch(e){}
 })();
@@ -2822,7 +2822,7 @@ function foldEx(){const fl=$('flow');if(!fl||fl.querySelector(':scope>details.ex
   const num=hd.querySelector('.num');const d=document.createElement('details');d.className='fl2 exfold exhead2';if(EXO)d.open=true;
   d.innerHTML=`<summary><span class="k">変動費</span><span class="num" style="color:var(--warn)">${num?esc(num.textContent):''}</span></summary><div class="flsub"></div>`;
   const box=d.querySelector('.flsub');items.forEach(x=>box.appendChild(x));
-  if(!items.length)box.innerHTML='<div class="muted" style="padding:6px 0">この期間の変動費はまだないよ</div>';
+  if(!items.length)box.innerHTML='<div class="muted" style="padding:6px 0">この期間の変動費はありません</div>';
   d.addEventListener('toggle',()=>{EXO=d.open;});hd.replaceWith(d);}
 
 // ---- 支払い予定：延期した支払い・変動費は ✎ で金額を直せる ----
@@ -2865,7 +2865,7 @@ document.addEventListener('click',async e=>{
       if(d.src.from)it.from=d.src.from;const k=keyOf(mv);(S.extras[k]=S.extras[k]||[]).push(it);}}
   else{const f=extraByPk(pk);if(!f){DE=null;render();return;}name=splitL(f.x.label)[0];f.x.amount=n;movePaid(pk,xid(f.x)+'|'+f.x.date);}
   DE=null;render();try{renderSettings();}catch(_){}
-  await save($('status'));$('status').textContent=`「${name}」を ${yen(n)} にしたよ`;
+  await save($('status'));$('status').textContent='更新しました';
 },true);
 
 // ---- 再描画のたびに反映 ----
@@ -2905,7 +2905,7 @@ document.body.insertAdjacentHTML('beforeend',`<div class="rcsheet" id="rcSheet">
   <div class="rcpanel">
     <div class="rch"><i data-lucide="scan-line"></i>レシートを読み取る</div>
     <div class="rcopts">
-      <label class="rcopt"><i data-lucide="camera"></i><b>撮影する</b><small>カメラが開くよ</small><input type="file" id="rcCam" accept="image/*" capture="environment"></label>
+      <label class="rcopt"><i data-lucide="camera"></i><b>撮影する</b><small>カメラを起動</small><input type="file" id="rcCam" accept="image/*" capture="environment"></label>
       <label class="rcopt"><i data-lucide="images"></i><b>写真から選ぶ</b><small>アルバムから</small><input type="file" id="rcPick" accept="image/*"></label>
     </div>
     <details class="rctips"><summary>上手く読み取るコツ</summary><ul>
@@ -3000,7 +3000,7 @@ function hero(){
     $('leftBar').style.width='0%';
     $('usedTxt').innerHTML=`予算額 <b class="num">${yen(c.freeBudget)}</b>`;
     nt.style.display='flex';
-    nt.innerHTML=`<i data-lucide="hourglass"></i><span>${P===shiftKey(NOWK,1)?`${endLab(NOWK)}で今の期間が締まって、ウォレットが引き継がれたら決まるよ`:`この前の期間が締まって、ウォレットが引き継がれたら決まるよ`}</span>`;
+    nt.innerHTML=`<i data-lucide="hourglass"></i><span>${P===shiftKey(NOWK,1)?`${endLab(NOWK)}で今の期間が締まって、ウォレットが引き継がれると確定します`:`この前の期間が締まって、ウォレットが引き継がれると確定します`}</span>`;
     const bl=$('budLeft');if(bl)bl.innerHTML=`<span>予算額（目安）<small>月収 − 固定費・サブスク・変動費・貯金</small></span><b class="num${c.freeBudget<0?' neg':''}">${yen(c.freeBudget)}</b>`;
     if(sr){sr.querySelector('span').textContent='予算額（目安）';const n=sr.querySelector('.num');n.textContent=yen(c.freeBudget);n.style.color=c.freeBudget<0?'var(--ng)':'';}
     fl&&fl.querySelectorAll('.budrow').forEach(r=>r.remove());
@@ -3019,11 +3019,11 @@ function hero(){
       d.innerHTML=`<summary><span class="k">前の期間から引き継ぎ</span><span class="num">${yen(cl.t)}</span></summary><div class="flsub">
         <div class="ch">${esc(labelOf(pk))} の締めのウォレット</div>${W.map(([k,v])=>row(keyHtml(k),yen(v))).join('')}
         ${U.length?`<div class="ch">チェックしてない支払い（下の「先月分の未払い」）</div>${U.map(x=>row(esc(splitL(x.n)[0])+` <span class="muted">${+x.d.slice(5,7)}/${+x.d.slice(8)}</span>`,yen(x.a))).join('')}`:''}
-        ${M.length?`<div class="ch">払ってない変動費 → この期間に移したよ</div>${M.map(x=>row(esc(splitL(x.n)[0]),yen(x.a))).join('')}`:''}
+        ${M.length?`<div class="ch">未払いの変動費 → この期間に移動</div>${M.map(x=>row(esc(splitL(x.n)[0]),yen(x.a))).join('')}`:''}
       </div>`;
       fl.prepend(d);}}
   // ロックの帯に「引き継いだ額」
-  const bar=$('lockBar');if(bar&&P<NOWK){const cl=closeOf(P),lt=bar.querySelector('.lt');if(cl&&lt&&!lt.querySelector('small'))lt.insertAdjacentHTML('beforeend',`<small>ウォレット ${yen(cl.t)} は次の期間に引き継いだよ</small>`);}
+  const bar=$('lockBar');if(bar&&P<NOWK){const cl=closeOf(P),lt=bar.querySelector('.lt');if(cl&&lt&&!lt.querySelector('small'))lt.insertAdjacentHTML('beforeend',`<small>ウォレット ${yen(cl.t)} は次の期間に引き継ぎ済み</small>`);}
   try{icons();}catch(e){}
 }
 
@@ -3073,7 +3073,7 @@ function detailHtml(e){
   return `<div class="rcd" data-rcd="${esc(e.id)}"><div class="h">${LI('scan-line')}${esc(e.shop||'レシート')}の明細<span class="muted" style="margin-left:auto;font-weight:400">${L.length}点</span></div>`+
     L.map(x=>`<div class="r${x.price<0?' minus':''}"><span>${esc(x.name)}</span><span class="num">${x.price===null?'':(x.price<0?'−'+yen(-x.price):yen(x.price))}</span></div>`).join('')+
     `<div class="f"><span>払った金額</span><span class="num">${yen(tot)}</span></div>`+
-    (sum&&Math.abs(sum-tot)>0?`<div class="note">※品物の合計（${yen(sum)}）と違うのは、税・割引・読み取れなかった品物のぶんだよ</div>`:'')+`</div>`;
+    (sum&&Math.abs(sum-tot)>0?`<div class="note">※品物の合計（${yen(sum)}）との差は、税・割引・読み取れなかった品物の分です</div>`:'')+`</div>`;
 }
 function addTags(){
   document.querySelectorAll('#recs [data-recedit], #flow [data-recedit]').forEach(btn=>{

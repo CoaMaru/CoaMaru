@@ -30,7 +30,7 @@
     g.innerHTML = `<div class="box">
       <img src="logo.png" alt="">
       <h1>COAMARU</h1>
-      <p>こあまる家にログインしてね</p>
+      <p>こあまる家にログイン</p>
       <input id="agMail" type="email" placeholder="メールアドレス" autocomplete="email">
       <input id="agPass" type="password" placeholder="パスワード（6文字以上）" autocomplete="current-password">
       <button id="agLogin">ログイン</button>
@@ -41,17 +41,17 @@
     return g;
   }
   const MSG = {
-    'auth/invalid-email':'メールアドレスの形がちがうみたい',
-    'auth/user-not-found':'そのメールアドレスは登録されてないよ',
-    'auth/wrong-password':'パスワードがちがうよ',
-    'auth/invalid-credential':'メールアドレスかパスワードがちがうよ',
-    'auth/invalid-login-credentials':'メールアドレスかパスワードがちがうよ',
-    'auth/email-already-in-use':'そのメールアドレスはもう登録されてるよ。ログインしてね',
-    'auth/weak-password':'パスワードは6文字以上にしてね',
-    'auth/network-request-failed':'ネットにつながってないみたい',
-    'auth/too-many-requests':'何回も失敗したので少し待ってね'
+    'auth/invalid-email':'メールアドレスの形式が正しくありません',
+    'auth/user-not-found':'このメールアドレスは登録されていません',
+    'auth/wrong-password':'パスワードが違います',
+    'auth/invalid-credential':'メールアドレスまたはパスワードが違います',
+    'auth/invalid-login-credentials':'メールアドレスまたはパスワードが違います',
+    'auth/email-already-in-use':'このメールアドレスは登録済みです。ログインしてください',
+    'auth/weak-password':'パスワードは6文字以上で入力してください',
+    'auth/network-request-failed':'ネットワークに接続されていません',
+    'auth/too-many-requests':'試行回数が多すぎます。しばらくしてからお試しください'
   };
-  const errText = e => MSG[e && e.code] || ('うまくいかなかった（' + (e && e.code || '不明') + '）');
+  const errText = e => MSG[e && e.code] || ('エラーが発生しました（' + (e && e.code || '不明') + '）');
 
   function init(){
     if (fsReady) return fsReady;
@@ -80,8 +80,8 @@
       g.querySelector('#agLogin').onclick = () => { err(''); auth.signInWithEmailAndPassword(mail(), pass()).catch(e => err(errText(e))); };
       g.querySelector('#agSignup').onclick = () => { err(''); auth.createUserWithEmailAndPassword(mail(), pass()).catch(e => err(errText(e))); };
       g.querySelector('#agReset').onclick = () => {
-        if (!mail()) { err('先にメールアドレスを入れてね'); return; }
-        auth.sendPasswordResetEmail(mail()).then(() => err('リセット用のメールを送ったよ')).catch(e => err(errText(e)));
+        if (!mail()) { err('メールアドレスを入力してください'); return; }
+        auth.sendPasswordResetEmail(mail()).then(() => err('メールを送信しました')).catch(e => err(errText(e)));
       };
     });
     return fsReady;
@@ -176,14 +176,14 @@
     set.appendChild(c);
     const msg = t => document.getElementById('kmMsg').textContent = t;
     try { const u = firebase.auth().currentUser; if (u) document.getElementById('kmWho').textContent = 'ログイン中：' + u.email; } catch(e) {}
-    document.getElementById('kmLogout').onclick = () => { if (confirm('ログアウトする？')) firebase.auth().signOut(); };
+    document.getElementById('kmLogout').onclick = () => { if (confirm('ログアウトしますか？')) firebase.auth().signOut(); };
     document.getElementById('kmImport').onclick = () => document.getElementById('kmFile').click();
     document.getElementById('kmFile').onchange = async e => {
       const f = e.target.files[0]; e.target.value = '';
       if (!f) return;
       try {
         const data = JSON.parse(await f.text());
-        if (!confirm('今のデータを、このファイルの内容で上書きして取り込む？')) return;
+        if (!confirm('現在のデータを上書きして取り込みますか？')) return;
         const db = await init(); const fs = db._fs;
         msg('取り込み中…');
         const batch = fs.batch();
@@ -191,14 +191,14 @@
         (data.expenses || []).forEach(x => batch.set(fs.doc(HOUSE + '/expenses/' + x.id), x.data));
         (data.moves || []).forEach(x => batch.set(fs.doc(HOUSE + '/moves/' + x.id), x.data));
         await batch.commit();
-        msg('取り込み完了！ 記録 ' + (data.expenses || []).length + '件');
-      } catch (err) { msg('取り込めなかった：' + (err && (err.code || err.message) || '')); }
+        msg('取り込みました');
+      } catch (err) { msg('取り込めませんでした：' + (err && (err.code || err.message) || '')); }
     };
   }
   document.addEventListener('DOMContentLoaded', () => {
     init().then(addTools);
     if (!CFG || !CFG.apiKey) {
-      const s = document.getElementById('status'); if (s) s.textContent = 'Firebaseの設定がまだだよ';
+      const s = document.getElementById('status'); if (s) s.textContent = 'Firebaseが設定されていません';
     }
   });
 })();

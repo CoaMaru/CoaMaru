@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>こあまる家</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=Murecho:wght@400;600;800&family=Noto+Sans+JP:wght@400;600;800&display=swap" rel="stylesheet">
+<link crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=Murecho:wght@400;600;800&family=Noto+Sans+JP:wght@400;600;800&family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#0b0716; --card:rgba(24,16,44,.5); --ink:#e6f1ff; --sub:#9f93bf; --line:rgba(190,155,255,.18); --soft:rgba(100,70,160,.22);
@@ -488,9 +488,9 @@
 
   <section class="tab" id="tab-set">
     <div class="card"><details open>
-      <summary><i data-lucide="wallet"></i> 月収と予算</summary>
-      <div class="row"><label>MARUの月収<small>いつもの金額（確定前はこれで計算）</small></label><input type="number" class="w120" id="sIncMe" inputmode="numeric"></div>
-      <div class="row"><label>KOKOAの月収<small>いつもの金額（確定前はこれで計算）</small></label><input type="number" class="w120" id="sIncKo" inputmode="numeric"></div>
+      <summary><i data-lucide="wallet"></i> 予算</summary>
+      <div class="row" style="display:none"><label>MARUの月収<small>いつもの金額（確定前はこれで計算）</small></label><input type="number" class="w120" id="sIncMe" inputmode="numeric"></div>
+      <div class="row" style="display:none"><label>KOKOAの月収<small>いつもの金額（確定前はこれで計算）</small></label><input type="number" class="w120" id="sIncKo" inputmode="numeric"></div>
       <div class="row"><label>生活費の予算<small>食費・日用品・光熱費（2人分）</small></label><input type="number" class="w120" id="sLiving" inputmode="numeric"></div>
       <div class="row"><label>毎月の貯金<small>結婚・出産用。先に取っておく</small></label><input type="number" class="w120" id="sSave" inputmode="numeric"></div>
       <div class="row"><label>支払いを知らせる日数<small>この日数前から黄色で表示</small></label><input type="number" class="w50" id="sNotify" inputmode="numeric"></div>
@@ -594,7 +594,7 @@ const todayStr=todayD.getFullYear()+'-'+String(todayD.getMonth()+1).padStart(2,'
 const NOWK=keyOf(todayStr);
 let P=NOWK;
 
-function incOf(k){const a=(S.incomeActual||{})[k]||{};const me=a.me!=null&&a.me!==''?+a.me:+S.incomes.me||0,ko=a.ko!=null&&a.ko!==''?+a.ko:+S.incomes.ko||0;return {me,ko,meFix:a.me!=null&&a.me!=='',koFix:a.ko!=null&&a.ko!==''};}
+function incOf(k){const A=S.incomeActual||{},a=A[k]||{};const has=(x,w)=>x&&x[w]!=null&&x[w]!=='';const last=w=>{const ks=Object.keys(A).filter(q=>q<k&&has(A[q],w)).sort();return ks.length?+A[ks[ks.length-1]][w]:+S.incomes[w]||0;};const me=has(a,'me')?+a.me:last('me'),ko=has(a,'ko')?+a.ko:last('ko');return {me,ko,meFix:a.me!=null&&a.me!=='',koFix:a.ko!=null&&a.ko!==''};}
 function calc(k=P){
   const ia=incOf(k),xin=(S.extraIncome||{})[k]||[],xinSum=xin.reduce((a,x)=>a+(+x.amount||0),0),inc=ia.me+ia.ko+xinSum;
   const fixMe=sum(S.fixed.me), fixKo=sum(S.fixed.ko), fix=fixMe+fixKo;
@@ -3101,5 +3101,26 @@ try{addTags();}catch(e){console.error(e);}
 })();
 </script>
 <script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}</script>
+<!-- ===== v7：日付を見やすいフォントに ===== -->
+<style>
+  .dtf,.wd .dn,.cd .dn,.dcell,.calhd b,.dayhead,input[type=date]{font-family:"Zen Maru Gothic","Noto Sans JP",sans-serif!important;font-variant-numeric:tabular-nums;letter-spacing:.02em!important}
+  .wd .dn,.cd .dn,.dcell,.calhd b{font-weight:700}
+</style>
+<script>
+(()=>{
+const RE=/(\d{4}[\/\-.年]\d{1,2}[\/\-.月]\d{1,2}日?|\d{4}年\d{1,2}月|\d{1,2}\/\d{1,2}|\d{1,2}月\d{1,2}日|\d{1,2}月)/g;
+const SKIP=new Set(['SCRIPT','STYLE','TEXTAREA','INPUT','SELECT','OPTION','NOSCRIPT']);
+function ok(n){const p=n.parentElement;if(!p||SKIP.has(p.tagName)||p.closest('.dtf,svg,[contenteditable]'))return false;return true;}
+function wrap(n){const t=n.nodeValue;RE.lastIndex=0;if(!RE.test(t))return;RE.lastIndex=0;
+  const fr=document.createDocumentFragment();let i=0,m;
+  while((m=RE.exec(t))){if(m.index>i)fr.appendChild(document.createTextNode(t.slice(i,m.index)));const sp=document.createElement('span');sp.className='dtf';sp.textContent=m[0];fr.appendChild(sp);i=m.index+m[0].length;}
+  if(i<t.length)fr.appendChild(document.createTextNode(t.slice(i)));n.parentNode.replaceChild(fr,n);}
+let q=false,ob;
+function run(){q=false;ob.disconnect();try{const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,{acceptNode:n=>/\d/.test(n.nodeValue)&&ok(n)?1:3});const L=[];while(w.nextNode())L.push(w.currentNode);L.forEach(wrap);}catch(e){}
+  ob.observe(document.body,{childList:true,subtree:true,characterData:true});}
+ob=new MutationObserver(()=>{if(!q){q=true;requestAnimationFrame(run);}});
+if(document.body)run();else addEventListener('DOMContentLoaded',run);
+})();
+</script>
 </body>
 </html>

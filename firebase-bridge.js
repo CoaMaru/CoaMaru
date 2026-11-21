@@ -168,6 +168,7 @@
     c.innerHTML = `<h2><span class="t">アプリ</span></h2>
       <div class="muted" id="kmWho" style="margin-bottom:10px"></div>
       <div class="kmTools">
+        <button id="kmExport">データを書き出す</button>
         <button id="kmImport">データを取り込む</button>
         <button id="kmLogout">ログアウト</button>
       </div>
@@ -177,6 +178,37 @@
     const msg = t => document.getElementById('kmMsg').textContent = t;
     try { const u = firebase.auth().currentUser; if (u) document.getElementById('kmWho').textContent = 'ログイン中：' + u.email; } catch(e) {}
     document.getElementById('kmLogout').onclick = () => { if (confirm('ログアウトしますか？')) firebase.auth().signOut(); };
+    // 書き出し：取り込みと同じ形のJSONファイルにする
+    document.getElementById('kmExport').onclick = async () => {
+      try {
+        msg('書き出し中…');
+        const db = await init(); const fs = db._fs;
+        const [s, ex, mv] = await Promise.all([
+          fs.doc(HOUSE + '/settings/main').get(),
+          fs.collection(HOUSE + '/expenses').get(),
+          fs.collection(HOUSE + '/moves').get()
+        ]);
+        const data = {
+          app: 'coamaru', exportedAt: new Date().toISOString(),
+          settings: s.exists ? s.data() : null,
+          expenses: ex.docs.map(d => ({ id: d.id, data: d.data() })),
+          moves: mv.docs.map(d => ({ id: d.id, data: d.data() }))
+        };
+        const d = new Date(), z = n => String(n).padStart(2, '0');
+        const name = `coamaru-backup-${d.getFullYear()}${z(d.getMonth() + 1)}${z(d.getDate())}-${z(d.getHours())}${z(d.getMinutes())}.json`;
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const file = new File([blob], name, { type: 'application/json' });
+        // スマホは共有メニュー（ファイルに保存・LINEなど）、PCはダウンロード
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try { await navigator.share({ files: [file], title: 'こあまる家のデータ' }); msg('書き出しました'); return; }
+          catch (e) { if (e && e.name === 'AbortError') { msg(''); return; } }
+        }
+        const url = URL.createObjectURL(blob), a = document.createElement('a');
+        a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+        msg('書き出しました');
+      } catch (err) { msg('書き出せませんでした：' + (err && (err.code || err.message) || '')); }
+    };
     document.getElementById('kmImport').onclick = () => document.getElementById('kmFile').click();
     document.getElementById('kmFile').onchange = async e => {
       const f = e.target.files[0]; e.target.value = '';

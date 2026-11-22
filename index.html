@@ -5158,5 +5158,206 @@ html body #fxNote.warn{box-shadow:inset 0 0 0 1px rgba(255,225,122,.7),0 10px 30
 html body #fxNote.warn .o .fxav{box-shadow:0 0 0 1.5px #ffe17a,0 0 12px rgba(255,225,122,.5)!important}
 </style>
 <script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}</script>
+<!-- ===== SoNa ALL：話すだけで、収入・移動・予定・修正・削除・設定まで（確認カードで確定） ===== -->
+<style>
+#fxComm .rc dd.chg{color:#ffd45c}
+#fxComm .rc dd s{opacity:.55;margin-right:6px}
+#fxComm .rc.del .ok{background:linear-gradient(90deg,#ff5c7a,#ff9aa8);color:#250308}
+</style>
+<script>
+(()=>{
+const log=document.getElementById('fxLog');if(!log)return;
+const yenF=n=>'¥'+Math.round(+n||0).toLocaleString('ja-JP');
+const today=()=>dsOf(Date.now());
+const okDate=d=>/^\d{4}-\d{2}-\d{2}$/.test(d||'');
+const md=d=>okDate(d)?d.replace(/^\d{4}-0?(\d+)-0?(\d+)$/,'$1/$2'):'';
+const nm=w=>w==='心愛'||w==='ko'?'心愛':w==='2人'?'2人':'マル';
+const wk=w=>w==='心愛'?'ko':'me';
+const tsOf=d=>d===today()?Date.now():new Date(d+'T12:00').getTime();
+const locked=d=>{try{return okDate(d)&&isLocked(keyOf(d));}catch(e){return false;}};
+const st=()=>document.getElementById('status')||document.createElement('i');
+const saveS=async()=>{render();try{renderSettings();}catch(e){}await save(st());};
+const methods=w=>{try{return (S.methods[wk(w==='マル'?'自分':w)]||[]).map(m=>m.name);}catch(e){return [];}};
+const pickM=(w,m)=>{m=String(m||'').trim();if(!m)return '';const L=methods(w);return L.find(x=>x===m)||L.find(x=>x.includes(m)||m.includes(x))||m;};
+
+/* 確認カード（共通）：rows=[[見出し,値,変更前]] */
+const card=({title,amount,rows,ok='OK',danger=false,run})=>{
+  const el=document.createElement('div');el.className='rc'+(danger?' del':'');
+  el.innerHTML=`<div class="h"></div>${amount!=null?'<div class="a"></div>':''}<dl></dl><div class="bt"><button class="ok" type="button"></button><button class="ng" type="button">やめる</button></div>`;
+  el.querySelector('.h').textContent=title;if(amount!=null)el.querySelector('.a').textContent=amount;
+  el.querySelector('.ok').textContent=ok;
+  const dl=el.querySelector('dl');
+  rows.filter(r=>r&&r[1]!==''&&r[1]!=null).forEach(([k,v,old])=>{const dt=document.createElement('dt');dt.textContent=k;const dd=document.createElement('dd');
+    if(old!=null&&String(old)!==String(v)){const s=document.createElement('s');s.textContent=old;dd.append(s,String(v));dd.className='chg';}else dd.textContent=String(v);dl.append(dt,dd);});
+  log.appendChild(el);log.scrollTop=log.scrollHeight;
+  const fin=(good,msg)=>{const b=el.querySelector('.bt');if(b)b.remove();el.classList.add(good?'done':'off');el.querySelector('.h').textContent=msg;};
+  el.querySelector('.ng').onclick=()=>fin(false,'やめたよ');
+  el.querySelector('.ok').onclick=async()=>{const b=el.querySelector('.ok');b.disabled=true;
+    try{const m=await run();fin(true,m||'できたよ');try{sfx('tab');}catch(_){}}catch(e){fin(false,(e&&e.msg)||('できなかった（'+(e&&e.code||e&&e.message||'エラー')+'）'));}};
+  return '確認カードを表示した。まだ保存していない。ユーザーがボタンを押すと反映される';};
+const stop=msg=>{throw {msg};};
+
+/* ---------- 記録を探す ---------- */
+const allItems=()=>{const L=[];
+  (EXP||[]).forEach(e=>L.push({種類:'支出',ref:e.id,日付:e.date,金額:+e.amount||0,内容:[e.item,e.shop].filter(Boolean).join(' / '),カテゴリ:e.category,だれの:nm(e.who),払った人:e.payer||nm(e.who),支払い:e.method||''}));
+  (MOV||[]).forEach(v=>L.push({種類:'移動',ref:v.id,日付:v.date,金額:+v.amount||0,内容:`${v.from} → ${v.to}`}));
+  Object.entries(S.extraIncome||{}).forEach(([k,a])=>(a||[]).forEach((x,i)=>L.push({種類:'臨時収入',ref:k+':'+i,日付:x.date,金額:+x.amount||0,内容:x.label,だれの:nm(x.who),入金先:x.to||''})));
+  Object.entries(S.extras||{}).forEach(([k,a])=>(a||[]).forEach((x,i)=>L.push({種類:'予定の支出',ref:k+':'+i,日付:x.date||'',期間:labelOf?labelOf(k):k,金額:+x.amount||0,内容:x.label,カテゴリ:x.cat||'',だれの:nm(x.who)})));
+  return L;};
+const findItem=(kind,ref)=>{ref=String(ref||'');
+  if(kind==='支出'){const e=(EXP||[]).find(x=>x.id===ref);return e&&{e};}
+  if(kind==='移動'){const v=(MOV||[]).find(x=>x.id===ref);return v&&{v};}
+  const [k,i]=ref.split(':');const box=kind==='臨時収入'?S.extraIncome:S.extras;const a=box&&box[k];const x=a&&a[+i];return x&&{k,i:+i,a,x};};
+
+/* ---------- 固定費・サブスク・目標をさがす ---------- */
+const norm=s=>String(s||'').replace(/\s|　/g,'').toLowerCase();
+const findNamed=(L,key,name)=>{const n=norm(name);if(!n)return -1;let i=L.findIndex(x=>norm(x[key])===n);if(i<0)i=L.findIndex(x=>norm(x[key]).includes(n)||n.includes(norm(x[key])));return i;};
+
+const KINDS=['支出','移動','臨時収入','予定の支出'];
+const tools=[
+{name:'search_records',
+ description:'記録を探す。修正・削除の前に必ず使って ref を手に入れる。種類・月・キーワードでしぼれる。',
+ inputSchema:{type:'object',properties:{
+   kind:{type:'string',enum:[...KINDS,'全部']},
+   month:{type:'string',description:'YYYY-MM（わかれば）'},
+   text:{type:'string',description:'内容・お店・カテゴリなどのキーワード'},
+   amount:{type:'integer',description:'金額（わかれば）'}}},
+ execute(inp){let L=allItems();const k=inp.kind;if(k&&k!=='全部')L=L.filter(x=>x.種類===k);
+   if(inp.month)L=L.filter(x=>String(x.日付||'').startsWith(inp.month)||String(x.ref).startsWith(inp.month));
+   if(inp.text){const t=norm(inp.text);L=L.filter(x=>norm([x.内容,x.カテゴリ,x.支払い].join(' ')).includes(t));}
+   if(inp.amount)L=L.filter(x=>x.金額===+inp.amount);
+   L.sort((a,b)=>String(b.日付||'').localeCompare(String(a.日付||'')));
+   return {件数:L.length,記録:L.slice(0,15)};}},
+
+{name:'propose_edit_expense',
+ description:'支出の記録を直す。search_recordsで見つけたrefを使う。変える項目だけ入れる。',
+ inputSchema:{type:'object',properties:{
+   ref:{type:'string'},amount:{type:'integer'},category:{type:'string',enum:CATS},item:{type:'string'},shop:{type:'string'},
+   date:{type:'string',description:'YYYY-MM-DD'},who:{type:'string',enum:['自分','心愛','2人']},payer:{type:'string',enum:['マル','心愛']},method:{type:'string'}},required:['ref']},
+ execute(inp){const f=findItem('支出',inp.ref);if(!f)return {エラー:'その記録が見つからない。search_recordsでrefを確認して'};const e=f.e;
+   const n={...e};['amount','category','item','shop','date','who','payer'].forEach(k=>{if(inp[k]!=null&&inp[k]!=='')n[k]=k==='amount'?Math.round(+inp[k]):inp[k];});
+   if(inp.method)n.method=pickM(n.payer||nm(n.who),inp.method);
+   if(!okDate(n.date))n.date=e.date;
+   return card({title:'記録の修正',amount:yenF(n.amount),ok:'直す',rows:[
+     ['金額',yenF(n.amount),yenF(e.amount)],['カテゴリ',n.category,e.category],['内容',n.item||'',e.item||''],['お店',n.shop||'',e.shop||''],
+     ['日付',md(n.date),md(e.date)],['だれの',nm(n.who),nm(e.who)],['払った人',n.payer||'',e.payer||''],['支払い',n.method||'',e.method||'']],
+     run:async()=>{if(locked(e.date)||locked(n.date))stop('確定済みの期間だから直せないよ');
+       const up={amount:n.amount,category:n.category,item:n.item||'',shop:n.shop||'',date:n.date,who:n.who,payer:n.payer||'',method:n.method||'',
+         kind:n.who==='2人'||LIVING.includes(n.category)?'2人の生活費':'個人'};if(n.date!==e.date)up.ts=tsOf(n.date);
+       if(db)await db.collection('expenses').doc(e.id).update(up);else{Object.assign(e,up);render();}return '直したよ';}});}},
+
+{name:'propose_delete',
+ description:'記録を消す（支出・移動・臨時収入・予定の支出）。search_recordsで見つけたrefを使う。',
+ inputSchema:{type:'object',properties:{kind:{type:'string',enum:KINDS},ref:{type:'string'}},required:['kind','ref']},
+ execute(inp){const f=findItem(inp.kind,inp.ref);if(!f)return {エラー:'その記録が見つからない。search_recordsでrefを確認して'};
+   const x=f.e||f.v||f.x;const what=f.e?[x.item,x.shop,x.category].filter(Boolean).join(' / '):f.v?`${x.from} → ${x.to}`:x.label;
+   return card({title:inp.kind+'を削除',amount:yenF(x.amount),ok:'削除する',danger:true,rows:[['内容',what||''],['日付',md(x.date)]],
+     run:async()=>{if(f.e){if(locked(x.date))stop('確定済みの期間だから消せないよ');await delExp(x.id);}
+       else if(f.v)await delMove(x.id);
+       else{if(f.a[f.i]!==x)stop('記録が変わったみたい。もう一度頼んでね');f.a.splice(f.i,1);await saveS();}
+       return '削除したよ';}});}},
+
+{name:'propose_income',
+ description:'臨時収入（ボーナス・お小遣い・売上・返金など）を追加する。毎月の給料は propose_setting を使う。',
+ inputSchema:{type:'object',properties:{amount:{type:'integer'},label:{type:'string',description:'例：ボーナス、メルカリ'},
+   date:{type:'string',description:'YYYY-MM-DD。言われなければ今日'},who:{type:'string',enum:['自分','心愛']},to:{type:'string',description:'入金先の支払い方法（わかれば）'}},required:['amount']},
+ execute(inp){const who=inp.who==='心愛'?'心愛':'自分',dt=okDate(inp.date)?inp.date:today(),amt=Math.round(+inp.amount||0),label=String(inp.label||'臨時収入').slice(0,40),to=inp.to?pickM(who,inp.to):'';
+   return card({title:'臨時収入の追加',amount:yenF(amt),ok:'追加する',rows:[['内容',label],['日付',md(dt)],['だれの',nm(who)],['入金先',to]],
+     run:async()=>{if(!(amt>0))stop('金額がないよ');const k=keyOf(dt);S.extraIncome=S.extraIncome||{};
+       (S.extraIncome[k]=S.extraIncome[k]||[]).push({label,amount:amt,who,date:dt,to:to?nm(who)+'|'+to:'',ts:tsOf(dt)});await saveS();return '追加したよ';}});}},
+
+{name:'propose_move',
+ description:'お金の移動（チャージ・口座から口座へ・引き出しなど）を記録する。',
+ inputSchema:{type:'object',properties:{amount:{type:'integer'},from_owner:{type:'string',enum:['マル','心愛']},from_method:{type:'string',description:'移動元'},
+   to_owner:{type:'string',enum:['マル','心愛']},to_method:{type:'string',description:'移動先'},date:{type:'string',description:'YYYY-MM-DD。言われなければ今日'}},required:['amount','from_method','to_method']},
+ execute(inp){const fo=inp.from_owner==='心愛'?'心愛':'マル',to=inp.to_owner==='心愛'?'心愛':(inp.to_owner?'マル':fo);
+   const fm=pickM(fo,inp.from_method),tm=pickM(to,inp.to_method),dt=okDate(inp.date)?inp.date:today(),amt=Math.round(+inp.amount||0);
+   const from=fo+'|'+fm,dest=to+'|'+tm;
+   return card({title:'お金の移動',amount:yenF(amt),ok:'記録する',rows:[['移動元',`${fo}・${fm}`],['移動先',`${to}・${tm}`],['日付',md(dt)]],
+     run:async()=>{if(!(amt>0))stop('金額がないよ');if(from===dest)stop('移動元と移動先が同じだよ');
+       const v={from,to:dest,amount:amt,date:dt,ts:tsOf(dt)};if(db)await db.collection('moves').add(v);else{MOV.push({...v,id:'local'+Date.now()});render();}return '記録したよ';}});}},
+
+{name:'propose_planned',
+ description:'これから払う予定の支出（臨時の支出：車検・旅行・家具など）を追加する。日付がない場合は今の期間に入る。',
+ inputSchema:{type:'object',properties:{label:{type:'string'},amount:{type:'integer'},category:{type:'string',enum:CATS},
+   date:{type:'string',description:'支払う日 YYYY-MM-DD（わかれば）'},who:{type:'string',enum:['自分','心愛','2人']}},required:['label','amount']},
+ execute(inp){const amt=Math.round(+inp.amount||0),label=String(inp.label||'').slice(0,40),dt=okDate(inp.date)?inp.date:'',who=['自分','心愛','2人'].includes(inp.who)?inp.who:'自分';
+   const cat=CATS.includes(inp.category)?inp.category:guessCat(label);const k=dt?keyOf(dt):P;
+   return card({title:'予定の支出を追加',amount:yenF(amt),ok:'追加する',rows:[['内容',label],['カテゴリ',cat],['期間',labelOf(k)],['支払う日',md(dt)],['だれの',nm(who)]],
+     run:async()=>{if(!(amt>0)||!label)stop('内容か金額がないよ');const it={label,amount:amt,cat,who};if(dt)it.date=dt;
+       S.extras=S.extras||{};(S.extras[k]=S.extras[k]||[]).push(it);await saveS();return '追加したよ';}});}},
+
+{name:'propose_edit_item',
+ description:'臨時収入・予定の支出を直す。search_recordsで見つけたrefを使う。変える項目だけ入れる。',
+ inputSchema:{type:'object',properties:{kind:{type:'string',enum:['臨時収入','予定の支出']},ref:{type:'string'},label:{type:'string'},amount:{type:'integer'},date:{type:'string',description:'YYYY-MM-DD'},category:{type:'string',enum:CATS}},required:['kind','ref']},
+ execute(inp){const f=findItem(inp.kind,inp.ref);if(!f)return {エラー:'その記録が見つからない。search_recordsでrefを確認して'};const x=f.x,n={...x};
+   if(inp.label)n.label=String(inp.label).slice(0,40);if(inp.amount!=null)n.amount=Math.round(+inp.amount);if(okDate(inp.date))n.date=inp.date;if(inp.category&&inp.kind==='予定の支出')n.cat=inp.category;
+   return card({title:inp.kind+'の修正',amount:yenF(n.amount),ok:'直す',rows:[['内容',n.label,x.label],['金額',yenF(n.amount),yenF(x.amount)],['日付',md(n.date),md(x.date)],inp.kind==='予定の支出'?['カテゴリ',n.cat||'',x.cat||'']:null],
+     run:async()=>{if(f.a[f.i]!==x)stop('記録が変わったみたい。もう一度頼んでね');
+       const nk=n.date&&n.date!==x.date?keyOf(n.date):f.k;if(inp.kind==='臨時収入'&&n.date!==x.date)n.ts=tsOf(n.date);
+       if(nk===f.k)f.a[f.i]=n;else{f.a.splice(f.i,1);const box=inp.kind==='臨時収入'?S.extraIncome:S.extras;(box[nk]=box[nk]||[]).push(n);}
+       await saveS();return '直したよ';}});}},
+
+{name:'propose_setting',
+ description:'設定の数字を変える（月収・生活費予算・毎月の貯金・今の貯金・賞与ごとの貯金・支払い通知の日数）。',
+ inputSchema:{type:'object',properties:{target:{type:'string',enum:['マルの月収','心愛の月収','生活費予算','毎月の貯金','今の貯金','賞与ごとの貯金','通知の日数']},value:{type:'integer'}},required:['target','value']},
+ execute(inp){const M={'マルの月収':['incomes','me'],'心愛の月収':['incomes','ko'],'生活費予算':['livingBudget'],'毎月の貯金':['saving'],'今の貯金':['savedNow'],'賞与ごとの貯金':['bonusSave'],'通知の日数':['notifyDays']};
+   const p=M[inp.target];if(!p)return {エラー:'その設定は変えられない'};const get=()=>p.length>1?(S[p[0]]||{})[p[1]]:S[p[0]];
+   const v=Math.round(+inp.value||0),old=+get()||0,f=x=>inp.target==='通知の日数'?x+'日前':yenF(x);
+   return card({title:'設定の変更',amount:null,ok:'変える',rows:[[inp.target,f(v),f(old)]],
+     run:async()=>{if(v<0)stop('マイナスにはできないよ');if(p.length>1){S[p[0]]=S[p[0]]||{};S[p[0]][p[1]]=v;}else S[p[0]]=v;await saveS();return '変えたよ';}});}},
+
+{name:'propose_recurring',
+ description:'毎月の固定費・サブスクを追加・変更・削除する。変更・削除はいまの名前を name に入れる。',
+ inputSchema:{type:'object',properties:{kind:{type:'string',enum:['固定費','サブスク']},action:{type:'string',enum:['追加','変更','削除']},
+   name:{type:'string',description:'名前（変更・削除はいまの名前）'},new_name:{type:'string'},amount:{type:'integer'},day:{type:'integer',description:'毎月の支払日'},
+   owner:{type:'string',enum:['マル','心愛','2人'],description:'固定費はマルか心愛。サブスクは2人もOK'},category:{type:'string',enum:CATS},from:{type:'string',description:'支払い元'}},required:['kind','action','name']},
+ execute(inp){const sub=inp.kind==='サブスク',key=sub?'name':'label';
+   let own=inp.owner==='心愛'?'心愛':inp.owner==='2人'&&sub?'2人':'マル';
+   let L,i=-1;
+   if(sub){L=S.subs=S.subs||[];}
+   else{S.fixed=S.fixed||{me:[],ko:[]};if(inp.action!=='追加'&&!inp.owner){i=findNamed(S.fixed.me,key,inp.name);if(i<0){i=findNamed(S.fixed.ko||[],key,inp.name);if(i>=0)own='心愛';}}
+     L=S.fixed[own==='心愛'?'ko':'me']=S.fixed[own==='心愛'?'ko':'me']||[];}
+   if(inp.action!=='追加'){if(i<0)i=findNamed(L,key,inp.name);if(i<0)return {エラー:`「${inp.name}」という${inp.kind}が見つからない`,いまある:L.map(x=>x[key])};}
+   const x=i>=0?L[i]:null;
+   if(inp.action==='削除')return card({title:inp.kind+'を削除',amount:yenF(x.amount),ok:'削除する',danger:true,rows:[['名前',x[key]],['支払日',x.day?x.day+'日':'']],
+     run:async()=>{const j=L.indexOf(x);if(j<0)stop('もう見つからないよ');L.splice(j,1);await saveS();return '削除したよ';}});
+   const n=x?{...x}:{[key]:'',amount:0};
+   if(inp.action==='追加')n[key]=String(inp.name).slice(0,40);else if(inp.new_name)n[key]=String(inp.new_name).slice(0,40);
+   if(inp.amount!=null)n.amount=Math.round(+inp.amount);if(inp.day)n.day=Math.max(1,Math.min(31,+inp.day));
+   if(sub){if(inp.owner||!x)n.who=own==='マル'?'自分':own;}else if(inp.category||!x)n.cat=CATS.includes(inp.category)?inp.category:guessCat(n[key]);
+   if(inp.from)n.from=pickM(sub?(n.who==='心愛'?'心愛':'マル'):own,inp.from);
+   const o=x||{};
+   return card({title:inp.kind+(x?'の変更':'の追加'),amount:yenF(n.amount),ok:x?'変える':'追加する',rows:[['名前',n[key],x?o[key]:null],['金額',yenF(n.amount),x?yenF(o.amount):null],['支払日',n.day?n.day+'日':'',x?(o.day?o.day+'日':''):null],
+     sub?['だれの',nm(n.who),x?nm(o.who):null]:['だれの',own],sub?null:['カテゴリ',n.cat||'',x?(o.cat||''):null],['支払い元',n.from||'',x?(o.from||''):null]],
+     run:async()=>{if(!n[key])stop('名前がないよ');if(x){const j=L.indexOf(x);if(j<0)stop('もう見つからないよ');L[j]=n;}else L.push(n);await saveS();return x?'変えたよ':'追加したよ';}});}},
+
+{name:'propose_goal',
+ description:'貯金の目標（結婚・出産など）を追加・変更・削除する。',
+ inputSchema:{type:'object',properties:{action:{type:'string',enum:['追加','変更','削除']},name:{type:'string'},new_name:{type:'string'},
+   ym:{type:'string',description:'達成したい年月 YYYY-MM'},target:{type:'integer',description:'目標額'}},required:['action','name']},
+ execute(inp){const G=S.goals=S.goals||[];const i=findNamed(G,'name',inp.name);
+   if(inp.action!=='追加'&&i<0)return {エラー:`「${inp.name}」という目標が見つからない`,いまある:G.map(g=>g.name)};
+   const x=i>=0&&inp.action!=='追加'?G[i]:null,ymT=y=>y?y.replace(/^(\d{4})-0?(\d+)$/,'$1年$2月'):'';
+   if(inp.action==='削除')return card({title:'目標を削除',amount:x.target?yenF(x.target):null,ok:'削除する',danger:true,rows:[['名前',x.name],['いつまで',ymT(x.ym)]],
+     run:async()=>{const j=G.indexOf(x);if(j<0)stop('もう見つからないよ');G.splice(j,1);await saveS();return '削除したよ';}});
+   const n=x?{...x}:{name:String(inp.name).slice(0,30),ym:'',target:0};
+   if(x&&inp.new_name)n.name=String(inp.new_name).slice(0,30);if(/^\d{4}-\d{2}$/.test(inp.ym||''))n.ym=inp.ym;if(inp.target!=null)n.target=Math.max(0,Math.round(+inp.target));
+   return card({title:x?'目標の変更':'目標の追加',amount:n.target?yenF(n.target):null,ok:x?'変える':'追加する',rows:[['名前',n.name,x?x.name:null],['いつまで',ymT(n.ym),x?ymT(x.ym):null],['目標額',n.target?yenF(n.target):'',x?(x.target?yenF(x.target):''):null]],
+     run:async()=>{if(!/^\d{4}-\d{2}$/.test(n.ym||''))stop('いつまでの目標か教えてね');if(x){const j=G.indexOf(x);if(j<0)stop('もう見つからないよ');G[j]=n;}else G.push(n);await saveS();return x?'変えたよ':'追加したよ';}});}}
+];
+
+const prevT=window.fxKoaTools,prevS=window.fxKoaSysExtra;
+window.fxKoaTools=()=>[...(prevT?prevT():[]),...tools];
+window.fxKoaSysExtra=()=>(prevS?prevS():'')+`
+ほかにできること（どれもツールで確認カードを出すだけ。保存はユーザーがボタンを押したとき）：
+・臨時収入 → propose_income／お金の移動・チャージ → propose_move／これから払う予定の支出 → propose_planned
+・記録の修正・削除 → まず search_records で探して ref を手に入れ、propose_edit_expense・propose_edit_item・propose_delete
+・月収・生活費予算・毎月の貯金・今の貯金など → propose_setting
+・固定費・サブスク → propose_recurring／貯金の目標 → propose_goal
+候補が2つ以上あってどれか決められないときは、勝手に選ばず「どれ？」と聞く。カードを出したら「よければボタンを押してね」と一言だけ添える。
+マルの支払い方法：${methods('マル').join('、')||'未設定'}。心愛の支払い方法：${methods('心愛').join('、')||'未設定'}。`;
+})();
+</script>
 </body>
 </html>

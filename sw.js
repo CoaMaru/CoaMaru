@@ -1,5 +1,5 @@
 // こあまる家：オフラインでも開けるようにする
-const CACHE = 'coamaru-v16';
+const CACHE = 'coamaru-v17';
 const CORE = ['./', 'index.html', 'firebase-bridge.js', 'firebase-config.js', 'lucide.min.js', 'logo.png', 'icon-192.png', 'icon-512.png', 'manifest.json', 'firebase-all.js', 'mascot/wave.webp', 'mascot/happy.webp', 'mascot/think.webp', 'mascot/peek.webp', 'mascot/sleep.webp'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => {

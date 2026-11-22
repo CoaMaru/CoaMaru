@@ -5775,5 +5775,41 @@ const sh=document.getElementById('fxSheet');
 if(sh)new MutationObserver(()=>{if(sh.classList.contains('on')&&locked()){sh.classList.remove('on');try{window.fxKpClose&&fxKpClose();}catch(_){}toastL(msg);}}).observe(sh,{attributes:true,attributeFilter:['class']});
 })();
 </script>
+<!-- ===== 内訳の「まだ記録がありません」は横書き／支払い予定の名前は省略せず全部表示 ===== -->
+<style>
+html body #fxCatL{min-width:0;flex:1 1 auto}
+html body #fxCatL li.fxem{display:block;white-space:nowrap;writing-mode:horizontal-tb;width:auto;min-width:9em;text-align:left}
+html body .fxpay .n{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;word-break:break-word;overflow-wrap:anywhere;line-height:1.35}
+html body .fxpay{align-items:center}
+</style>
+<!-- ===== 内訳の上下の余白をそろえる／支払い予定の長い名前は1行のまま流して全部見せる ===== -->
+<style>
+html body #fxCock .fxst .fxcat{padding-top:14px}
+html body .fxpay .n{white-space:nowrap!important;overflow:hidden!important;line-height:1.3}
+.fxpay .n .mq{display:block;overflow:hidden;white-space:nowrap}
+.fxpay .n .mq.on{-webkit-mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 18px),transparent);mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 18px),transparent)}
+.fxpay .n .mq.on.mv{-webkit-mask-image:linear-gradient(90deg,transparent,#000 14px,#000 calc(100% - 14px),transparent);mask-image:linear-gradient(90deg,transparent,#000 14px,#000 calc(100% - 14px),transparent)}
+.fxpay .n .mqi{display:inline-block;will-change:transform}
+.fxpay .n .mq.on .mqi{animation:fxmq var(--t,8s) ease-in-out infinite alternate}
+@keyframes fxmq{0%,18%{transform:translateX(0)}82%,100%{transform:translateX(var(--dx,0))}}
+@media(prefers-reduced-motion:reduce){.fxpay .n .mq.on .mqi{animation:none}.fxpay .n .mq.on{white-space:normal}}
+</style>
+<script>
+(()=>{
+const fit=()=>{document.querySelectorAll('.fxpay .n').forEach(n=>{
+  let mq=n.querySelector(':scope>.mq');
+  if(!mq){const t=n.firstChild;if(!t||t.nodeType!==3||!t.textContent.trim())return;
+    mq=document.createElement('span');mq.className='mq';const i=document.createElement('span');i.className='mqi';i.textContent=t.textContent;mq.appendChild(i);n.replaceChild(mq,t);}
+  const i=mq.firstChild,over=i.scrollWidth-mq.clientWidth;
+  if(over>2){const dx=over+20;mq.style.setProperty('--dx',-dx+'px');mq.style.setProperty('--t',Math.max(5,dx/28+3).toFixed(1)+'s');mq.classList.add('on');}
+  else mq.classList.remove('on');});};
+const L=document.getElementById('fxPay');
+if(L)new MutationObserver(()=>requestAnimationFrame(fit)).observe(L,{childList:true,subtree:false});
+addEventListener('resize',()=>requestAnimationFrame(fit));
+const _r=window.render;window.render=function(){const x=_r.apply(this,arguments);requestAnimationFrame(fit);return x;};
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fit);
+setTimeout(fit,300);
+})();
+</script>
 </body>
 </html>

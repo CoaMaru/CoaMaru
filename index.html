@@ -1597,7 +1597,7 @@ const Q=(s,r=document)=>[...r.querySelectorAll(s)];
 const KEYS=['incomes','fixed','subs','livingBudget','saving','gasBudget','gasBudgetKo'];
 const UNLOCK={};               // この画面を開いている間だけの「解除」
 let loaded=false,swapped=null,saving=false;
-const isLocked=k=>!!k&&k<NOWK&&!UNLOCK[k];
+const isLocked=k=>!!k&&k<NOWK&&!UNLOCK[k];window.isLocked=isLocked;
 const clone=o=>JSON.parse(JSON.stringify(o));
 
 // 期間が終わったら、そのときの設定（月収・固定費・サブスク・生活費予算・貯金）を保存して固定する
@@ -2914,13 +2914,13 @@ document.body.insertAdjacentHTML('beforeend',`<div class="rcsheet" id="rcSheet">
       <label class="rcopt"><i data-lucide="images"></i><b>写真から選ぶ</b><small>アルバムから</small><input type="file" id="rcPick" accept="image/*"></label>
     </div>
     <details class="rctips"><summary>上手く読み取るコツ</summary><ul>
-      <li>レシートを<b>平らに</b>のばして、暗い色の机に置く</li>
-      <li><b>真上から</b>、レシートが画面いっぱいになるように撮る</li>
-      <li>明るい場所で。<b>影・光の反射</b>が文字にかからないように</li>
-      <li>店名・日付・<b>合計</b>が1枚に入るように（長いレシートは折らずに少し離れて）</li>
-      <li>ピントが合ってから撮る（文字がにじんでたら撮り直し）</li>
+      <li>レシートを<b>平らに</b>のばして、暗い色の机に置いてください</li>
+      <li><b>真上から</b>、レシートが画面いっぱいになるように撮影してください</li>
+      <li>明るい場所で、<b>影・光の反射</b>が文字にかからないようにしてください</li>
+      <li>店名・日付・<b>合計</b>が1枚に収まるようにしてください（長いレシートは折らずに、少し離れて撮影）</li>
+      <li>ピントが合ってから撮影してください（文字がにじんでいる場合は撮り直し）</li>
     </ul></details>
-    <button class="btn sub rcclose" data-rcclose="1">やめる</button>
+    <button class="btn sub rcclose" data-rcclose="1">キャンセル</button>
   </div></div>`);
 const sh=$('rcSheet');
 const open=()=>{sh.classList.add('on');try{icons();}catch(e){}};
@@ -3779,7 +3779,7 @@ const context=()=>{const o={今日:dsOf(Date.now()),期間:T('pLabel'),利用可
   try{o.最近の記録=[...EXP].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,40).map(e=>[e.date,e.amount,e.category,e.item,e.payer||e.who,e.method].join(' / '));}catch(e){}
   try{const f=window.fxForecast&&window.fxForecast();if(f)o.予測={今のペースで給料日に残る額:Math.round(f.left),経過日数:f.el,期間の日数:f.total};}catch(e){}
   return JSON.stringify(o);};
-const SYS=d=>`あなたは「SoNa（ソナ）」。見た目は零式会社こあまるのマスコット（ピンクのリボンと金の鈴をつけた、ふわふわの子猫）。マルと心愛（ここあ）、2人の家計簿アプリ「こあまる家」に住んでいるAIアシスタントです。
+const SYS=d=>`あなたは「SoNa（ソナ）」。見た目は、光る星のAIアイコン。マルと心愛（ここあ）、2人の家計簿アプリ「こあまる家」に住んでいるAIアシスタントです。
 話し方：やさしくて頼れる執事みたいな、くだけた日本語（です・ます調は使わない）。短く、3〜5文まで。金額は「¥12,345」の形で書く。マークダウン記号（#や*）は使わない。
 ルール：下のデータだけを根拠にする。データにないことは「まだ記録がないよ」と正直に言う。記録の追加は、ツールで確認カードを出す方法だけ。投資や借入のすすめはしない。
 いまの家計データ（JSON）：
@@ -4006,7 +4006,7 @@ const card=inp=>{const who=['自分','心愛','2人'].includes(inp.who)?inp.who:
     date:/^\d{4}-\d{2}-\d{2}$/.test(inp.date||'')?inp.date:today(),who,payer,method:String(inp.method||'').slice(0,30),shop:String(inp.shop||'').slice(0,40)};
   const el=document.createElement('div');el.className='rc';
   const row=(k,v)=>v?`<dt>${k}</dt><dd></dd>`:'';
-  el.innerHTML=`<div class="h">記録の確認</div><div class="a"></div><dl>${row('カテゴリ',1)}${row('内容',rec.item)}${row('お店',rec.shop)}${row('日付',1)}${row('だれの',1)}${row('支払い',rec.method)}</dl><div class="bt"><button class="ok" type="button">記録する</button><button class="ng" type="button">やめる</button></div>`;
+  el.innerHTML=`<div class="h">記録の確認</div><div class="a"></div><dl>${row('カテゴリ',1)}${row('内容',rec.item)}${row('お店',rec.shop)}${row('日付',1)}${row('だれの',1)}${row('支払い',rec.method)}</dl><div class="bt"><button class="ok" type="button">記録する</button><button class="ng" type="button">キャンセル</button></div>`;
   el.querySelector('.a').textContent=yenF(rec.amount);
   const dd=[...el.querySelectorAll('dd')];const vals=[rec.category,rec.item,rec.shop,rec.date.replace(/^\d{4}-0?(\d+)-0?(\d+)$/,'$1/$2'),rec.who==='自分'?'マル':rec.who,rec.method].filter((v,i)=>i===0||i===3||i===4||v);
   dd.forEach((d,i)=>d.textContent=vals[i]);
@@ -4231,7 +4231,7 @@ const update=()=>{if(!document.body.classList.contains('fxcock'))return;
   const PCOL=(typeof COLORS!=='undefined')?COLORS:{};const PICN=(typeof ICN_APP!=='undefined')?ICN_APP:{};
   $$('fxPay').innerHTML=due.length?due.slice(0,6).map(x=>{const d=x.date;return `<li class="${x.diff<=N?'soon':''}" style="--pc:${PCOL[x.c]||'#9aa0a8'}"><div class="d">${d.getMonth()+1}/${d.getDate()}<small>${x.diff===0?'今日':x.diff===1?'明日':x.diff+'日後'}・${W[d.getDay()]}</small></div>
     <div class="ic2"><i data-lucide="${PICN[x.c]||ICN[x.c]||'receipt'}"></i></div><div class="n">${String(x.n).replace(/</g,'&lt;')}<small><span class="fxwho ${x.w==='心愛'?'k':x.w==='2人'?'b':'m'}">${x.w==='心愛'?'Kokoa':x.w==='2人'?'Both':'Maru'}</span></small></div><div class="a">${yenF(x.a)}</div></li>`;}).join('')
-    :'<li class="em">近い支払いはないよ</li>';
+    :'<li class="em">近い支払いはありません</li>';
   // 波形
   const map={};try{EXP.forEach(e=>{if(e.date)map[e.date]=(map[e.date]||0)+(+e.amount||0);});}catch(e){}
   const pd=days.slice(0,-1).map(d=>map[dsOf(d.getTime())]||0),mx=Math.max(1,...pd),sum=pd.reduce((a,b)=>a+b,0);
@@ -4535,7 +4535,7 @@ const draw=()=>{if(!document.body.classList.contains('fxcock'))return;const R=ro
   L.forEach(([c,v],i)=>{const len=tot?C*v/tot:0,gap=L.length>1?2.5:0;seg+=`<circle cx="50" cy="50" r="40" fill="none" stroke="${cc(c,i)}" stroke-width="12" stroke-dasharray="${Math.max(0,len-gap)} ${C}" stroke-dashoffset="${-off}" style="filter:drop-shadow(0 0 3px ${cc(c,i)})"/>`;off+=len;});
   $$('fxCatR').innerHTML=`<circle cx="50" cy="50" r="40" fill="none" stroke="rgba(198,168,255,.1)" stroke-width="12"/>${seg}<circle cx="50" cy="50" r="49" fill="none" stroke="rgba(198,168,255,.35)" stroke-dasharray="1 3"/>`;
   $$('fxCatC').innerHTML=`<small>この期間</small><b>${yenK(tot)}</b><small>${R.length}件</small>`;
-  $$('fxCatL').innerHTML=L.length?L.map(([c,v],i)=>`<li><i style="background:${cc(c,i)};color:${cc(c,i)}"></i><span>${esc(c)}</span><b>${yenK(v)}<small>${tot?Math.round(v/tot*100):0}%</small></b></li>`).join(''):'<li class="fxem">まだ記録がないよ</li>';
+  $$('fxCatL').innerHTML=L.length?L.map(([c,v],i)=>`<li><i style="background:${cc(c,i)};color:${cc(c,i)}"></i><span>${esc(c)}</span><b>${yenK(v)}<small>${tot?Math.round(v/tot*100):0}%</small></b></li>`).join(''):'<li class="fxem">まだ記録がありません</li>';
   // 2) ゴール（未来画面と同じ考え方）
   const G=[];const t=new Date();
   try{const sv=+S.savedNow||0,mo=+S.saving||0;(S.goals||[]).forEach(g=>{if(!g||!g.name)return;const [y,m]=String(g.ym||'').split('-').map(Number);const left=y?Math.max(0,(y-t.getFullYear())*12+(m-(t.getMonth()+1))+1):0;
@@ -4544,7 +4544,7 @@ const draw=()=>{if(!document.body.classList.contains('fxcock'))return;const R=ro
   try{const d=S.debt||{},C=d.creditors||[];if(C.length||d.end){const tot=C.reduce((a,c)=>a+(+c.settle||0),0),rem=C.reduce((a,c)=>a+(+c.remain||0),0),done=Math.max(0,tot-rem);
     let left=0;if(d.end){const [ey,em]=d.end.split('-').map(Number);left=Math.max(0,(ey-t.getFullYear())*12+(em-(t.getMonth()+1))+(t.getDate()<=(+d.day||27)?1:0));}
     const p=tot?done/tot*100:0;G.push({n:'返済',p,c:'#ffb45c',v:(Math.round(p*10)/10)+'%',vs:`あと${left}回`,s:`残り ${yenK(rem)}`,sb:''});}}catch(e){}
-  $$('fxGoal').innerHTML=G.length?G.map(g=>`<div class="fxmini"><div class="rg"><svg viewBox="0 0 100 100">${ring(g.p,g.c,40,9)}</svg><div class="ct"><b class="${/[¥￥]/.test(g.v)?'fxamt':'fxnum2'}">${g.v}</b><small>${esc(g.vs)}</small></div></div><div class="nm">${esc(g.n)}</div><div class="sb">${esc(g.s)}${g.sb?'・'+esc(g.sb):''}</div></div>`).join(''):'<div class="fxem">目標は設定画面から追加できるよ</div>';
+  $$('fxGoal').innerHTML=G.length?G.map(g=>`<div class="fxmini"><div class="rg"><svg viewBox="0 0 100 100">${ring(g.p,g.c,40,9)}</svg><div class="ct"><b class="${/[¥￥]/.test(g.v)?'fxamt':'fxnum2'}">${g.v}</b><small>${esc(g.vs)}</small></div></div><div class="nm">${esc(g.n)}</div><div class="sb">${esc(g.s)}${g.sb?'・'+esc(g.sb):''}</div></div>`).join(''):'<div class="fxem">目標は設定画面から追加できます</div>';
   // 3) お財布・カード（人ごとに、1行ずつ）
   const TYP={card:'クレジットカード',later:'後払い',debit:'デビット',bank:'銀行口座',wallet:'電子マネー',cash:'現金'};
   const grp=[];try{[['マル','me','MARU'],['心愛','ko','KOKOA']].forEach(([w,k,en])=>{const its=[];
@@ -4564,7 +4564,7 @@ const draw=()=>{if(!document.body.classList.contains('fxcock'))return;const R=ro
   $$('fxWal').innerHTML=sw+(grpF.length?grpF.map(g=>`<div class="wg"><div class="wh ${g.w==='心愛'?'k':'m'}"><span class="fxwho ${g.w==='心愛'?'k':'m'}">${g.w==='心愛'?'Kokoa':'Maru'}</span></div>`+
     g.its.map(x=>`<div class="wi ${x.st}"><div class="wn">${esc(x.n)}<small>${esc([x.t!==x.n?x.t:'',x.day].filter(Boolean).join('・'))}</small></div>
       <div class="wv"><small>${x.lab}</small><b>${x.big}</b>${x.sub?`<em>使用 ${x.sub}</em>`:''}${x.p!==null?`<span class="wbar"><i style="width:${Math.min(100,x.p).toFixed(1)}%"></i></span>`:''}</div></div>`).join('')+'</div>').join('')
-    :'<div class="fxem">カードの上限や口座の残高を設定画面で入れると、ここに出るよ</div>');
+    :'<div class="fxem">カードの上限や口座の残高を設定画面で入力すると、ここに表示されます</div>');
   // 4) 2人のバランス
   let me=0,ko=0;R.forEach(e=>{const p=(typeof payerOf==='function'?payerOf(e):e.payer)||'マル';if(p==='心愛')ko+=+e.amount||0;else me+=+e.amount||0;});
   const sum=me+ko,pm=sum?me/sum*100:50,Cc=2*Math.PI*40;
@@ -5183,7 +5183,7 @@ const pickM=(w,m)=>{m=String(m||'').trim();if(!m)return '';const L=methods(w);re
 /* 確認カード（共通）：rows=[[見出し,値,変更前]] */
 const card=({title,amount,rows,ok='OK',danger=false,run})=>{
   const el=document.createElement('div');el.className='rc'+(danger?' del':'');
-  el.innerHTML=`<div class="h"></div>${amount!=null?'<div class="a"></div>':''}<dl></dl><div class="bt"><button class="ok" type="button"></button><button class="ng" type="button">やめる</button></div>`;
+  el.innerHTML=`<div class="h"></div>${amount!=null?'<div class="a"></div>':''}<dl></dl><div class="bt"><button class="ok" type="button"></button><button class="ng" type="button">キャンセル</button></div>`;
   el.querySelector('.h').textContent=title;if(amount!=null)el.querySelector('.a').textContent=amount;
   el.querySelector('.ok').textContent=ok;
   const dl=el.querySelector('dl');
@@ -5357,6 +5357,422 @@ window.fxKoaSysExtra=()=>(prevS?prevS():'')+`
 ・固定費・サブスク → propose_recurring／貯金の目標 → propose_goal
 候補が2つ以上あってどれか決められないときは、勝手に選ばず「どれ？」と聞く。カードを出したら「よければボタンを押してね」と一言だけ添える。
 マルの支払い方法：${methods('マル').join('、')||'未設定'}。心愛の支払い方法：${methods('心愛').join('、')||'未設定'}。`;
+})();
+</script>
+<!-- ===== NO-DETAIL：「くわしく」をなくす（中身は記録・未来へ引っ越し） ===== -->
+<script>
+(()=>{
+const $$=id=>document.getElementById(id);
+const cardOf=id=>{const e=$$(id);return e&&e.closest('.card');};
+const home=$$('tab-home'),rec=$$('tab-rec'),fut=$$('tab-future');if(!home||!rec||!fut)return;
+// 収支の詳細（変動費・臨時収入・今月の月収）と生活費 → 記録タブ（チャージの下）
+const flow=cardOf('flow'),liv=cardOf('livBar'),sim=cardOf('cBtn'),mv=cardOf('mvAdd');
+let at=mv||rec.querySelector('.card');
+[flow,liv].forEach(c=>{if(!c)return;if(at)at.after(c);else rec.appendChild(c);at=c;});
+// 購入シミュレーター → 未来タブのいちばん下
+if(sim)fut.appendChild(sim);
+// メニューから「くわしく」を消して、残り3つを三角に並べる
+const rm=$$('fxRm');
+if(rm){const b=rm.querySelector('button[data-t="home"]');if(b)b.remove();
+  const A={rec:-135,future:-45,set:90},r=118;
+  rm.querySelectorAll('button[data-t]').forEach(x=>{const a=A[x.dataset.t];if(a==null)return;
+    x.style.setProperty('--dx',(Math.cos(a*Math.PI/180)*r).toFixed(1)+'px');x.style.setProperty('--dy',(Math.sin(a*Math.PI/180)*r).toFixed(1)+'px');});}
+const nav=$$('fxNav');if(nav){const b=nav.querySelector('[data-t="home"]');if(b)b.remove();}
+// 「ホームを開く」動きは、コックピット（HOME）に戻る。変動費の編集だけは記録タブで開く
+const _st=window.showTab;
+window.showTab=function(t){
+  if(t==='home'){const ex=$$('exForm');
+    if(document.body.classList.contains('fxpanel')&&ex&&ex.classList.contains('on')){const r=_st.call(this,'rec');setTimeout(()=>{try{ex.scrollIntoView({behavior:'smooth',block:'center'});}catch(_){}},80);return r;}
+    document.body.classList.remove('fxpanel');}
+  return _st.apply(this,arguments);};
+try{showTab=window.showTab;}catch(_){}
+})();
+</script>
+<!-- ===== 日付バー：給料日の「給」が見切れないように ===== -->
+<style>
+html body .fxdays{padding-top:15px;margin-top:-11px}
+html body .fxdays div.pay::before{top:-12px;font-size:9px;line-height:1;font-weight:700}
+</style>
+<!-- ===== 日付バー：給料日をゴールドのリング＋「給料日」バッジに ===== -->
+<style>
+html body .fxdays{padding-top:17px;margin-top:-13px}
+html body .fxdays div.pay:not(.today){color:#ffe3a3!important;font-weight:700;
+  background:radial-gradient(circle,rgba(255,196,92,.18),rgba(255,196,92,0) 70%);
+  box-shadow:inset 0 0 0 1.5px #ffc45c,0 0 10px rgba(255,180,80,.55)}
+html body .fxdays div.pay::before{content:"給料日";top:-15px;left:50%;right:auto;transform:translateX(-50%);
+  white-space:nowrap;font:800 7.5px/1 "Murecho",sans-serif;letter-spacing:.04em;padding:2.5px 4px 2px;border-radius:999px;
+  color:#2a1500;background:linear-gradient(90deg,#ffb45c,#ffe09a);box-shadow:0 0 8px rgba(255,180,80,.6)}
+html body .fxdays div.pay i{display:none}
+</style>
+<!-- ===== 日付バー：日付をきれいな正円に／給料日のリングは数字にぴったり ===== -->
+<style>
+html body .fxdays div{width:30px;height:30px;padding:0!important;display:flex;align-items:center;justify-content:center;border-radius:50%;line-height:1}
+html body .fxdays div.pay:not(.today){background:none!important;box-shadow:none!important;font-size:12px}
+html body .fxdays div.pay:not(.today)::after{content:"";position:absolute;inset:2px;border-radius:50%;
+  border:1.5px solid #ffc45c;box-shadow:0 0 9px rgba(255,180,80,.55),inset 0 0 6px rgba(255,180,80,.25);pointer-events:none}
+html body .fxdays div.pay::before{top:-14px}
+</style>
+<!-- ===== 周りの円をタップすると、その画面へ（コアのメニューも残す） ===== -->
+<style>
+#fxCock .hero .perday>span,#fxCock .hero .chips3>div{cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s}
+#fxCock .hero .perday>span:active,#fxCock .hero .chips3>div:active{filter:brightness(1.35)}
+#fxCock .hero .perday>span::after,#fxCock .hero .chips3>div::after{display:block;margin-top:3px;font:700 7.5px/1 "Murecho",sans-serif;letter-spacing:.06em;
+  color:color-mix(in srgb,var(--sc,#c6a8ff) 55%,#fff);opacity:.75}
+#fxCock .hero .perday>span:nth-child(1)::after{content:"未来 ›"}
+#fxCock .hero .perday>span:nth-child(2)::after{content:"記録 ›"}
+#fxCock .hero .chips3>div:nth-child(1)::after{content:"設定 ›"}
+#fxCock .hero .chips3>div:nth-child(2)::after{content:"記録 ›"}
+#fxCock .hero .chips3>div:nth-child(3)::after{content:"未来 ›"}
+</style>
+<script>
+(()=>{
+const hdOf=(tab,re)=>{const s=document.getElementById('tab-'+tab);if(!s)return null;const h=[...s.querySelectorAll('h2')].find(x=>re.test(x.textContent));return h&&(h.closest('.card')||h);};
+const MAP=[[/給料日まで/,'future',/カレンダー/],[/1日あたり/,'rec',null],[/月収/,'set',null],[/固定費|変動費/,'rec',/収支の詳細/],[/貯金/,'future',null]];
+document.addEventListener('click',e=>{
+  const el=e.target.closest('#fxCock .hero .perday>span, #fxCock .hero .chips3>div');if(!el||document.body.classList.contains('fxpanel'))return;
+  const lab=(el.querySelector('small')||el).textContent;const m=MAP.find(x=>x[0].test(lab));if(!m)return;
+  e.preventDefault();e.stopPropagation();
+  document.body.classList.add('fxpanel');try{showTab(m[1]);}catch(_){}
+  setTimeout(()=>{const t=m[2]?hdOf(m[1],m[2]):null;try{if(t)t.scrollIntoView({behavior:'smooth',block:'start'});else{const s=document.getElementById('tab-'+m[1]);s&&s.scrollIntoView({block:'start'});}}catch(_){}},160);
+},true);
+})();
+</script>
+<!-- ===== 周りの円：「2人の月収」「今月の貯金」は、その場で入力できるシート ===== -->
+<style>
+#fxSheet{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:flex-end;justify-content:center;background:rgba(6,3,16,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .2s}
+#fxSheet.on{opacity:1;pointer-events:auto}
+#fxSheet .bx{width:min(100%,520px);margin:0 10px calc(14px + env(safe-area-inset-bottom));padding:18px 18px 16px;border-radius:30px;
+  background:radial-gradient(120% 120% at 0% 0%,rgba(190,150,255,.16),rgba(16,9,34,.97) 65%);box-shadow:inset 0 0 0 1px rgba(217,198,255,.35),0 20px 60px rgba(0,0,0,.6);
+  transform:translateY(30px);transition:transform .25s cubic-bezier(.2,.9,.3,1)}
+#fxSheet.on .bx{transform:none}
+#fxSheet .hd{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+#fxSheet .hd b{font:800 17px "Murecho",sans-serif;color:#fff;letter-spacing:.04em}
+#fxSheet .hd small{font:600 11px "Murecho",sans-serif;color:#b9a8e0}
+#fxSheet .f{margin-top:14px}
+#fxSheet .f label{display:flex;justify-content:space-between;font:700 12px "Murecho",sans-serif;color:#d9c6ff;margin:0 4px 6px}
+#fxSheet .f label span:last-child{font-weight:500;color:#9f8fc8;font-size:11px}
+#fxSheet .in{display:flex;align-items:center;gap:6px;padding:0 16px;height:54px;border-radius:999px;background:rgba(8,4,20,.7);box-shadow:inset 0 0 0 1px rgba(217,198,255,.3)}
+#fxSheet .in:focus-within{box-shadow:inset 0 0 0 1.5px #c6a8ff,0 0 14px rgba(198,168,255,.35)}
+#fxSheet .in i{font-style:normal;color:#b9a8e0;font-size:16px}
+html body #fxSheet .in input{box-shadow:none!important;border:0!important;background:none!important;padding:0!important;margin:0!important;height:auto!important;border-radius:0!important;width:auto!important}
+#fxSheet .in input{flex:1;min-width:0;background:none;border:0;outline:0;color:#fff;font:700 22px "Murecho",sans-serif;text-align:right}
+#fxSheet .nt{margin:12px 4px 0;font:500 11.5px/1.6 "Murecho",sans-serif;color:#b9a8e0}
+#fxSheet .nt b{color:#ffd27a;font-weight:700}
+#fxSheet .bt{display:flex;gap:8px;margin-top:16px}
+#fxSheet .bt button{flex:1;height:50px;border-radius:999px;border:0;font:800 15px "Murecho",sans-serif}
+#fxSheet .ok{background:linear-gradient(90deg,#b48cff,#e6d6ff);color:#1a0c33}
+#fxSheet .ng{background:none;color:#e0d4ff;box-shadow:inset 0 0 0 1px rgba(217,198,255,.4)}
+#fxSheet .rs{display:block;margin:12px auto 0;background:none;border:0;color:#9f8fc8;font:600 12px "Murecho",sans-serif;text-decoration:underline;text-underline-offset:3px}
+#fxCock .hero .chips3>div:nth-child(1)::after,#fxCock .hero .chips3>div:nth-child(3)::after{content:"入力 ›"!important}
+</style>
+<script>
+(()=>{
+const yenF=n=>'¥'+Math.round(+n||0).toLocaleString('ja-JP');
+const st=()=>document.getElementById('status')||document.createElement('i');
+const box=document.createElement('div');box.id='fxSheet';box.innerHTML='<div class="bx" role="dialog" aria-modal="true"></div>';document.body.appendChild(box);
+const bx=box.querySelector('.bx');
+const close=()=>{box.classList.remove('on');try{document.activeElement.blur();}catch(_){}};
+box.addEventListener('click',e=>{if(e.target===box)close();});
+const num=v=>Math.max(0,Math.round(+String(v).replace(/[^\d]/g,'')||0));
+const fmtIn=el=>{el.addEventListener('input',()=>{const n=String(el.value).replace(/[^\d]/g,'');el.value=n?(+n).toLocaleString('ja-JP'):'';});};
+const lockedP=()=>{try{return isLocked(P);}catch(e){return false;}};
+const salaryOf=w=>{try{const L=(S.methods[w]||[]).filter(m=>m.salary);return L.map(m=>m.name).join('・');}catch(e){return '';}};
+const field=(id,lab,sub,val)=>`<div class="f"><label><span>${lab}</span><span>${sub}</span></label><div class="in"><i>¥</i><input id="${id}" inputmode="numeric" autocomplete="off" value="${val?(+val).toLocaleString('ja-JP'):''}" placeholder="0"></div></div>`;
+const open=(html,onOk,onReset)=>{bx.innerHTML=html;box.classList.add('on');
+  bx.querySelectorAll('input').forEach(fmtIn);
+  bx.querySelector('.ng').onclick=close;
+  bx.querySelector('.ok').onclick=async()=>{if(lockedP()){try{toast('この期間は確定済みのため変更できません');}catch(_){}close();return;}await onOk();close();render();try{renderSettings();}catch(_){}await save(st());};
+  const r=bx.querySelector('.rs');if(r&&onReset)r.onclick=async()=>{if(lockedP()){close();return;}await onReset();close();render();try{renderSettings();}catch(_){}await save(st());};};
+
+/* ---------- 収入：この期間の2人の手取り → 給料日に給料口座へ自動で入る ---------- */
+const incomeSheet=()=>{const ia=incOf(P),c=calc(P);const me=salaryOf('me'),ko=salaryOf('ko');
+  const lbl=(document.getElementById('pLabel')||{}).textContent||'';
+  const dest=[me&&`マル → <b>${me}</b>`,ko&&`心愛 → <b>${ko}</b>`].filter(Boolean).join('<br>');
+  open(`<div class="hd"><b>この期間の収入</b><small>${lbl.replace(/[^\d/〜~ ]/g,'').trim()}</small></div>
+    ${field('fsMe','Maru','通常 '+yenF(S.incomes.me),ia.me)}${field('fsKo','Kokoa','通常 '+yenF(S.incomes.ko),ia.ko)}
+    <div class="nt">${dest?`給料日（25日）に、給料口座へ自動で入金されます。<br>${dest}`:'給料口座が設定されていません。設定のウォレットで「給料が入る」にチェックすると、給料日に自動で入金されます。'}</div>
+    <div class="bt"><button class="ok" type="button">保存する</button><button class="ng" type="button">キャンセル</button></div>
+    ${(ia.meFix||ia.koFix)?'<button class="rs" type="button">通常の金額に戻す</button>':''}`,
+    ()=>{S.incomeActual=S.incomeActual||{};S.incomeActual[P]={me:num(bx.querySelector('#fsMe').value),ko:num(bx.querySelector('#fsKo').value)};},
+    ()=>{if(S.incomeActual)delete S.incomeActual[P];});
+  setTimeout(()=>{const i=bx.querySelector('#fsMe');if(i)i.focus();},250);};
+
+/* ---------- 貯金：この期間に貯める額（期間ごとに記録） ---------- */
+const _calc=window.calc;
+window.calc=function(k=P){const A=S.saveActual||{};if(A[k]==null)return _calc.apply(this,arguments);
+  const o=S.saving;S.saving=+A[k]||0;try{return _calc.apply(this,arguments);}finally{S.saving=o;}};
+try{calc=window.calc;}catch(_){}
+const saveSheet=()=>{const A=S.saveActual||{},has=A[P]!=null,cur=has?+A[P]:+S.saving||0;
+  const lbl=(document.getElementById('pLabel')||{}).textContent||'';
+  open(`<div class="hd"><b>この期間の貯金</b><small>${lbl.replace(/[^\d/〜~ ]/g,'').trim()}</small></div>
+    ${field('fsSv','貯金額','通常 '+yenF(S.saving),cur)}
+    <div class="nt">この期間の記録として保存されます。利用可能額・収支の詳細も、この金額で再計算されます。</div>
+    <div class="bt"><button class="ok" type="button">保存する</button><button class="ng" type="button">キャンセル</button></div>
+    ${has?'<button class="rs" type="button">通常の金額に戻す</button>':''}`,
+    ()=>{S.saveActual=S.saveActual||{};S.saveActual[P]=num(bx.querySelector('#fsSv').value);},
+    ()=>{if(S.saveActual)delete S.saveActual[P];});
+  setTimeout(()=>{const i=bx.querySelector('#fsSv');if(i)i.focus();},250);};
+
+window.fxIncomeSheet=incomeSheet;window.fxSaveSheet=saveSheet;
+window.addEventListener('click',e=>{
+  const el=e.target.closest('#fxCock .hero .chips3>div');if(!el||document.body.classList.contains('fxpanel'))return;
+  const lab=(el.querySelector('small')||el).textContent;
+  if(/月収|貯金/.test(lab)&&window.isLocked&&isLocked(P)){e.preventDefault();e.stopImmediatePropagation();window.fxLockToast&&fxLockToast('確定済みの期間です（中央の LOCKED をタップすると解除できます）');return;}
+  if(/月収/.test(lab)){e.preventDefault();e.stopImmediatePropagation();incomeSheet();}
+  else if(/貯金/.test(lab)){e.preventDefault();e.stopImmediatePropagation();saveSheet();}
+},true);
+})();
+</script>
+<!-- ===== こあまる家専用キーパッド：金額の欄はスマホのキーボードの代わりにこれを出す ===== -->
+<style>
+#fxKp{position:fixed;left:0;right:0;bottom:0;z-index:2147483600;padding:10px 12px calc(12px + env(safe-area-inset-bottom));
+  background:linear-gradient(180deg,#1a0e34,#0a0518);border-radius:28px 28px 0 0;
+  box-shadow:0 -1px 0 rgba(217,198,255,.35),0 -18px 50px rgba(0,0,0,.55),0 -4px 30px rgba(150,100,255,.18);
+  transform:translateY(105%);transition:transform .22s cubic-bezier(.2,.9,.3,1);touch-action:manipulation;user-select:none;-webkit-user-select:none}
+#fxKp.on{transform:none}
+#fxKp .top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 6px 10px}
+#fxKp .lb{font:700 11px "Murecho",sans-serif;color:#b9a8e0;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:45%}
+#fxKp .pv{font:800 26px "Murecho",sans-serif;color:#fff;letter-spacing:.02em;text-shadow:0 0 14px rgba(198,168,255,.45);white-space:nowrap}
+#fxKp .pv small{font-size:15px;color:#c6a8ff;margin-right:3px}
+#fxKp .pv .cr{display:inline-block;width:2px;height:.95em;margin:0 1px;vertical-align:-.1em;background:#c6a8ff;box-shadow:0 0 8px #c6a8ff;animation:kpblink 1s steps(1) infinite}
+@keyframes kpblink{50%{opacity:0}}
+#fxKp .gd{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+#fxKp .gd button{height:52px;border-radius:999px;border:0;background:rgba(190,155,255,.08);color:#fff;font:700 22px "Murecho",sans-serif;
+  box-shadow:inset 0 0 0 1px rgba(217,198,255,.22);transition:background .08s,transform .08s}
+#fxKp .gd button:active{transform:scale(.94);background:rgba(190,155,255,.28)}
+#fxKp .gd .fn{color:#d9c6ff;font-size:16px;background:rgba(190,155,255,.14)}
+#fxKp .gd .cl{color:#ff9aa8;font-size:15px}
+#fxKp .gd .mv{color:#c6a8ff;font-size:18px;background:rgba(190,155,255,.14)}
+#fxKp .gd .ok{grid-row:span 2;height:auto;background:linear-gradient(160deg,#b48cff,#e6d6ff);color:#1a0c33;font-size:16px;font-weight:800;box-shadow:0 0 18px rgba(180,140,255,.45)}
+#fxKp .gd .dot{display:none}
+#fxKp .gd.dec .dot{display:block}
+#fxKp .gd.dec .ok{grid-row:auto;height:52px}
+input.kpact{box-shadow:inset 0 0 0 1.5px #c6a8ff,0 0 14px rgba(198,168,255,.35)!important}
+body.kpon #fxSheet .bx{margin-bottom:calc(var(--kph,0px) + 10px)}
+.kpsp{height:var(--kph,300px)}
+</style>
+<script>
+(()=>{
+if(!matchMedia('(pointer:coarse)').matches)return; // パソコンでは今まで通りのキーボード
+const kp=document.createElement('div');kp.id='fxKp';kp.setAttribute('aria-hidden','true');
+kp.innerHTML=`<div class="top"><span class="lb"></span><span class="pv"></span></div>
+<div class="gd">
+<button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button><button type="button" class="fn" data-k="bs">⌫</button>
+<button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button><button type="button" class="fn cl" data-k="c">クリア</button>
+<button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button><button type="button" class="ok" data-k="ok">完了</button>
+<button type="button" class="mv" data-k="L" aria-label="左へ">◀</button><button type="button" data-k="0">0</button><button type="button" class="dot" data-k=".">.</button><button type="button" class="mv" data-k="R" aria-label="右へ">▶</button>
+</div>`;
+document.body.appendChild(kp);
+const lb=kp.querySelector('.lb'),pv=kp.querySelector('.pv'),gd=kp.querySelector('.gd');
+let cur=null,spacer=null,pos=0;
+const isNum=el=>el&&el.tagName==='INPUT'&&!el.readOnly&&!el.disabled&&(el.type==='number'||/^(numeric|decimal)$/.test(el.dataset.kpim||el.inputMode||''));
+const isDec=el=>(el.dataset.kpim||el.inputMode)==='decimal'||/\./.test(el.placeholder||'')||/\./.test(el.step||'');
+const RC=/[\d.]/;const NV0=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').get;
+const raw=el=>String(el.value||'').replace(/[^\d.]/g,'');
+// 「数字の何文字目」⇔「画面の文字の何文字目」の変換（カンマを飛ばして数える）
+const idxOf=(s,n)=>{let c=0;for(let i=0;i<s.length;i++){if(c===n)return i;if(RC.test(s[i]))c++;}return s.length;};
+const posOf=(s,i)=>{let c=0;for(let j=0;j<Math.min(i,s.length);j++)if(RC.test(s[j]))c++;return c;};
+const fmt=(v,dec)=>{if(dec||v==='')return v;const [a,b]=v.split('.');return (a?(+a).toLocaleString('ja-JP'):'')+(b!=null?'.'+b:'');};
+const labelOf=el=>{let t='';const l=el.id&&document.querySelector(`label[for="${el.id}"]`);if(l)t=l.textContent;
+  for(let p=el.parentElement,n=0;!t&&p&&n<4;p=p.parentElement,n++){const s=[...p.querySelectorAll('label,small,h2,h3,.lab')].find(x=>!x.contains(el)&&/[^\d\s¥,.]/.test(x.textContent));if(s)t=s.firstElementChild&&s.tagName==='LABEL'?s.firstElementChild.textContent:s.textContent;}
+  return (t||el.placeholder||'金額').replace(/\s+/g,' ').trim().slice(0,24);};
+const show=()=>{const v=raw(cur),dec=isDec(cur),f=fmt(v,dec),i=idxOf(f,pos);
+  const e=s=>s.replace(/[&<>]/g,'');
+  pv.innerHTML=(dec?'':'<small>¥</small>')+(v?e(f.slice(0,i))+'<i class="cr"></i>'+e(f.slice(i)):'<i class="cr"></i><span style="opacity:.4">0</span>');};
+const caret=()=>{try{const i=idxOf(String(NV0.call(cur)||''),pos);cur.setSelectionRange(i,i);}catch(_){}};
+const set=v=>{if(!cur)return;cur.value=v;cur.dispatchEvent(new Event('input',{bubbles:true}));caret();show();};
+const buzz=()=>{try{navigator.vibrate&&navigator.vibrate(6);}catch(_){}};
+const scrollParent=el=>{for(let p=el.parentElement;p&&p!==document.body;p=p.parentElement){const o=getComputedStyle(p).overflowY;if((o==='auto'||o==='scroll')&&p.scrollHeight>p.clientHeight)return p;}return null;};
+const syncPos=()=>{if(!cur)return;let s=null;try{s=cur.selectionStart;}catch(_){}pos=s==null?raw(cur).length:posOf(String(NV0.call(cur)||''),s);show();};
+const open=el=>{if(cur&&cur!==el)finish(false);cur=el;
+  if(el.dataset.kpim==null)el.dataset.kpim=el.inputMode||'';el.inputMode='none';el.classList.add('kpact');
+  gd.classList.toggle('dec',isDec(el));lb.textContent=labelOf(el);pos=raw(el).length;show();
+  setTimeout(()=>{if(cur===el){caret();}},0);
+  kp.classList.add('on');document.body.classList.add('kpon');
+  requestAnimationFrame(()=>{const h=kp.offsetHeight;document.documentElement.style.setProperty('--kph',h+'px');
+    if(!el.closest('#fxSheet')){const sp=scrollParent(el);if(sp&&!spacer){spacer=document.createElement('div');spacer.className='kpsp';sp.appendChild(spacer);}
+      const r=el.getBoundingClientRect(),limit=innerHeight-h-16;if(r.bottom>limit||r.top<60){try{el.scrollIntoView({block:'center',behavior:'smooth'});}catch(_){}}
+      setTimeout(()=>{const r2=el.getBoundingClientRect();if(r2.bottom>innerHeight-h-16){const p=scrollParent(el)||document.scrollingElement;p.scrollBy({top:r2.bottom-(innerHeight-h-40),behavior:'smooth'});}},260);}});};
+function finish(blur=true){if(!cur)return;const el=cur;cur=null;el.classList.remove('kpact');
+  el.dispatchEvent(new Event('change',{bubbles:true}));if(blur)try{el.blur();}catch(_){}
+  setTimeout(()=>{if(el.dataset.kpim!=null&&document.activeElement!==el){el.inputMode=el.dataset.kpim;}},50);
+  kp.classList.remove('on');document.body.classList.remove('kpon');if(spacer){spacer.remove();spacer=null;}}
+window.fxKpClose=()=>finish();
+// 欄をタップしたら、スマホのキーボードの代わりにキーパッド（欄の中をタップした位置にカーソル）
+document.addEventListener('pointerdown',e=>{const el=e.target.closest&&e.target.closest('input');
+  if(isNum(el)){el.dataset.kpim=el.dataset.kpim??(el.inputMode||'');el.inputMode='none';}},true);
+document.addEventListener('click',e=>{if(!cur||kp.contains(e.target))return;const el=e.target.closest&&e.target.closest('input');
+  if(el===cur){setTimeout(syncPos,0);return;}if(isNum(el))return;setTimeout(()=>{if(cur)finish(!el);},0);},true);
+document.addEventListener('focusin',e=>{const el=e.target;if(isNum(el)){if(el.dataset.kpim==null)el.dataset.kpim=el.inputMode||'';el.inputMode='none';open(el);}else if(cur&&/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName))finish(false);});
+// キーを押したとき（フォーカスを外さない）
+kp.addEventListener('pointerdown',e=>{if(e.target.closest('button'))e.preventDefault();});
+kp.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!cur)return;buzz();
+  const k=b.dataset.k;let v=raw(cur);pos=Math.max(0,Math.min(pos,v.length));
+  if(k==='ok'){finish();return;}
+  if(k==='L'){pos=Math.max(0,pos-1);caret();show();return;}
+  if(k==='R'){pos=Math.min(v.length,pos+1);caret();show();return;}
+  if(k==='c'){pos=0;set('');return;}
+  if(k==='bs'){if(pos>0){v=v.slice(0,pos-1)+v.slice(pos);pos--;set(v);}return;}
+  if(k==='.'){if(v.includes('.'))return;if(!v){v='0';pos=1;}v=v.slice(0,pos)+'.'+v.slice(pos);pos++;set(v);return;}
+  if(v.replace('.','').length>=12)return;
+  v=v.slice(0,pos)+k+v.slice(pos);pos++;
+  while(v.length>1&&v[0]==='0'&&v[1]!=='.'){v=v.slice(1);pos=Math.max(0,pos-1);}
+  set(v);});
+// シートを閉じたら、キーパッドも閉じる
+const sh=document.getElementById('fxSheet');if(sh)new MutationObserver(()=>{if(!sh.classList.contains('on')&&cur&&cur.closest('#fxSheet'))finish();}).observe(sh,{attributes:true,attributeFilter:['class']});
+})();
+</script>
+<!-- ===== コアのメニューはやめる／円の行き先表示もなし／設定は右上の歯車から／カーソルを専用デザインに ===== -->
+<style>
+#fxCock .hero .perday>span::after,#fxCock .hero .chips3>div::after{content:none!important;display:none!important}
+#fxCock .hero .fxg .tp{display:none!important}
+#fxCock .hero .fxg{cursor:default}
+#fxGear{flex:none;width:34px;height:34px;margin-left:8px;border-radius:50%;border:0;padding:0;display:grid;place-items:center;background:rgba(190,155,255,.08);
+  box-shadow:inset 0 0 0 1px rgba(198,168,255,.45),0 0 10px rgba(150,100,255,.2);color:#d9c6ff;-webkit-tap-highlight-color:transparent}
+#fxGear:active{background:rgba(190,155,255,.25)}
+#fxGear svg{width:17px;height:17px}
+/* カーソル：ネオン紫 */
+input,textarea{caret-color:#c6a8ff}
+input.kpact{caret-color:transparent!important}
+#fxCaret{position:fixed;z-index:2147483500;width:2.5px;border-radius:2px;pointer-events:none;display:none;
+  background:linear-gradient(180deg,#e9dcff,#b48cff);box-shadow:0 0 6px #c6a8ff,0 0 14px rgba(180,140,255,.8);animation:kpblink2 1.05s ease-in-out infinite}
+@keyframes kpblink2{0%,45%{opacity:1}55%,95%{opacity:.12}100%{opacity:1}}
+#fxKp .pv .cr{width:2.5px;border-radius:2px;background:linear-gradient(180deg,#e9dcff,#b48cff);box-shadow:0 0 6px #c6a8ff,0 0 14px rgba(180,140,255,.8);animation:kpblink2 1.05s ease-in-out infinite}
+</style>
+<script>
+(()=>{
+// コアをタップしてもメニューは開かない
+window.addEventListener('click',e=>{const g=e.target.closest&&e.target.closest('#fxCock .hero .fxg');if(!g)return;
+  if(e.target.closest('.perday,.chips3,#fxLockB'))return;e.stopImmediatePropagation();e.preventDefault();},true);
+// 設定は右上の歯車から
+const ck=document.getElementById('fxCk');
+if(ck&&!document.getElementById('fxGear')){const b=document.createElement('button');b.id='fxGear';b.type='button';b.setAttribute('aria-label','設定');
+  b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>';
+  ck.after(b);b.addEventListener('click',()=>{document.body.classList.add('fxpanel');try{showTab('set');}catch(_){}});}
+// キーパッドの欄：専用のカーソルを、文字の位置に重ねて出す
+const NV=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').get;const ms=document.createElement('span');ms.style.cssText='position:fixed;left:-9999px;top:0;visibility:hidden;white-space:pre;pointer-events:none';document.body.appendChild(ms);
+const bar=document.createElement('div');bar.id='fxCaret';document.body.appendChild(bar);
+const place=()=>{const el=document.querySelector('input.kpact');if(!el||document.activeElement!==el){bar.style.display='none';return;}
+  const cs=getComputedStyle(el),r=el.getBoundingClientRect();if(!r.width){bar.style.display='none';return;}
+  ['fontFamily','fontSize','fontWeight','fontStyle','letterSpacing','fontFeatureSettings','fontVariantNumeric','fontStretch'].forEach(k=>ms.style[k]=cs[k]);
+  const v=String(NV.call(el)||''),s=el.selectionStart==null?v.length:el.selectionStart;
+  const mw=t=>{ms.textContent=t;return ms.getBoundingClientRect().width;};
+  const W=mw(v),w=mw(v.slice(0,s));
+  const pl=parseFloat(cs.paddingLeft)+parseFloat(cs.borderLeftWidth),pr=parseFloat(cs.paddingRight)+parseFloat(cs.borderRightWidth),inner=r.width-pl-pr;
+  const al=cs.textAlign;let x0=r.left+pl;if(al==='center')x0+=(inner-W)/2;else if(al==='right'||al==='end')x0+=inner-W;
+  const fs=parseFloat(cs.fontSize),h=Math.round(fs*1.05);
+  bar.style.left=Math.round(x0+w)+'px';bar.style.top=Math.round(r.top+(r.height-h)/2)+'px';bar.style.height=h+'px';bar.style.display='block';};
+let raf=0;const tick=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(place);};
+document.addEventListener('selectionchange',tick);
+['input','focusin','focusout','scroll','resize','click'].forEach(t=>addEventListener(t,tick,true));
+const kp=document.getElementById('fxKp');if(kp){kp.addEventListener('click',()=>setTimeout(tick,0));new MutationObserver(tick).observe(kp,{attributes:true,attributeFilter:['class']});}
+setInterval(()=>{if(document.querySelector('input.kpact'))place();else if(bar.style.display!=='none')bar.style.display='none';},400);
+})();
+</script>
+<style>html body .fxhd .nm{min-width:0;flex:1}html body .fxhd .nm span{white-space:nowrap;overflow:hidden;letter-spacing:.14em!important;font-size:8.5px!important}html body .fxhd .ck{margin-left:auto}</style>
+<!-- ===== 左上のアイコン＝設定（ほかの期間を見ているときは NOW）／SoNaをAIのアイコンに ===== -->
+<style>
+#fxGear{display:none!important}
+.fxhd .mo{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.fxhd .mo:active .ic0{filter:brightness(1.3)}
+/* SoNa：AIのアイコン */
+.fxav{background:#0a0518!important}
+.fxav img{display:none!important}
+.fxav .aiic{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.aiic .orb{transform-origin:50px 50px;animation:aispin 9s linear infinite!important}
+.aiic .orb2{transform-origin:50px 50px;animation:aispin 14s linear infinite reverse!important}
+.aiic .star{transform-origin:50px 50px;animation:aipulse 2.8s ease-in-out infinite!important}
+.aiic .glow{transform-origin:50px 50px;animation:aiglow 2.8s ease-in-out infinite!important}
+.aiic .tw{transform-origin:72px 28px;animation:aitw 2.2s ease-in-out infinite!important}
+@keyframes aispin{to{transform:rotate(360deg)}}
+@keyframes aipulse{50%{transform:scale(1.08)}}
+@keyframes aiglow{50%{opacity:.55;transform:scale(1.12)}}
+@keyframes aitw{0%,100%{opacity:.3;transform:scale(.7)}50%{opacity:1;transform:scale(1)}}
+#fxComm.think .aiic .orb{animation-duration:1.6s!important}
+#fxComm.think .aiic .orb2{animation-duration:2.4s!important}
+#fxComm.think .aiic .star,#fxComm.speak .aiic .star,.fxai.talk .aiic .star{animation-duration:.7s!important}
+.fxav[data-m="sleep"] .aiic{filter:saturate(.5) brightness(.75)}
+.fxav[data-m="peek"] .aiic .st{stop-color:#ffb45c}
+.fxav[data-m="happy"] .aiic .glow{opacity:1}
+@media(prefers-reduced-motion:reduce){.aiic *{animation:none!important}}
+</style>
+<script>
+(()=>{
+// 左上のアイコン：ふだんは設定、ほかの期間を見ているときは今の期間へ（NOW）
+const mo=document.querySelector('.fxhd .mo');
+if(mo){mo.setAttribute('aria-label','設定');
+  mo.addEventListener('click',e=>{if(P!==NOWK)return;e.stopImmediatePropagation();document.body.classList.add('fxpanel');try{showTab('set');}catch(_){}},true);
+  const _u=window.fxAwayUpd;window.fxAwayUpd=function(){const r=_u&&_u.apply(this,arguments);if(P===NOWK)mo.setAttribute('aria-label','設定');return r;};}
+const g=document.getElementById('fxGear');if(g)g.remove();
+// SoNaの見た目：光るAIのアイコン
+let n=0;
+const svg=()=>{const i='ai'+(++n);return `<svg class="aiic" viewBox="0 0 100 100" aria-hidden="true">
+<defs><radialGradient id="${i}b" cx="50%" cy="38%" r="70%"><stop offset="0" stop-color="#2c1856"/><stop offset="1" stop-color="#0a0518"/></radialGradient>
+<linearGradient id="${i}g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7cc0e8"/><stop offset=".55" stop-color="#c6a8ff"/><stop class="st" offset="1" stop-color="#f5b06b"/></linearGradient>
+<radialGradient id="${i}c"><stop offset="0" stop-color="#c6a8ff" stop-opacity=".7"/><stop offset="1" stop-color="#c6a8ff" stop-opacity="0"/></radialGradient></defs>
+<circle cx="50" cy="50" r="50" fill="url(#${i}b)"/>
+<circle class="glow" cx="50" cy="50" r="30" fill="url(#${i}c)" opacity=".8"/>
+<g class="orb"><ellipse cx="50" cy="50" rx="38" ry="15" fill="none" stroke="url(#${i}g)" stroke-width="1.6" opacity=".75" transform="rotate(-28 50 50)"/><circle cx="83" cy="32" r="2.8" fill="#e9dcff"/></g>
+<g class="orb2"><ellipse cx="50" cy="50" rx="15" ry="38" fill="none" stroke="url(#${i}g)" stroke-width="1" opacity=".4" transform="rotate(-28 50 50)"/></g>
+<path class="star" d="M50 27C51.8 41 57 47.6 71 50C57 52.4 51.8 59 50 73C48.2 59 43 52.4 29 50C43 47.6 48.2 41 50 27Z" fill="url(#${i}g)" style="filter:drop-shadow(0 0 4px #c6a8ff)"/>
+<path class="tw" d="M72 21C72.6 26 74 27.4 79 28C74 28.6 72.6 30 72 35C71.4 30 70 28.6 65 28C70 27.4 71.4 26 72 21Z" fill="#fff"/>
+</svg>`;};
+document.querySelectorAll('.fxav').forEach(a=>{if(a.querySelector('.aiic'))return;a.querySelectorAll('img').forEach(i=>i.removeAttribute('src'));a.insertAdjacentHTML('beforeend',svg());
+  const sync=()=>{const on=a.querySelector('img.on');a.dataset.m=on?on.dataset.m:'';};
+  new MutationObserver(sync).observe(a,{subtree:true,attributes:true,attributeFilter:['class']});sync();});
+})();
+</script>
+<!-- ===== ロック：ホームの真ん中に「LOCKED / OPEN」を出して、ここから解除・ロック ===== -->
+<style>
+#fxCock .fxg.past::after{content:none!important}
+#fxLockB{position:absolute;left:50%;bottom:12%;transform:translateX(-50%);z-index:3;display:none;align-items:center;gap:5px;white-space:nowrap;
+  border:0;border-radius:999px;padding:5px 12px 4px;font:700 9px "Orbitron","Murecho",sans-serif;letter-spacing:.18em;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  color:#0b0716;background:linear-gradient(90deg,#6ab8ff,#c6a8ff);box-shadow:0 0 12px rgba(106,184,255,.6)}
+#fxLockB svg{width:11px!important;height:11px!important;position:static!important;display:block!important;transform:none!important;margin:-1px 0 0!important;flex:none;vertical-align:0!important}
+#fxLockB.open{color:#ffe7b3;background:rgba(255,200,87,.12);box-shadow:inset 0 0 0 1px rgba(255,200,87,.7),0 0 12px rgba(255,200,87,.35)}
+#fxLockB.sure{color:#fff;background:linear-gradient(90deg,#ff5c7a,#ff9aa8);box-shadow:0 0 12px rgba(255,92,122,.6);letter-spacing:.04em;font-family:"Murecho",sans-serif;font-size:10.5px}
+#fxCock .fxg.past #fxLockB{display:flex}
+</style>
+<script>
+(()=>{
+const g=document.querySelector('#fxCock .hero .fxg');if(!g)return;
+const b=document.createElement('button');b.id='fxLockB';b.type='button';g.appendChild(b);
+const IC={lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+  open:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg>'};
+let sure=0;
+const upd=()=>{if(b.classList.contains('sure'))return;const L=window.isLocked&&isLocked(P);b.className=L?'':'open';b.innerHTML=(L?IC.lock+'LOCKED':IC.open+'OPEN');b.setAttribute('aria-label',L?'確定済み。タップで解除':'編集中。タップでロック');};
+b.addEventListener('click',e=>{e.stopPropagation();
+  const L=window.isLocked&&isLocked(P);const bar=document.getElementById('lockBar');
+  if(L){if(!b.classList.contains('sure')){b.className='sure';b.textContent='解除しますか？';clearTimeout(sure);sure=setTimeout(()=>{b.classList.remove('sure');upd();},3000);return;}
+    clearTimeout(sure);b.classList.remove('sure');const u=bar&&bar.querySelector('[data-unlock]');if(u){u.classList.add('sure');u.click();}upd();return;}
+  const r=bar&&bar.querySelector('[data-relock]');if(r)r.click();upd();});
+const _r=window.render;window.render=function(){const x=_r.apply(this,arguments);try{upd();}catch(_){}return x;};
+upd();
+})();
+</script>
+<!-- ===== ロック中は入力画面を開かない（見るだけはOK） ===== -->
+<script>
+(()=>{
+const msg='確定済みの期間です（中央の LOCKED をタップすると解除できます）';
+const toastL=m=>{const t=document.getElementById('lockToast');if(!t)return;
+  t.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#6ab8ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 0 5px #6ab8ff)"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span></span>';
+  t.querySelector('span').textContent=m;t.classList.add('on');clearTimeout(toastL.t);toastL.t=setTimeout(()=>t.classList.remove('on'),2400);try{navigator.vibrate&&navigator.vibrate([10,40,10]);}catch(_){}};
+window.fxLockToast=toastL;
+const locked=()=>{try{return !!(window.isLocked&&isLocked(P));}catch(e){return false;}};
+const goSec=(tab,re)=>{document.body.classList.add('fxpanel');try{showTab(tab);}catch(_){}
+  setTimeout(()=>{const s=document.getElementById('tab-'+tab);const h=s&&[...s.querySelectorAll('h2')].find(x=>re.test(x.textContent));const c=h&&(h.closest('.card')||h);if(c)try{c.scrollIntoView({behavior:'smooth',block:'start'});}catch(_){}},180);};
+window.addEventListener('click',e=>{
+  if(!locked()||document.body.classList.contains('fxpanel'))return;
+  const el=e.target.closest&&e.target.closest('#fxCock .hero .perday>span, #fxCock .hero .chips3>div');if(!el)return;
+  const lab=(el.querySelector('small')||el).textContent;
+  // 収入・貯金の入力シートは開かない
+  if(/月収|貯金/.test(lab)){e.preventDefault();e.stopImmediatePropagation();toastL(msg);return;}
+  // 1日あたり → 入力欄ではなく「この期間の記録」（買ったものの詳細は見られる）
+  if(/1日あたり/.test(lab)){e.preventDefault();e.stopImmediatePropagation();goSec('rec',/この期間の記録/);return;}
+},true);
+// SoNaの確認カードも、ロック中の期間には保存しない（念のため）
+const sh=document.getElementById('fxSheet');
+if(sh)new MutationObserver(()=>{if(sh.classList.contains('on')&&locked()){sh.classList.remove('on');try{window.fxKpClose&&fxKpClose();}catch(_){}toastL(msg);}}).observe(sh,{attributes:true,attributeFilter:['class']});
 })();
 </script>
 </body>

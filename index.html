@@ -3798,7 +3798,7 @@ const ask=async s=>{s=s.trim();if(!s||busy)return;busy=true;sendB.disabled=true;
   ctl=new AbortController();
   try{const r=await sp(msgs,{signal:ctl.signal,cache:false,modelTier:'quick',tools:window.fxKoaTools?window.fxKoaTools():undefined,onText:({text})=>{out.textContent=text;log.scrollTop=log.scrollHeight;}});
     out.textContent=r.text;try{window.fxSonaTintText&&window.fxSonaTintText(out);}catch(_){}hist.push({role:'assistant',content:r.text});if(hist.length>12)hist=hist.slice(-12);while(hist.length&&hist[0].role!=='user')hist.shift();}
-  catch(e){hist.pop();out.className='m e';out.textContent=e&&e.code==='rate_limited'?'ちょっと話しすぎたみたい。少し時間をおいてね。':e&&e.code==='not_granted'?'AIを使う許可がないみたい。画面の数字だけで答えるね：\n'+local(s):(e&&e.name==='AbortError'?'中断したよ。':'うまく答えられなかった。もう一度聞いてみて。');}
+  catch(e){hist.pop();out.className='m e';out.textContent=e&&e.code==='rate_limited'?'ちょっと話しすぎたみたい。少し時間をおいてね。':e&&e.code==='not_granted'?'AIを使う許可がないみたい。画面の数字だけで答えるね：\n'+local(s):(e&&e.name==='AbortError'?'中断したよ。':'うまく答えられなかった。もう一度聞いてみて。'+(e&&(e.message||e.code)?'\n（'+String(e.message||e.code).slice(0,160)+'）':''));}
   comm.classList.remove('think');busy=false;sendB.disabled=false;};
 form.addEventListener('submit',e=>{e.preventDefault();ask(q.value);});
 document.getElementById('fxSg').addEventListener('click',e=>{const b=e.target.closest('button');if(b)ask(b.textContent);});

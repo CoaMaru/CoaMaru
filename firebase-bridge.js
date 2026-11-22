@@ -159,6 +159,8 @@
     for (const k of ['type', 'description', 'enum', 'items', 'properties', 'required', 'format', 'nullable']) if (sc[k] !== undefined) o[k] = sc[k];
     if (o.properties) { const p = {}; for (const k in o.properties) p[k] = toSchema(o.properties[k]); o.properties = p; }
     if (o.items) o.items = toSchema(o.items);
+    if (o.enum) { o.type = 'string'; o.format = 'enum'; o.enum = o.enum.map(String); }
+    if (o.type === 'object' && o.properties && !Object.keys(o.properties).length) delete o.properties;
     return o;
   };
   function sampler(){
@@ -195,6 +197,7 @@
         }
         let text = '';
         try { text = res.text(); } catch (e) { text = ''; }
+        if (!text) { const fr = res.candidates && res.candidates[0] && res.candidates[0].finishReason; if (fr && fr !== 'STOP' && turn < 3) { contents.push({ role: 'user', parts: [{ text: 'もう一度、ツールの使い方に気をつけて答えて。' }] }); continue; } text = (contents.some(c => c.role === 'function')) ? '確認カードを出したよ。よければボタンを押してね。' : 'ごめんね、うまく答えられなかった。もう一度聞いてみて。'; }
         if (opt.onText) try { opt.onText({ text, delta: text }); } catch (_) {}
         return { text, truncated: false };
       }

@@ -1,0 +1,760 @@
+{
+  "app": "coamaru",
+  "exportedAt": "2026-11-22T02:30:00.000Z",
+  "settings": {
+    "subs": [
+      {
+        "day": 26,
+        "name": "YouTube Premium ファミリー",
+        "from": "GMOあおぞらネット銀行",
+        "who": "自分",
+        "amount": 2280
+      },
+      {
+        "name": "タベキル プレミアム",
+        "day": 27,
+        "amount": 300,
+        "from": "GMOあおぞらネット銀行",
+        "who": "自分"
+      }
+    ],
+    "incomeActual": {},
+    "bonusSave": 0,
+    "gasBudgetKo": 25000,
+    "fixed": {
+      "ko": [
+        {
+          "cat": "スマホ・通信",
+          "from": "",
+          "label": "スマホ",
+          "amount": 20000,
+          "day": ""
+        },
+        {
+          "amount": 30000,
+          "cat": "カード払い",
+          "label": "PayPayカードの支払い",
+          "from": "PayPay銀行",
+          "day": 27
+        }
+      ],
+      "me": [
+        {
+          "from": "",
+          "amount": 35000,
+          "day": "",
+          "label": "家賃",
+          "cat": "家賃"
+        },
+        {
+          "day": 17,
+          "label": "車のローン（GR86）",
+          "from": "",
+          "cat": "車",
+          "amount": 37600
+        },
+        {
+          "day": "",
+          "label": "車の保険",
+          "amount": 18000,
+          "from": "",
+          "cat": "車"
+        },
+        {
+          "cat": "スマホ・通信",
+          "amount": 4500,
+          "from": "",
+          "day": "",
+          "label": "スマホ"
+        },
+        {
+          "cat": "返済",
+          "amount": 66000,
+          "day": 27,
+          "label": "アヴァンス法務事務所（返済額61,000円・実際の引き落とし66,000円）",
+          "from": "GMOあおぞらネット銀行"
+        }
+      ]
+    },
+    "saving": 20000,
+    "debt": {
+      "start": "2026-03",
+      "end": "2030-11",
+      "last": 10998,
+      "asOf": "2026-11-10",
+      "creditors": [
+        {
+          "settle": 324702,
+          "name": "ジェーシービー",
+          "remain": 324702
+        },
+        {
+          "settle": 509909,
+          "name": "プロミス",
+          "remain": 482500
+        },
+        {
+          "remain": 522000,
+          "settle": 541450,
+          "name": "アビリオ債権回収"
+        },
+        {
+          "settle": 1133568,
+          "name": "楽天カード",
+          "remain": 1133568
+        },
+        {
+          "remain": 74849,
+          "settle": 74849,
+          "name": "ペイディ"
+        }
+      ],
+      "day": 27,
+      "monthly": 61000
+    },
+    "close": {
+      "2026-10": {
+        "w": {
+          "マル|GMOあおぞらネット銀行": 0,
+          "心愛|PayPay": 0,
+          "心愛|PayPay銀行": 0,
+          "マル|PayPay": 0,
+          "心愛|auPay": 0,
+          "マル|現金": 0,
+          "マル|PayPay銀行": 0,
+          "マル|ゆうちょ銀行": 0,
+          "心愛|現金": 0,
+          "心愛|ゆうちょ銀行": 0
+        },
+        "run": 1,
+        "ts": 1795244016652,
+        "t": 0
+      }
+    },
+    "livingBudget": 60000,
+    "extras": {
+      "2026-11": [
+        {
+          "from": "マル|GMOあおぞらネット銀行",
+          "label": "車の支払い（12/17 分）",
+          "date": "2026-12-02",
+          "cat": "車",
+          "who": "自分",
+          "amount": 37600
+        },
+        {
+          "day": "",
+          "cat": "デート・旅行",
+          "label": "宮崎デート：シーガイア宿泊（12/13デビット引き落とし）",
+          "amount": 46871
+        },
+        {
+          "amount": 700,
+          "cat": "デート・旅行",
+          "label": "宮崎デート：ホテル現地払い",
+          "day": ""
+        },
+        {
+          "label": "宮崎デート予算 12/24（イルミ入園 700/1)",
+          "cat": "デート・旅行",
+          "who": "自分",
+          "amount": 1400
+        },
+        {
+          "label": "宮崎デート予算 12/24（昼食・カフェ・お土産・有料道路など）",
+          "cat": "デート・旅行",
+          "who": "自分",
+          "amount": 25000
+        },
+        {
+          "cat": "趣味・買い物",
+          "amount": 9729,
+          "label": "atone 10月分（Amazon 9,630円＋手数料99円）",
+          "date": "2026-11-27",
+          "day": ""
+        },
+        {
+          "amount": 60000,
+          "cat": "車",
+          "who": "心愛",
+          "label": "心愛の車検"
+        },
+        {
+          "who": "心愛",
+          "cat": "その他",
+          "label": "緑サロン 紛失の自腹分（まだ確定じゃない・給料後に支払い予定）",
+          "amount": 8000
+        },
+        {
+          "amount": 19200,
+          "who": "自分",
+          "label": "市県民税・森林環境税（分納 1/4回・合計76,500円）",
+          "date": "2026-11-30",
+          "cat": "その他"
+        }
+      ],
+      "2026-12": [
+        {
+          "who": "自分",
+          "cat": "その他",
+          "date": "2026-12-31",
+          "label": "市県民税・森林環境税（分納 2/4回）",
+          "amount": 19200
+        }
+      ],
+      "2026-10": [],
+      "2027-02": [
+        {
+          "amount": 18900,
+          "date": "2027-02-28",
+          "who": "自分",
+          "label": "市県民税・森林環境税（分納 4/4回・最終）",
+          "cat": "その他"
+        }
+      ],
+      "2027-01": [
+        {
+          "cat": "その他",
+          "who": "自分",
+          "date": "2027-01-31",
+          "label": "市県民税・森林環境税（分納 3/4回）",
+          "amount": 19200
+        }
+      ]
+    },
+    "methods": {
+      "ko": [
+        {
+          "note": "",
+          "type": "cash",
+          "asOf": "",
+          "limit": 0,
+          "day": "",
+          "name": "現金",
+          "salary": false,
+          "used": 0
+        },
+        {
+          "salary": false,
+          "limit": 0,
+          "day": "",
+          "name": "PayPay",
+          "used": 0,
+          "note": "",
+          "type": "wallet",
+          "asOf": ""
+        },
+        {
+          "salary": false,
+          "note": "",
+          "type": "wallet",
+          "asOf": "",
+          "day": "",
+          "limit": 0,
+          "name": "auPay",
+          "used": 0
+        },
+        {
+          "type": "bank",
+          "asOf": "",
+          "note": "給料口座",
+          "limit": 0,
+          "used": 0,
+          "day": "",
+          "salary": true,
+          "name": "ゆうちょ銀行"
+        },
+        {
+          "note": "PayPayカードの引き落とし口座",
+          "day": "",
+          "type": "bank",
+          "salary": false,
+          "asOf": "",
+          "name": "PayPay銀行",
+          "used": 0,
+          "limit": 0
+        },
+        {
+          "type": "card",
+          "asOf": "",
+          "salary": false,
+          "note": "毎月27日にPayPay銀行から引き落とし",
+          "limit": 30000,
+          "used": 0,
+          "day": 27,
+          "name": "PayPayカード"
+        }
+      ],
+      "me": [
+        {
+          "limit": 0,
+          "name": "現金",
+          "used": 0,
+          "day": "",
+          "salary": false,
+          "note": "",
+          "type": "cash",
+          "asOf": ""
+        },
+        {
+          "note": "",
+          "type": "wallet",
+          "asOf": "",
+          "day": "",
+          "limit": 0,
+          "name": "PayPay",
+          "salary": false,
+          "used": 0
+        },
+        {
+          "used": 0,
+          "limit": 0,
+          "name": "GMOあおぞらネット銀行",
+          "type": "debit",
+          "salary": true,
+          "asOf": "",
+          "day": "",
+          "note": "給料口座。デビットカードもここから引き落とし"
+        },
+        {
+          "salary": false,
+          "limit": 0,
+          "day": "",
+          "name": "ゆうちょ銀行",
+          "used": 0,
+          "note": "",
+          "type": "bank",
+          "asOf": ""
+        },
+        {
+          "type": "bank",
+          "asOf": "",
+          "salary": false,
+          "note": "",
+          "used": 0,
+          "name": "PayPay銀行",
+          "day": "",
+          "limit": 0
+        },
+        {
+          "note": "コード決済は上限3,000円(残り271円)",
+          "type": "later",
+          "asOf": "2026-11-17",
+          "day": 27,
+          "name": "atone",
+          "limit": 10000,
+          "used": 9630,
+          "salary": false
+        }
+      ]
+    },
+    "paid": {},
+    "gasBudget": 40000,
+    "extraIncome": {
+      "2026-10": [
+        {
+          "label": "お小遣い",
+          "to": "心愛|現金",
+          "who": "心愛",
+          "cts": 1795052067309,
+          "ts": 1794970800000,
+          "amount": 4000,
+          "date": "2026-11-18"
+        },
+        {
+          "ts": 1794970800000,
+          "label": "V POINT",
+          "cts": 1795053703481,
+          "amount": 64,
+          "date": "2026-11-18",
+          "who": "心愛",
+          "to": "心愛|現金"
+        }
+      ]
+    },
+    "snap": {
+      "2026-09": {
+        "saving": 20000,
+        "fixed": {
+          "me": [
+            {
+              "day": "",
+              "label": "家賃",
+              "amount": 35000,
+              "cat": "家賃",
+              "from": ""
+            },
+            {
+              "amount": 37600,
+              "cat": "車",
+              "from": "",
+              "label": "車のローン（GR86）",
+              "day": 17
+            },
+            {
+              "label": "車の保険",
+              "day": "",
+              "from": "",
+              "amount": 18000,
+              "cat": "車"
+            },
+            {
+              "day": "",
+              "from": "",
+              "amount": 4500,
+              "label": "スマホ",
+              "cat": "スマホ・通信"
+            },
+            {
+              "day": 27,
+              "amount": 66000,
+              "cat": "返済",
+              "from": "",
+              "label": "アヴァンス法務事務所（返済額61,000円・実際の引き落とし66,000円）"
+            }
+          ],
+          "ko": [
+            {
+              "from": "",
+              "day": "",
+              "label": "スマホ",
+              "amount": 20000,
+              "cat": "スマホ・通信"
+            },
+            {
+              "label": "PayPayカードの支払い",
+              "amount": 30000,
+              "day": 27,
+              "from": "PayPay銀行",
+              "cat": "カード払い"
+            }
+          ]
+        },
+        "gasBudgetKo": 0,
+        "livingBudget": 60000,
+        "gasBudget": 40000,
+        "incomes": {
+          "ko": 200000,
+          "me": 250000
+        },
+        "subs": [
+          {
+            "who": "自分",
+            "amount": 2280,
+            "from": "",
+            "day": 26,
+            "name": "YouTube Premium ファミリー"
+          },
+          {
+            "amount": 300,
+            "day": 27,
+            "name": "タベキル プレミアム",
+            "who": "自分",
+            "from": ""
+          }
+        ]
+      }
+    },
+    "savedNow": 0,
+    "incomes": {
+      "me": 250000,
+      "ko": 200000
+    },
+    "goals": [
+      {
+        "name": "結婚",
+        "target": 0,
+        "ym": "2027-12"
+      },
+      {
+        "target": 0,
+        "ym": "2028-02",
+        "name": "出産"
+      }
+    ],
+    "notifyDays": 10
+  },
+  "expenses": [
+    {
+      "id": "82aLggFhB7BcdLDZbhZk",
+      "data": {
+        "amount": 68580,
+        "item": "残高調整分②",
+        "kind": "個人",
+        "date": "2026-11-17",
+        "who": "自分",
+        "method": "GMOあおぞらネット銀行",
+        "memo": "",
+        "ts": 1794884400000,
+        "shop": "",
+        "category": "その他",
+        "payer": "マル"
+      }
+    },
+    {
+      "id": "9ky0us63l6toh3gge7ye",
+      "data": {
+        "car": "me",
+        "liters": 28.9,
+        "amount": 5000,
+        "who": "自分",
+        "ts": 1793156400000,
+        "memo": "",
+        "date": "2026-10-28",
+        "category": "ガソリン",
+        "item": "給油",
+        "payer": "マル",
+        "shop": "Enejet",
+        "odo": 22443,
+        "method": "現金",
+        "kind": "個人"
+      }
+    },
+    {
+      "id": "MOTs3KSfLOr87Mehlr7W",
+      "data": {
+        "amount": 30000,
+        "category": "その他",
+        "ts": 1794884400000,
+        "item": "PayPayカード 調整分",
+        "payer": "心愛",
+        "kind": "個人",
+        "method": "PayPayカード",
+        "who": "心愛",
+        "date": "2026-11-17",
+        "memo": "",
+        "shop": ""
+      }
+    },
+    {
+      "id": "OlWXpIIUYsFKvyoY0IJg",
+      "data": {
+        "odo": 68217,
+        "shop": "",
+        "car": "ko",
+        "who": "心愛",
+        "liters": 18.29,
+        "payer": "心愛",
+        "ts": 1794970800000,
+        "category": "ガソリン",
+        "kind": "個人",
+        "amount": 3000,
+        "item": "給油",
+        "method": "現金",
+        "date": "2026-11-18",
+        "memo": ""
+      }
+    },
+    {
+      "id": "Q5vdFa8o0IfFdwuOyoZG",
+      "data": {
+        "payer": "心愛",
+        "shop": "",
+        "memo": "",
+        "amount": 30000,
+        "who": "心愛",
+        "date": "2026-11-17",
+        "kind": "個人",
+        "item": "残高調整分②",
+        "ts": 1794884400000,
+        "method": "ゆうちょ銀行",
+        "category": "その他"
+      }
+    },
+    {
+      "id": "XqrdadAns7Gd0u8sKZnU",
+      "data": {
+        "method": "現金",
+        "item": "お菓子、刺身、お酒",
+        "payer": "心愛",
+        "amount": 1064,
+        "ts": 1794970800000,
+        "category": "食費",
+        "date": "2026-11-18",
+        "kind": "2人の生活費",
+        "shop": "TRIAL 隼人店",
+        "who": "心愛",
+        "memo": "堅あげポテトうすしお味 258 / 刺身用たこ 259 / ほろよい白いサワー350m 115 / ほろよいぶどうサワー35 115 / ほろよい白ぶどう350ml 115 / ほろよいカシスとオレン 115"
+      }
+    },
+    {
+      "id": "gas-20261107",
+      "data": {
+        "category": "ガソリン",
+        "liters": 28.9,
+        "amount": 5000,
+        "item": "給油",
+        "date": "2026-11-07",
+        "memo": "",
+        "odo": 22804,
+        "ts": 1794020400000,
+        "kind": "個人",
+        "payer": "マル",
+        "car": "me",
+        "shop": "Enejet",
+        "method": "現金",
+        "who": "自分"
+      }
+    },
+    {
+      "id": "gas-20261114",
+      "data": {
+        "item": "給油",
+        "date": "2026-11-14",
+        "liters": 28.9,
+        "amount": 5000,
+        "memo": "",
+        "category": "ガソリン",
+        "odo": 23108,
+        "ts": 1794625200000,
+        "payer": "マル",
+        "kind": "個人",
+        "method": "現金",
+        "who": "自分",
+        "car": "me",
+        "shop": "Enejet"
+      }
+    },
+    {
+      "id": "gas-ko-20261030",
+      "data": {
+        "item": "給油",
+        "date": "2026-10-30",
+        "liters": 18.52,
+        "amount": 3000,
+        "memo": "",
+        "category": "ガソリン",
+        "odo": 66961,
+        "ts": 1793329200000,
+        "payer": "心愛",
+        "kind": "個人",
+        "method": "現金",
+        "who": "心愛",
+        "car": "ko",
+        "shop": "Enejet"
+      }
+    },
+    {
+      "id": "gas-ko-20261103",
+      "data": {
+        "category": "ガソリン",
+        "shop": "Enejet",
+        "ts": 1793674800000,
+        "kind": "個人",
+        "odo": 67256,
+        "liters": 18.52,
+        "amount": 3000,
+        "payer": "心愛",
+        "method": "現金",
+        "item": "給油",
+        "who": "心愛",
+        "date": "2026-11-03",
+        "memo": "",
+        "car": "ko"
+      }
+    },
+    {
+      "id": "gas-ko-20261109",
+      "data": {
+        "category": "ガソリン",
+        "shop": "",
+        "ts": 1794193200000,
+        "kind": "個人",
+        "odo": 67581,
+        "liters": 17.44,
+        "amount": 3000,
+        "payer": "心愛",
+        "method": "現金",
+        "item": "給油",
+        "who": "心愛",
+        "date": "2026-11-09",
+        "memo": "",
+        "car": "ko"
+      }
+    },
+    {
+      "id": "gas-ko-20261113",
+      "data": {
+        "category": "ガソリン",
+        "shop": "",
+        "ts": 1794538800000,
+        "kind": "個人",
+        "odo": 67872,
+        "liters": 17.44,
+        "amount": 3000,
+        "payer": "心愛",
+        "method": "現金",
+        "item": "給油（給油量は推定）",
+        "who": "心愛",
+        "date": "2026-11-13",
+        "memo": "給油量を忘れたので前回の単価¥172/Lから推定",
+        "car": "ko"
+      }
+    },
+    {
+      "id": "u5gsKeDwPKk2TijUDc1h",
+      "data": {
+        "payer": "心愛",
+        "kind": "個人",
+        "amount": 128000,
+        "memo": "",
+        "who": "心愛",
+        "ts": 1794970800000,
+        "category": "その他",
+        "method": "ゆうちょ銀行",
+        "shop": "",
+        "item": "残高調整分",
+        "date": "2026-11-18"
+      }
+    },
+    {
+      "id": "volnuC8cpqClavtvsaR3",
+      "data": {
+        "ts": 1794970800000,
+        "kind": "個人",
+        "method": "GMOあおぞらネット銀行",
+        "category": "その他",
+        "memo": "",
+        "who": "自分",
+        "shop": "",
+        "payer": "マル",
+        "item": "残高調整分",
+        "amount": 97840,
+        "date": "2026-11-18"
+      }
+    }
+  ],
+  "moves": [
+    {
+      "id": "FcfxOi1MkXWJYaFYMa8z",
+      "data": {
+        "date": "2026-11-18",
+        "to": "心愛|PayPay銀行",
+        "ts": 1794970800000,
+        "from": "心愛|ゆうちょ銀行",
+        "amount": 30000
+      }
+    },
+    {
+      "id": "w1BVP9kpRKaERbs6ndr1",
+      "data": {
+        "from": "心愛|ゆうちょ銀行",
+        "amount": 12000,
+        "ts": 1794970800000,
+        "date": "2026-11-18",
+        "to": "心愛|現金"
+      }
+    },
+    {
+      "id": "zctPkdgRCFVIsbx8WMLj",
+      "data": {
+        "ts": 1794970800000,
+        "amount": 15000,
+        "to": "マル|現金",
+        "from": "マル|GMOあおぞらネット銀行",
+        "date": "2026-11-18"
+      }
+    }
+  ],
+  "from": "こあまる家（アーティファクト）"
+}

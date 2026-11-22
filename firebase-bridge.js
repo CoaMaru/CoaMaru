@@ -144,6 +144,67 @@
     };
   }
 
+  // SoNaとの会話：Gemini（Firebase AI Logic）で、こあまる家の画面からそのまま使えるようにする
+  const errOf = e => {
+    const m = String(e && (e.message || e.code) || '');
+    if (/429|quota|RESOURCE_EXHAUSTED/i.test(m)) return Object.assign(new Error(m), { code: 'rate_limited' });
+    if (/503|overloaded|UNAVAILABLE/i.test(m)) return Object.assign(new Error(m), { code: 'rate_limited' });
+    if (/api-not-enabled|SERVICE_DISABLED|not been enabled|403|PERMISSION_DENIED/i.test(m)) return Object.assign(new Error(m), { code: 'not_granted' });
+    return e;
+  };
+  // JSON Schema を Gemini の形に（使えないキーは外す）
+  const toSchema = sc => {
+    if (!sc || typeof sc !== 'object') return sc;
+    const o = {};
+    for (const k of ['type', 'description', 'enum', 'items', 'properties', 'required', 'format', 'nullable']) if (sc[k] !== undefined) o[k] = sc[k];
+    if (o.properties) { const p = {}; for (const k in o.properties) p[k] = toSchema(o.properties[k]); o.properties = p; }
+    if (o.items) o.items = toSchema(o.items);
+    return o;
+  };
+  function sampler(){
+    const reader = receiptReader();
+    const { getAI, getGenerativeModel, GoogleAIBackend } = window.fbAI;
+    const app = firebase.app()._delegate || firebase.app();
+    const ai = getAI(app, { backend: new GoogleAIBackend() });
+    const fn = async (input, opt) => {
+      opt = opt || {};
+      const msgs = typeof input === 'string' ? [{ role: 'user', content: input }] : (input || []);
+      const tools = opt.tools || [];
+      const model = getGenerativeModel(ai, {
+        model: AI_MODEL, generationConfig: { temperature: 0.6 },
+        tools: tools.length ? [{ functionDeclarations: tools.map(t => ({ name: t.name, description: t.description || '', parameters: toSchema(t.inputSchema || { type: 'object', properties: {} }) })) }] : undefined
+      });
+      const contents = msgs.map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: String(m.content || '') }] }));
+      for (let turn = 0; turn < 4; turn++) {
+        if (opt.signal && opt.signal.aborted) throw Object.assign(new Error('cancelled'), { name: 'AbortError' });
+        let r;
+        try { r = await model.generateContent({ contents }); } catch (e) { throw errOf(e); }
+        const res = r.response;
+        const calls = (res.functionCalls && res.functionCalls()) || [];
+        if (calls.length && tools.length) {
+          contents.push({ role: 'model', parts: calls.map(c => ({ functionCall: { name: c.name, args: c.args || {} } })) });
+          const parts = [];
+          for (const c of calls) {
+            const t = tools.find(x => x.name === c.name);
+            let out;
+            try { out = t ? await t.execute(c.args || {}) : { error: 'unknown tool' }; } catch (e) { out = { error: String(e && e.message || e) }; }
+            parts.push({ functionResponse: { name: c.name, response: { result: out } } });
+          }
+          contents.push({ role: 'function', parts });
+          continue;
+        }
+        let text = '';
+        try { text = res.text(); } catch (e) { text = ''; }
+        if (opt.onText) try { opt.onText({ text, delta: text }); } catch (_) {}
+        return { text, truncated: false };
+      }
+      return { text: 'ごめんね、うまく答えられなかった。もう一度聞いてみて。', truncated: false };
+    };
+    fn.json = reader.json;
+    fn.limits = reader.limits;
+    return fn;
+  }
+
   window.claude = {
     use: async name => {
       if (name === 'db') {
@@ -154,7 +215,7 @@
       if (name === 'sample') {
         const db = await init();
         if (!db || !window.fbAI) throw Object.assign(new Error('no ai'), { code: 'not_granted' });
-        return receiptReader();
+        return sampler();
       }
       throw Object.assign(new Error('unavailable'), { code: 'not_granted' });
     }

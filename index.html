@@ -5790,8 +5790,7 @@ html body .fxpay .n{white-space:nowrap!important;overflow:hidden!important;line-
 .fxpay .n .mq.on{-webkit-mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 18px),transparent);mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 18px),transparent)}
 .fxpay .n .mq.on.mv{-webkit-mask-image:linear-gradient(90deg,transparent,#000 14px,#000 calc(100% - 14px),transparent);mask-image:linear-gradient(90deg,transparent,#000 14px,#000 calc(100% - 14px),transparent)}
 .fxpay .n .mqi{display:inline-block;will-change:transform}
-.fxpay .n .mq.on .mqi{animation:fxmq var(--t,8s) ease-in-out infinite alternate}
-@keyframes fxmq{0%,18%{transform:translateX(0)}82%,100%{transform:translateX(var(--dx,0))}}
+.fxpay .n .mqi .cp{padding-left:2.5em}
 @media(prefers-reduced-motion:reduce){.fxpay .n .mq.on .mqi{animation:none}.fxpay .n .mq.on{white-space:normal}}
 </style>
 <script>
@@ -5800,9 +5799,13 @@ const fit=()=>{document.querySelectorAll('.fxpay .n').forEach(n=>{
   let mq=n.querySelector(':scope>.mq');
   if(!mq){const t=n.firstChild;if(!t||t.nodeType!==3||!t.textContent.trim())return;
     mq=document.createElement('span');mq.className='mq';const i=document.createElement('span');i.className='mqi';i.textContent=t.textContent;mq.appendChild(i);n.replaceChild(mq,t);}
-  const i=mq.firstChild,over=i.scrollWidth-mq.clientWidth;
-  if(over>2){const dx=over+20;mq.style.setProperty('--dx',-dx+'px');mq.style.setProperty('--t',Math.max(5,dx/28+3).toFixed(1)+'s');mq.classList.add('on');}
-  else mq.classList.remove('on');});};
+  const i=mq.firstChild;if(i.dataset.t==null)i.dataset.t=i.textContent;const txt=i.dataset.t;
+  i.textContent=txt;const w=i.scrollWidth,over=w-mq.clientWidth;
+  if(over>2){const c=document.createElement('span');c.className='cp';c.textContent=txt;c.setAttribute('aria-hidden','true');i.appendChild(c);
+    const dx=i.scrollWidth-w;const move=dx/32,hold=2;const tot=move+hold;
+    if(i._an)i._an.cancel();mq.classList.add('on');
+    if(!matchMedia('(prefers-reduced-motion: reduce)').matches)i._an=i.animate([{transform:'translateX(0)',offset:0},{transform:'translateX(0)',offset:hold/tot},{transform:`translateX(${-dx}px)`,offset:1}],{duration:tot*1000,iterations:Infinity});}
+  else{if(i._an){i._an.cancel();i._an=null;}mq.classList.remove('on');}});};
 const L=document.getElementById('fxPay');
 if(L)new MutationObserver(()=>requestAnimationFrame(fit)).observe(L,{childList:true,subtree:false});
 addEventListener('resize',()=>requestAnimationFrame(fit));

@@ -325,9 +325,6 @@
 </style>
 </head>
 <body>
-<script>/* 復帰：最近まで開いていたなら、起動演出をとばす */try{const r=JSON.parse(localStorage.getItem('cm_resume')||'null');if(r&&Date.now()-r.ts<3*3600e3)document.documentElement.classList.add('fxresume');}catch(e){}</script>
-<style>html.fxresume #boot,html.fxresume #fxBoot{display:none!important}</style>
-
 <div id="bgfx" aria-hidden="true"><svg viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">
 <defs><radialGradient id="bgg" cx="70%" cy="40%" r="75%"><stop offset="0" stop-color="#3a2a7a"/><stop offset=".45" stop-color="#1c1342"/><stop offset="1" stop-color="#0a0616"/></radialGradient>
 <filter id="blr"><feGaussianBlur stdDeviation="2.2"/></filter></defs>
@@ -5825,36 +5822,6 @@ const liv=document.getElementById('livBar')&&document.getElementById('livBar').c
 let at=liv;['gasCard','spCard'].forEach(id=>{const c=document.getElementById(id);if(!c||rec.contains(c))return;if(at)at.after(c);else rec.appendChild(c);at=c;});
 })();
 </script>
-<!-- ===== ほかのアプリから戻っても、見ていた画面・期間・入力中の内容をそのまま ===== -->
-<script>
-(()=>{
-const KEY='cm_resume',TTL=3*3600e3;
-const F=['fAmount','fItem','fShop','fMemo','fDate','gLit','gOdo'];
-const NV=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').get;
-const scroller=el=>{for(let p=el;p&&p!==document.body;p=p.parentElement){const o=getComputedStyle(p).overflowY;if((o==='auto'||o==='scroll')&&p.scrollHeight>p.clientHeight)return p;}return document.scrollingElement;};
-const cur=()=>{const t=document.querySelector('.tab.on');return t?t.id.replace('tab-',''):'home';};
-const snap=()=>{try{const panel=document.body.classList.contains('fxpanel');const t=document.getElementById('tab-'+cur());
-  const sc=panel&&t?scroller(t):document.getElementById('fxCock')||document.scrollingElement;
-  const d={};F.forEach(id=>{const e=document.getElementById(id);if(e){const v=e.tagName==='INPUT'?NV.call(e):e.value;if(v)d[id]=v;}});
-  localStorage.setItem(KEY,JSON.stringify({ts:Date.now(),panel,tab:cur(),P:typeof P!=='undefined'?P:null,y:sc?sc.scrollTop:0,d}));}catch(e){}};
-document.addEventListener('visibilitychange',()=>{if(document.hidden)snap();});
-addEventListener('pagehide',snap);addEventListener('blur',snap);
-document.addEventListener('change',()=>setTimeout(snap,0),true);
-let r=null;try{r=JSON.parse(localStorage.getItem(KEY)||'null');}catch(e){}
-if(!r||Date.now()-r.ts>TTL)return;
-// 起動演出の組み立てアニメーションもとばす
-const off=()=>document.body.classList.remove('fxasm');off();setTimeout(off,50);setTimeout(off,900);
-try{if(r.P&&typeof P!=='undefined'&&r.P!==P&&window.fxJumpPeriod)fxJumpPeriod(r.P);}catch(e){}
-try{if(r.panel&&r.tab&&r.tab!=='home'){document.body.classList.add('fxpanel');showTab(r.tab);}}catch(e){}
-const goY=()=>{try{const t=document.getElementById('tab-'+cur());const sc=r.panel&&t?scroller(t):document.getElementById('fxCock')||document.scrollingElement;if(sc&&r.y)sc.scrollTop=r.y;}catch(e){}};
-setTimeout(goY,60);setTimeout(goY,500);setTimeout(goY,1500);
-// 入力中だった内容（記録の欄）を戻す
-const fill=()=>{Object.entries(r.d||{}).forEach(([id,v])=>{const e=document.getElementById(id);if(e&&!(e.tagName==='INPUT'?NV.call(e):e.value)){e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));}});};
-setTimeout(fill,300);
-// 記録を保存したら、下書きは消す
-document.addEventListener('click',e=>{if(e.target.closest('#fAdd'))setTimeout(()=>{try{const o=JSON.parse(localStorage.getItem(KEY)||'{}');o.d={};localStorage.setItem(KEY,JSON.stringify(o));}catch(_){}},600);},true);
-})();
-</script>
 <!-- ===== ホームの「支払い予定」に＋ボタン → 変動費の入力へ直行 ===== -->
 <style>
 #fxPayAdd{flex:none;width:26px;height:26px;margin-left:10px;border-radius:50%;border:0;padding:0;display:grid;place-items:center;cursor:pointer;
@@ -6032,5 +5999,6 @@ document.addEventListener('click',e=>{if(e.target.closest('[data-gcar]'))setTime
 setTimeout(sub,0);
 })();
 </script>
+<script>try{localStorage.removeItem('cm_resume');}catch(e){}</script>
 </body>
 </html>

@@ -1948,7 +1948,7 @@ function kmOf(k){ // その期間に走った距離
   return Math.max(0,+inK[inK.length-1].odo-start);
 }
 // 満タンじゃなくても使える燃費：メーターの差 ÷ その間に入れた量（最初の1回は除く）
-function avgEff(n=8){const F=fills().filter(e=>+e.odo>0&&+e.liters>0).slice(-n);if(F.length<2)return null;
+function avgEff(n=999){const fx0=window.fxGasEff&&fxGasEff(window.GCAR||'me');if(fx0)return fx0;const F=fills().filter(e=>+e.odo>0&&+e.liters>0).slice(-n);if(F.length<2)return null;
   const dist=+F[F.length-1].odo-+F[0].odo,lit=F.slice(1).reduce((a,e)=>a+(+e.liters||0),0);return dist>0&&lit>0?dist/lit:null;}
 function effOf(k){const km=kmOf(k);if(!km)return null;const all=fills().filter(e=>+e.odo>0);
   let inK=fills().filter(e=>e.date&&keyOf(e.date)===k);const hasPrev=all.some(e=>e.date&&keyOf(e.date)<k);
@@ -1957,10 +1957,10 @@ function effOf(k){const km=kmOf(k);if(!km)return null;const all=fills().filter(e
 function stats(){
   const k=P;const R=fillRows().filter(r=>keyOf(r.d)===k);
   const L=R.reduce((a,r)=>a+(r.l||0),0),A=R.filter(r=>r.l).reduce((a,r)=>a+r.a,0);
-  const eff=avgEff();
+  const ce=(S.carEff||{})[window.GCAR||'me'];const eff=ce?+ce:avgEff();
   const km=kmOf(k);const spent=R.reduce((a,r)=>a+r.a,0);
   const t=(lab,v,u)=>`<div><small>${lab}</small><b>${v==null?'—':v}${v==null?'':`<em>${u}</em>`}</b></div>`;
-  $('gStats').innerHTML=t('平均の単価（この期間）',L?fmtN(A/L,1):null,'円/L')+t('燃費（最近の平均）',eff?fmtN(eff,1):null,'km/L')
+  $('gStats').innerHTML=t('平均の単価（この期間）',L?fmtN(A/L,1):null,'円/L')+t(ce?'燃費（車のメーター）':'燃費（記録から）',eff?fmtN(eff,1):null,'km/L')
     +t('走った距離（この期間）',km!=null?km.toLocaleString():null,'km')+t('1kmあたり',km&&spent?fmtN(spent/km,1):null,'円/km');
 }
 // SVG：棒グラフ
@@ -2212,10 +2212,10 @@ const fills=w=>EXP.filter(e=>e.category===GAS&&carOf(e)===w).sort((a,b)=>(a.date
 function hist(w){ // 記録からの推定
   const F=fills(w);const P=F.filter(e=>+e.liters>0&&+e.amount>0).slice(-3);
   const ppl=P.length?P.reduce((a,e)=>a+e.amount/e.liters,0)/P.length:null;
-  const O=F.filter(e=>+e.odo>0&&+e.liters>0).slice(-8);let eff=null,day=null;
+  const O=F.filter(e=>+e.odo>0&&+e.liters>0);let eff=null,day=null;
   if(O.length>=2){const dist=+O[O.length-1].odo-+O[0].odo,lit=O.slice(1).reduce((a,e)=>a+(+e.liters||0),0);if(dist>0&&lit>0)eff=dist/lit;
     const dd=(new Date(O[O.length-1].date+'T00:00')-new Date(O[0].date+'T00:00'))/864e5;if(dist>0&&dd>=3)day=dist/dd;}
-  return {ppl,eff,day};
+  {const fx=window.fxGasEff&&fxGasEff(w);if(fx)eff=fx;}return {ppl,eff,day};
 }
 const box=document.createElement('details');box.className='gsim';box.id='gSim';
 box.innerHTML=`<summary><i data-lucide="calculator"></i>給油シミュレーター</summary>
@@ -2236,7 +2236,7 @@ const anchor=$('gasX');anchor?card.insertBefore(box,anchor):card.appendChild(box
 let car=window.GCAR||'me';
 function fill(){ // 車ごとの初期値
   car=window.GCAR||'me';const h=hist(car),m=mem[car]||{};
-  $('sEff').value=m.eff??(h.eff?r1(h.eff,1).replace(/,/g,''):DEF[car].eff);
+  $('sEff').value=((S.carEff||{})[car])||(m.eff??(h.eff?r1(h.eff,1).replace(/,/g,''):DEF[car].eff));
   $('sPpl').value=m.ppl??(h.ppl?Math.round(h.ppl):DEF[car].ppl);
   $('sDay').value=m.day??(h.day?Math.round(h.day):20);
   $('sFull').value=m.full??DEF[car].full;
@@ -2359,7 +2359,7 @@ function startRec(id){
   selWho=e.who||'自分';document.querySelectorAll('#whoSeg button').forEach(b=>b.classList.toggle('on',b.dataset.w===selWho));
   window.FCAR=e.car==='ko'?'ko':'me';
   selCat=OLDMAP[e.category]||e.category||'その他';renderCatGrid();
-  if($('gLit'))$('gLit').value=+e.liters>0?(+e.liters).toFixed(2):'';if($('gOdo'))$('gOdo').value=e.odo||'';try{window.fcarUI&&fcarUI();}catch(_){}
+  if($('gLit'))$('gLit').value=+e.liters>0?(+e.liters).toFixed(2):'';if($('gOdo'))$('gOdo').value=e.odo||'';if($('gRange'))$('gRange').value=e.range!=null?e.range:'';try{window.fcarUI&&fcarUI();}catch(_){}
   selPay=e.method?payerOf(e)+'|'+e.method:'';renderPaySeg();
   card.classList.add('editing');$('fAdd').textContent='保存する';$('fMsg').textContent='';
   setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'start'}),60);
@@ -2373,7 +2373,7 @@ $('fAdd').onclick=async function(){
     kind:selWho==='2人'||LIVING.includes(selCat)?'2人の生活費':'個人',shop:$('fShop').value.trim(),
     method:(selPay.split('|')[1]||''),payer:(selPay.split('|')[0]||''),
     ts:dt===old.date&&old.ts?old.ts:(dt===todayStr?Date.now():new Date(dt+'T12:00').getTime())};
-  if(selCat==='ガソリン'&&window.gasExtra){const g=gasExtra();rec.car=g.car;rec.liters=g.liters||null;rec.odo=g.odo||null;}
+  if(selCat==='ガソリン'&&window.gasExtra){const g=gasExtra();rec.car=g.car;rec.liters=g.liters||null;rec.odo=g.odo||null;rec.range=g.range!=null?g.range:null;}
   if(!db){const i=EXP.findIndex(x=>x.id===REC);if(i>=0)EXP[i]={...EXP[i],...rec};render();endRec('更新しました');return;}
   try{await db.collection('expenses').doc(REC).update(rec);endRec('更新しました');}
   catch(err){$('fMsg').textContent='保存できませんでした：'+(err&&err.code||'');}
@@ -3801,7 +3801,7 @@ const ask=async s=>{s=s.trim();if(!s||busy)return;busy=true;sendB.disabled=true;
   ctl=new AbortController();
   try{const r=await sp(msgs,{signal:ctl.signal,cache:false,modelTier:'quick',tools:window.fxKoaTools?window.fxKoaTools():undefined,onText:({text})=>{out.textContent=text;log.scrollTop=log.scrollHeight;}});
     out.textContent=r.text;try{window.fxSonaTintText&&window.fxSonaTintText(out);}catch(_){}hist.push({role:'assistant',content:r.text});if(hist.length>12)hist=hist.slice(-12);while(hist.length&&hist[0].role!=='user')hist.shift();}
-  catch(e){hist.pop();out.className='m e';out.textContent=e&&e.code==='rate_limited'?'ちょっと話しすぎたみたい。少し時間をおいてね。':e&&e.code==='not_granted'?'AIを使う許可がないみたい。画面の数字だけで答えるね：\n'+local(s):(e&&e.name==='AbortError'?'中断したよ。':'うまく答えられなかった。もう一度聞いてみて。'+(e&&(e.message||e.code)?'\n（'+String(e.message||e.code).slice(0,160)+'）':''));}
+  catch(e){hist.pop();out.className='m e';out.textContent=e&&e.code==='rate_limited'?'AIが混み合ってるみたい。少し時間をおいて、もう一度話しかけてね。':e&&e.code==='not_granted'?'AIを使う許可がないみたい。画面の数字だけで答えるね：\n'+local(s):(e&&e.name==='AbortError'?'中断したよ。':'うまく答えられなかった。もう一度聞いてみて。'+(e&&(e.message||e.code)?'\n（'+String(e.message||e.code).slice(0,160)+'）':''));}
   comm.classList.remove('think');busy=false;sendB.disabled=false;};
 form.addEventListener('submit',e=>{e.preventDefault();ask(q.value);});
 document.getElementById('fxSg').addEventListener('click',e=>{const b=e.target.closest('button');if(b)ask(b.textContent);});
@@ -5967,6 +5967,69 @@ if(sh)new MutationObserver(()=>{const nt=sh.querySelector('.nt');if(nt&&/給料�
 // 保存済みの設定に「いつから¥0にするか」を記録（最初の1回だけ）
 const _n=window.normalize;if(_n)window.normalize=function(){const s=_n.apply(this,arguments);if(s&&!s.incomeZeroFrom)s.incomeZeroFrom='2026-11';return s;};
 try{render();}catch(_){}
+})();
+</script>
+<!-- ===== 燃費：車のメーターの数字を入れると、それを正として使う（満タンにしなくても現実どおり） ===== -->
+<style>
+#gEffRow{display:flex;align-items:center;gap:10px;margin-top:10px;padding:9px 12px;border-radius:14px;background:rgba(255,159,67,.06);box-shadow:inset 0 0 0 1px rgba(255,159,67,.35)}
+#gEffRow .lb{flex:1;min-width:0;font-size:12px;color:#ffc58f;font-weight:700;line-height:1.35}
+#gEffRow .lb small{display:block;font-weight:500;color:var(--sub);font-size:10.5px}
+#gEffRow .gi{position:relative;width:104px;flex:none}
+html body #gEffRow input{width:100%;box-sizing:border-box;text-align:right;padding:8px 40px 8px 10px!important;font-size:16px;font-weight:700}
+#gEffRow .gi span{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--sub);pointer-events:none}
+</style>
+<script>
+(()=>{
+const card=document.getElementById('gasCard');if(!card||document.getElementById('gEffRow'))return;
+const row=document.createElement('div');row.id='gEffRow';
+row.innerHTML=`<div class="lb">燃費（車のメーター）<small id="gEffSub">車に表示される平均燃費を入れると、それで計算します</small></div><div class="gi"><input id="gEff" type="text" inputmode="decimal" placeholder="—" autocomplete="off"><span>km/L</span></div>`;
+const act=card.querySelector('.gasact');act?act.before(row):card.appendChild(row);
+const inp=row.querySelector('#gEff'),sub=row.querySelector('#gEffSub');
+const car=()=>window.GCAR||'me';
+const upd=f=>{if(f!==true&&document.activeElement===inp)return;const v=(S.carEff||{})[car()];inp.value=v?String(v):'';
+  sub.textContent=v?'シミュレーターと分析は、この燃費で計算しています':'車に表示される平均燃費を入れると、それで計算します';};
+inp.addEventListener('change',async()=>{const v=parseFloat(String(inp.value).replace(/[^\d.]/g,''));S.carEff=S.carEff||{};
+  if(v>0&&v<100)S.carEff[car()]=Math.round(v*10)/10;else delete S.carEff[car()];
+  upd(true);try{render();}catch(_){}try{await save(document.getElementById('status')||document.createElement('i'));}catch(_){}});
+const _r=window.render;window.render=function(){const x=_r.apply(this,arguments);try{upd();}catch(_){}return x;};
+document.addEventListener('gascar',()=>setTimeout(upd,0));
+document.addEventListener('click',e=>{if(e.target.closest('[data-gcar]'))setTimeout(upd,0);});
+upd();
+})();
+</script>
+<!-- ===== 燃費：「給油前の航続可能距離」で、満タンにしなくても正確に ===== -->
+<script>
+(()=>{
+const GAS='ガソリン';
+const cOf=e=>window.carOf?carOf(e):(e.car==='ko'?'ko':'me');
+// 給油前の航続可能距離 → その時タンクに残っていた量（km ÷ 燃費）で補正して燃費を出す
+window.fxGasEff=w=>{try{
+  const F=EXP.filter(e=>e.category===GAS&&cOf(e)===w&&+e.liters>0).sort((a,b)=>(a.date||'').localeCompare(b.date||'')||((+a.ts||0)-(+b.ts||0)));
+  const R=F.map((e,i)=>({e,i})).filter(x=>+x.e.odo>0&&x.e.range!=null&&x.e.range!==''&&+x.e.range>=0);
+  if(R.length<2)return null;
+  const a=R[0],b=R[R.length-1];const dist=+b.e.odo-+a.e.odo;if(!(dist>0))return null;
+  const mid=F.slice(a.i,b.i).reduce((s,e)=>s+(+e.liters||0),0); // 最初の給油〜最後の給油の前までに入れた量
+  let eff=dist/Math.max(1,mid);
+  for(let k=0;k<8;k++){const used=mid+(+a.e.range-+b.e.range)/eff;if(!(used>0))return null;eff=dist/used;}
+  return eff>3&&eff<60?eff:null;}catch(e){return null;}};
+// 給油の入力欄に「給油前の航続可能距離」
+const odo=document.getElementById('gOdo');
+if(odo&&!document.getElementById('gRange')){const g=odo.closest('.grid2')||odo.parentElement;
+  const d=document.createElement('div');d.className='gi';d.style.marginTop='8px';
+  d.innerHTML='<input type="number" id="gRange" inputmode="numeric" placeholder="給油前の航続可能距離"><span>km</span>';g.after(d);}
+const rg=()=>document.getElementById('gRange');
+const _x=window.gasExtra;window.gasExtra=()=>{const o=_x?_x():{};const v=rg()&&rg().value;if(v!==''&&v!=null&&+v>=0)o.range=+v;return o;};
+const _c=window.gasClear;window.gasClear=()=>{if(_c)_c();if(rg())rg().value='';};
+// 記録を編集するときは、入れてあった値を戻す
+document.addEventListener('click',e=>{const t=e.target.closest('[data-edit],[data-ed],[data-eid]');if(!t)return;
+  setTimeout(()=>{const id=t.dataset.edit||t.dataset.ed||t.dataset.eid;const x=(EXP||[]).find(r=>r.id===id);if(x&&rg())rg().value=x.range!=null?x.range:'';},120);},true);
+// 燃費の欄の説明に、記録からの計算結果を出す
+const sub=()=>{const s=document.getElementById('gEffSub');if(!s)return;const w=window.GCAR||'me';const ce=(S.carEff||{})[w];const fx=fxGasEff(w);
+  const t=fx?`記録から（航続可能距離で補正）：${(Math.round(fx*10)/10).toFixed(1)} km/L`:'給油前の航続可能距離を2回以上記録すると、アプリでも正確に計算します';
+  s.textContent=ce?`シミュレーターと分析は、この燃費で計算しています。${fx?'／'+t:''}`:t;};
+const _r=window.render;window.render=function(){const x=_r.apply(this,arguments);try{sub();}catch(_){}return x;};
+document.addEventListener('click',e=>{if(e.target.closest('[data-gcar]'))setTimeout(sub,10);});
+setTimeout(sub,0);
 })();
 </script>
 </body>

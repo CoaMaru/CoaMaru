@@ -99,6 +99,26 @@
 
   // レシート読み取り：Firebase AI Logic（Gemini）で写真を読む
   const AI_MODEL = 'gemini-4-hydrogen';
+  // 混み合っているとき：少し待ってやり直し → それでもダメなら別のモデルで
+  const AI_MODELS = [AI_MODEL, 'gemini-flash-latest', 'gemini-2.5-flash'];
+  const aiMsg = e => String(e && (e.message || e.code) || '');
+  const aiBusy = m => /\[?\b(500|502|503|504)\b|high demand|overloaded|UNAVAILABLE|INTERNAL|temporarily|try again later/i.test(m);
+  const aiNoModel = m => /\[?404\b|not found|is not supported|no longer available|deprecated/i.test(m);
+  const nap = ms => new Promise(r => setTimeout(r, ms));
+  async function aiGen(mk, req, signal){
+    let last;
+    for (const name of AI_MODELS) {
+      for (let a = 0; a < 2; a++) {
+        if (signal && signal.aborted) throw Object.assign(new Error('cancelled'), { name: 'AbortError', code: 'cancelled' });
+        try { return await mk(name).generateContent(req); }
+        catch (e) { last = e; const m = aiMsg(e);
+          if (aiNoModel(m)) break;            // このモデルは使えない → 次のモデルへ
+          if (!aiBusy(m)) throw e;            // 混雑以外のエラーはそのまま
+          if (a === 0) await nap(1200); }
+      }
+    }
+    throw last;
+  }
   function shrink(file){
     return new Promise((res, rej) => {
       const img = new Image(), url = URL.createObjectURL(file);
@@ -116,9 +136,8 @@
   function receiptReader(){
     const { getAI, getGenerativeModel, GoogleAIBackend } = window.fbAI;
     const app = firebase.app()._delegate || firebase.app();
-    const model = getGenerativeModel(getAI(app, { backend: new GoogleAIBackend() }), {
-      model: AI_MODEL, generationConfig: { responseMimeType: 'application/json', temperature: 0.1 }
-    });
+    const ai0 = getAI(app, { backend: new GoogleAIBackend() });
+    const mk = name => getGenerativeModel(ai0, { model: name, generationConfig: { responseMimeType: 'application/json', temperature: 0.1 } });
     return {
       limits: async () => ({ images: true }),
       json: async (prompt, opt) => {
@@ -127,12 +146,12 @@
         for (const f of (opt.images || [])) parts.push({ inlineData: { data: await shrink(f), mimeType: 'image/jpeg' } });
         if (opt.signal && opt.signal.aborted) throw Object.assign(new Error('cancelled'), { code: 'cancelled' });
         let r;
-        try { r = await model.generateContent(parts); }
+        try { r = await aiGen(mk, parts, opt.signal); }
         catch (e) {
           const m = String(e && (e.message || e.code) || '');
           if (/429|quota|RESOURCE_EXHAUSTED/i.test(m)) throw Object.assign(new Error(m), { code: 'quota' });
-          if (/503|overloaded|UNAVAILABLE/i.test(m)) throw Object.assign(new Error(m), { code: 'rate_limited' });
-          if (/api-not-enabled|SERVICE_DISABLED|has not been used|not been enabled|firebasevertexai/i.test(m)) throw Object.assign(new Error(m), { code: 'not_enabled' });
+          if (aiBusy(m)) throw Object.assign(new Error(m), { code: 'rate_limited' });
+          if (/api-not-enabled|SERVICE_DISABLED|has not been used|not been enabled/i.test(m)) throw Object.assign(new Error(m), { code: 'not_enabled' });
           if (/404|not found|is not supported/i.test(m)) throw Object.assign(new Error(m), { code: 'no_model' });
           if (/403|PERMISSION_DENIED|API_KEY|api key|referer|app-check|appcheck/i.test(m)) throw Object.assign(new Error(m), { code: 'denied' });
           if (/SAFETY|blocked/i.test(m)) throw Object.assign(new Error(m), { code: 'image_rejected' });
@@ -148,7 +167,7 @@
   const errOf = e => {
     const m = String(e && (e.message || e.code) || '');
     if (/429|quota|RESOURCE_EXHAUSTED/i.test(m)) return Object.assign(new Error(m), { code: 'rate_limited' });
-    if (/503|overloaded|UNAVAILABLE/i.test(m)) return Object.assign(new Error(m), { code: 'rate_limited' });
+    if (aiBusy(m)) return Object.assign(new Error(m), { code: 'rate_limited' });
     if (/api-not-enabled|SERVICE_DISABLED|not been enabled|403|PERMISSION_DENIED/i.test(m)) return Object.assign(new Error(m), { code: 'not_granted' });
     return e;
   };
@@ -172,15 +191,15 @@
       opt = opt || {};
       const msgs = typeof input === 'string' ? [{ role: 'user', content: input }] : (input || []);
       const tools = opt.tools || [];
-      const model = getGenerativeModel(ai, {
-        model: AI_MODEL, generationConfig: { temperature: 0.6 },
+      const mk = name => getGenerativeModel(ai, {
+        model: name, generationConfig: { temperature: 0.6 },
         tools: tools.length ? [{ functionDeclarations: tools.map(t => ({ name: t.name, description: t.description || '', parameters: toSchema(t.inputSchema || { type: 'object', properties: {} }) })) }] : undefined
       });
       const contents = msgs.map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: String(m.content || '') }] }));
       for (let turn = 0; turn < 4; turn++) {
         if (opt.signal && opt.signal.aborted) throw Object.assign(new Error('cancelled'), { name: 'AbortError' });
         let r;
-        try { r = await model.generateContent({ contents }); } catch (e) { throw errOf(e); }
+        try { r = await aiGen(mk, { contents }, opt.signal); } catch (e) { throw errOf(e); }
         const res = r.response;
         const calls = (res.functionCalls && res.functionCalls()) || [];
         if (calls.length && tools.length) {

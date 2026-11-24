@@ -1,6 +1,6 @@
 // こあまる家：オフラインでも開けるようにする
-const CACHE = 'coamaru-v18';
-const CORE = ['./', 'index.html', 'firebase-bridge.js', 'firebase-config.js', 'lucide.min.js', 'logo.png', 'icon-192.png', 'icon-512.png', 'manifest.json', 'firebase-all.js', 'mascot/wave.webp', 'mascot/happy.webp', 'mascot/think.webp', 'mascot/peek.webp', 'mascot/sleep.webp'];
+const CACHE = 'coamaru-v20';
+const CORE = ['./', 'index.html', 'firebase-bridge.js', 'firebase-config.js', 'lucide.min.js', 'logo.png', 'icon-192.png', 'icon-512.png', 'manifest.json', 'firebase-all.js'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));

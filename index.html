@@ -5935,5 +5935,39 @@ html body #fxSheet .in{min-width:0}
 html body #fxSheet .in select,html body #fxSheet .in input[type=date]{background:none!important;background-image:none!important;border:0!important;box-shadow:none!important;padding:0!important;margin:0!important;height:auto!important;width:100%!important;border-radius:0!important;-webkit-appearance:none!important;appearance:none!important}
 html body #fxSheet .in input{min-width:0}
 </style>
+<!-- ===== 収入：今の期間は「入力するまで ¥0」（給料口座にも入れない）。SoNaだけは予定額で未来予測 ===== -->
+<script>
+(()=>{
+const ZF=()=>(S&&S.incomeZeroFrom)||'2026-11';   // この期間から「入力するまで¥0」
+const _inc=window.incOf;if(!_inc)return;
+let plan=0; // 1のあいだは予定額（SoNaの予測用）
+window.incOf=function(k){const r=_inc.apply(this,arguments);
+  if(plan||!k||k<ZF()||k>NOWK)return r;               // 来月以降の見通しは予定額のまま
+  return {...r,me:r.meFix?r.me:0,ko:r.koFix?r.ko:0,planMe:r.me,planKo:r.ko,zero:!(r.meFix&&r.koFix)};};
+try{incOf=window.incOf;}catch(_){}
+const withPlan=f=>function(){plan++;try{return f.apply(this,arguments);}finally{plan--;}};
+window.fxWithPlan=fn=>{plan++;try{return fn();}finally{plan--;}};
+if(window.fxNextPlan)window.fxNextPlan=withPlan(window.fxNextPlan);
+const yenK=n=>{n=Math.round(+n||0);return Math.abs(n)>=10000?'¥'+(Math.round(n/1000)/10).toLocaleString('ja-JP')+'万':'¥'+n.toLocaleString('ja-JP');};
+// 今の期間の給料がまだ入力されていないとき、SoNaが「予定どおり入ったら」の見込みを話す
+const pending=()=>{try{if(NOWK<ZF())return null;const r=_inc(NOWK);if(r.meFix&&r.koFix)return null;
+  const p=fxWithPlan(()=>calc(NOWK)),a=calc(NOWK);const planInc=(r.meFix?0:r.me)+(r.koFix?0:r.ko);
+  return {planInc,left:p.left,leftNow:a.left,who:[!r.meFix&&'Maru',!r.koFix&&'Kokoa'].filter(Boolean).join('と')};}catch(e){return null;}};
+const prevX=window.fxKoaExtra;
+window.fxKoaExtra=()=>{const L=prevX?prevX():[];const q=pending();
+  if(q)L.unshift(`${q.who}の給料はまだ入力されていないよ。予定どおり <b class="c-inc">${yenK(q.planInc)}</b> 入ったら、自由に使えるのは約 <b class="c-fut">${yenK(q.left)}</b> の見込み。入ったら「2人の月収」から入れてね。`);
+  return L;};
+const prevS=window.fxKoaSysExtra;
+window.fxKoaSysExtra=()=>{let s=prevS?prevS():'';const q=pending();
+  if(q)s+=`\n今の期間の給料（${q.who}）はまだ入力されていないので、画面の収入は¥0。予定どおりなら ${q.planInc}円 入る。予定どおり入った場合の利用可能額の見込みは ${q.left}円（入力前の今の表示は ${q.leftNow}円）。「いくら残る？」などと聞かれたら、予定どおり入った場合の見込みで答える。`;
+  return s;};
+// 収入の入力画面の説明
+const sh=document.getElementById('fxSheet');
+if(sh)new MutationObserver(()=>{const nt=sh.querySelector('.nt');if(nt&&/給料口座へ自動で入金/.test(nt.innerHTML))nt.innerHTML=nt.innerHTML.replace('給料日（25日）に、給料口座へ自動で入金されます。','入力するまで、この期間の収入は ¥0 です。入力した金額は、給料口座の残高に反映されます。');}).observe(sh,{childList:true,subtree:true});
+// 保存済みの設定に「いつから¥0にするか」を記録（最初の1回だけ）
+const _n=window.normalize;if(_n)window.normalize=function(){const s=_n.apply(this,arguments);if(s&&!s.incomeZeroFrom)s.incomeZeroFrom='2026-11';return s;};
+try{render();}catch(_){}
+})();
+</script>
 </body>
 </html>

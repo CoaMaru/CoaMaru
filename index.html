@@ -325,6 +325,9 @@
 </style>
 </head>
 <body>
+<script>/* 復帰：最近まで開いていたなら、起動演出をとばす */try{const r=JSON.parse(localStorage.getItem('cm_resume')||'null');if(r&&Date.now()-r.ts<3*3600e3)document.documentElement.classList.add('fxresume');}catch(e){}</script>
+<style>html.fxresume #boot,html.fxresume #fxBoot{display:none!important}</style>
+
 <div id="bgfx" aria-hidden="true"><svg viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">
 <defs><radialGradient id="bgg" cx="70%" cy="40%" r="75%"><stop offset="0" stop-color="#3a2a7a"/><stop offset=".45" stop-color="#1c1342"/><stop offset="1" stop-color="#0a0616"/></radialGradient>
 <filter id="blr"><feGaussianBlur stdDeviation="2.2"/></filter></defs>
@@ -2771,7 +2774,7 @@ if(document.readyState==='complete')go();else addEventListener('load',go);
 addEventListener('click',e=>{const b=e.target.closest('#exOpen');if(!b)return;
   e.stopImmediatePropagation();e.preventDefault();
   if(typeof isLocked==='function'&&isLocked(P)){try{toast(LOCKMSG);}catch(_){}return;}
-  $('exForm').classList.remove('on');try{sfx('tab');}catch(_){}
+  if(window.fxPayAddSheet){fxPayAddSheet();return;}$('exForm').classList.remove('on');try{sfx('tab');}catch(_){}
   showTab('rec');setTimeout(()=>{const a=$('fAmount');if(a){a.scrollIntoView({behavior:'smooth',block:'center'});a.focus();}},350);
 },true);
 })();
@@ -5566,9 +5569,9 @@ document.body.appendChild(kp);
 const lb=kp.querySelector('.lb'),pv=kp.querySelector('.pv'),gd=kp.querySelector('.gd');
 let cur=null,spacer=null,pos=0;
 const isNum=el=>el&&el.tagName==='INPUT'&&!el.readOnly&&!el.disabled&&(el.type==='number'||/^(numeric|decimal)$/.test(el.dataset.kpim||el.inputMode||''));
-const isDec=el=>(el.dataset.kpim||el.inputMode)==='decimal'||/\./.test(el.placeholder||'')||/\./.test(el.step||'');
-const RC=/[\d.]/;const NV0=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').get;
-const raw=el=>String(el.value||'').replace(/[^\d.]/g,'');
+const isDec=el=>(el.dataset.kpim||el.inputMode)==='decimal';
+let RC=/[\d.]/;const NV0=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').get;
+const raw=el=>String(el.value||'').replace(isDec(el)?/[^\d.]/g:/\D/g,'');
 // 「数字の何文字目」⇔「画面の文字の何文字目」の変換（カンマを飛ばして数える）
 const idxOf=(s,n)=>{let c=0;for(let i=0;i<s.length;i++){if(c===n)return i;if(RC.test(s[i]))c++;}return s.length;};
 const posOf=(s,i)=>{let c=0;for(let j=0;j<Math.min(i,s.length);j++)if(RC.test(s[j]))c++;return c;};
@@ -5576,17 +5579,18 @@ const fmt=(v,dec)=>{if(dec||v==='')return v;const [a,b]=v.split('.');return (a?(
 const labelOf=el=>{let t='';const l=el.id&&document.querySelector(`label[for="${el.id}"]`);if(l)t=l.textContent;
   for(let p=el.parentElement,n=0;!t&&p&&n<4;p=p.parentElement,n++){const s=[...p.querySelectorAll('label,small,h2,h3,.lab')].find(x=>!x.contains(el)&&/[^\d\s¥,.]/.test(x.textContent));if(s)t=s.firstElementChild&&s.tagName==='LABEL'?s.firstElementChild.textContent:s.textContent;}
   return (t||el.placeholder||'金額').replace(/\s+/g,' ').trim().slice(0,24);};
-const show=()=>{const v=raw(cur),dec=isDec(cur),f=fmt(v,dec),i=idxOf(f,pos);
-  const e=s=>s.replace(/[&<>]/g,'');
-  pv.innerHTML=(dec?'':'<small>¥</small>')+(v?e(f.slice(0,i))+'<i class="cr"></i>'+e(f.slice(i)):'<i class="cr"></i><span style="opacity:.4">0</span>');};
+const unitOf=el=>{const s=el.nextElementSibling;const t=s&&s.tagName==='SPAN'?s.textContent.trim():'';return t&&t.length<=3&&t!=='¥'&&t!=='円'?t:'';};
+const show=()=>{const v=raw(cur),dec=isDec(cur),u=unitOf(cur);const e=s=>s.replace(/[&<>]/g,'');
+  const f=u?String(NV0.call(cur)||''):fmt(v,dec),i=idxOf(f,pos);
+  pv.innerHTML=(u||dec?'':'<small>¥</small>')+(v?e(f.slice(0,i))+'<i class="cr"></i>'+e(f.slice(i)):'<i class="cr"></i><span style="opacity:.4">0</span>')+(u?'<small style="margin-left:4px">'+e(u)+'</small>':'');};
 const caret=()=>{try{const i=idxOf(String(NV0.call(cur)||''),pos);cur.setSelectionRange(i,i);}catch(_){}};
-const set=v=>{if(!cur)return;cur.value=v;cur.dispatchEvent(new Event('input',{bubbles:true}));caret();show();};
+const set=v=>{if(!cur)return;const after=Math.max(0,v.length-pos);cur.value=v;cur.dispatchEvent(new Event('input',{bubbles:true}));const nr=raw(cur);pos=Math.max(0,Math.min(nr.length,nr.length-after));caret();show();};
 const buzz=()=>{try{navigator.vibrate&&navigator.vibrate(6);}catch(_){}};
 const scrollParent=el=>{for(let p=el.parentElement;p&&p!==document.body;p=p.parentElement){const o=getComputedStyle(p).overflowY;if((o==='auto'||o==='scroll')&&p.scrollHeight>p.clientHeight)return p;}return null;};
 const syncPos=()=>{if(!cur)return;let s=null;try{s=cur.selectionStart;}catch(_){}pos=s==null?raw(cur).length:posOf(String(NV0.call(cur)||''),s);show();};
 const open=el=>{if(cur&&cur!==el)finish(false);cur=el;
   if(el.dataset.kpim==null)el.dataset.kpim=el.inputMode||'';el.inputMode='none';el.classList.add('kpact');
-  gd.classList.toggle('dec',isDec(el));lb.textContent=labelOf(el);pos=raw(el).length;show();
+  gd.classList.toggle('dec',isDec(el));RC=isDec(el)?/[\d.]/:/\d/;lb.textContent=labelOf(el);pos=raw(el).length;show();
   setTimeout(()=>{if(cur===el){caret();}},0);
   kp.classList.add('on');document.body.classList.add('kpon');
   requestAnimationFrame(()=>{const h=kp.offsetHeight;document.documentElement.style.setProperty('--kph',h+'px');
@@ -5814,5 +5818,122 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fit);
 setTimeout(fit,300);
 })();
 </script>
+<!-- ===== ガソリンと今月の入出金を、記録タブ（生活費の下）へ ===== -->
+<script>
+(()=>{const rec=document.getElementById('tab-rec');if(!rec)return;
+const liv=document.getElementById('livBar')&&document.getElementById('livBar').closest('.card');
+let at=liv;['gasCard','spCard'].forEach(id=>{const c=document.getElementById(id);if(!c||rec.contains(c))return;if(at)at.after(c);else rec.appendChild(c);at=c;});
+})();
+</script>
+<!-- ===== ほかのアプリから戻っても、見ていた画面・期間・入力中の内容をそのまま ===== -->
+<script>
+(()=>{
+const KEY='cm_resume',TTL=3*3600e3;
+const F=['fAmount','fItem','fShop','fMemo','fDate','gLit','gOdo'];
+const NV=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').get;
+const scroller=el=>{for(let p=el;p&&p!==document.body;p=p.parentElement){const o=getComputedStyle(p).overflowY;if((o==='auto'||o==='scroll')&&p.scrollHeight>p.clientHeight)return p;}return document.scrollingElement;};
+const cur=()=>{const t=document.querySelector('.tab.on');return t?t.id.replace('tab-',''):'home';};
+const snap=()=>{try{const panel=document.body.classList.contains('fxpanel');const t=document.getElementById('tab-'+cur());
+  const sc=panel&&t?scroller(t):document.getElementById('fxCock')||document.scrollingElement;
+  const d={};F.forEach(id=>{const e=document.getElementById(id);if(e){const v=e.tagName==='INPUT'?NV.call(e):e.value;if(v)d[id]=v;}});
+  localStorage.setItem(KEY,JSON.stringify({ts:Date.now(),panel,tab:cur(),P:typeof P!=='undefined'?P:null,y:sc?sc.scrollTop:0,d}));}catch(e){}};
+document.addEventListener('visibilitychange',()=>{if(document.hidden)snap();});
+addEventListener('pagehide',snap);addEventListener('blur',snap);
+document.addEventListener('change',()=>setTimeout(snap,0),true);
+let r=null;try{r=JSON.parse(localStorage.getItem(KEY)||'null');}catch(e){}
+if(!r||Date.now()-r.ts>TTL)return;
+// 起動演出の組み立てアニメーションもとばす
+const off=()=>document.body.classList.remove('fxasm');off();setTimeout(off,50);setTimeout(off,900);
+try{if(r.P&&typeof P!=='undefined'&&r.P!==P&&window.fxJumpPeriod)fxJumpPeriod(r.P);}catch(e){}
+try{if(r.panel&&r.tab&&r.tab!=='home'){document.body.classList.add('fxpanel');showTab(r.tab);}}catch(e){}
+const goY=()=>{try{const t=document.getElementById('tab-'+cur());const sc=r.panel&&t?scroller(t):document.getElementById('fxCock')||document.scrollingElement;if(sc&&r.y)sc.scrollTop=r.y;}catch(e){}};
+setTimeout(goY,60);setTimeout(goY,500);setTimeout(goY,1500);
+// 入力中だった内容（記録の欄）を戻す
+const fill=()=>{Object.entries(r.d||{}).forEach(([id,v])=>{const e=document.getElementById(id);if(e&&!(e.tagName==='INPUT'?NV.call(e):e.value)){e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));}});};
+setTimeout(fill,300);
+// 記録を保存したら、下書きは消す
+document.addEventListener('click',e=>{if(e.target.closest('#fAdd'))setTimeout(()=>{try{const o=JSON.parse(localStorage.getItem(KEY)||'{}');o.d={};localStorage.setItem(KEY,JSON.stringify(o));}catch(_){}},600);},true);
+})();
+</script>
+<!-- ===== ホームの「支払い予定」に＋ボタン → 変動費の入力へ直行 ===== -->
+<style>
+#fxPayAdd{flex:none;width:26px;height:26px;margin-left:10px;border-radius:50%;border:0;padding:0;display:grid;place-items:center;cursor:pointer;
+  color:#ffb45c;background:rgba(255,180,92,.1);box-shadow:inset 0 0 0 1.5px rgba(255,180,92,.75),0 0 10px rgba(255,180,92,.35);-webkit-tap-highlight-color:transparent}
+#fxPayAdd:active{background:rgba(255,180,92,.3)}
+#fxPayAdd svg{width:14px;height:14px;display:block}
+</style>
+<script>
+(()=>{
+const L=document.getElementById('fxPay');const h=L&&L.closest('.fxsec')&&L.closest('.fxsec').querySelector('h3');if(!h||document.getElementById('fxPayAdd'))return;
+const b=document.createElement('button');b.id='fxPayAdd';b.type='button';b.setAttribute('aria-label','支払い予定を追加');
+b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+h.appendChild(b);
+b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();
+  try{if(window.isLocked&&isLocked(P)){window.fxLockToast&&fxLockToast('確定済みの期間です（中央の LOCKED をタップすると解除できます）');return;}}catch(_){}
+  document.body.classList.add('fxpanel');try{showTab('rec');}catch(_){}
+  setTimeout(()=>{const f=document.getElementById('exForm'),o=document.getElementById('exOpen');
+    if(f&&!f.classList.contains('on')&&o)o.click();
+    setTimeout(()=>{const t=document.getElementById('exForm')||o;try{t.scrollIntoView({behavior:'smooth',block:'center'});}catch(_){}
+      setTimeout(()=>{const x=document.getElementById('xLabel');if(x)try{x.focus({preventScroll:true});}catch(_){}},450);},120);},200);});
+})();
+</script>
+<!-- ===== 「支払い予定を追加」シート：どこに・何日に・いくら・どこから ===== -->
+<style>
+#fxSheet .in.tx input{text-align:left;font-size:16px;font-weight:600}
+#fxSheet .in select,#fxSheet .in input[type=date]{flex:1;min-width:0;background:none!important;border:0!important;box-shadow:none!important;outline:0;color:#fff;font:600 15px "Murecho",sans-serif;padding:0!important;height:auto!important;-webkit-appearance:none;appearance:none;color-scheme:dark}
+#fxSheet .in select option{background:#1a0e34;color:#fff}
+#fxSheet .in .cv{color:#b9a8e0;font-size:12px;pointer-events:none}
+#fxSheet .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#fxSheet .g2 .f{margin-top:12px}
+#fxSheet .seg{display:flex;gap:6px}
+#fxSheet .seg button{flex:1;height:40px;border-radius:999px;border:0;background:rgba(8,4,20,.7);color:#b9a8e0;font:700 12px "Orbitron","Murecho",sans-serif;letter-spacing:.1em;box-shadow:inset 0 0 0 1px rgba(217,198,255,.3)}
+#fxSheet .seg button.on{color:#1a0c33;background:linear-gradient(90deg,#b48cff,#e6d6ff)}
+#fxSheet .bx{max-height:calc(100vh - 40px);overflow:auto}
+</style>
+<script>
+(()=>{
+const box=document.getElementById('fxSheet');if(!box)return;const bx=box.querySelector('.bx');
+const num=v=>Math.max(0,Math.round(+String(v).replace(/[^\d]/g,'')||0));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+const opts=()=>{let h='<option value="">（未設定）</option>';[['me','マル'],['ko','心愛']].forEach(([k,o])=>{(S.methods&&S.methods[k]||[]).forEach(m=>{h+=`<option value="${esc(o+'|'+m.name)}">${o==='マル'?'Maru':'Kokoa'}・${esc(m.name)}</option>`;});});return h;};
+const defFrom=w=>{const o=w==='心愛'?'心愛':'マル';const L=(S.methods&&S.methods[o==='心愛'?'ko':'me'])||[];const m=L.find(m=>m.salary)||L.find(m=>!/card|later/.test(m.type||''))||L[0];return m?o+'|'+m.name:'';};
+const lockMsg='確定済みの期間です（中央の LOCKED をタップすると解除できます）';
+const open=()=>{let who='自分',fromTouched=false,catTouched=false;
+  bx.innerHTML=`<div class="hd"><b>支払い予定を追加</b><small>どこに・いつ・いくら・どこから</small></div>
+  <div class="f"><label><span>どこに（支払い先）</span><span>例：車検・市県民税</span></label><div class="in tx"><input id="pyL" type="text" autocomplete="off" placeholder="支払い先"></div></div>
+  <div class="g2"><div class="f"><label><span>いつ</span></label><input id="pyD" type="date" class="full" value="${today()}"></div>
+  <div class="f"><label><span>いくら</span></label><div class="in"><i>¥</i><input id="pyA" inputmode="numeric" autocomplete="off" placeholder="0"></div></div></div>
+  <div class="f"><label><span>どこから引かれる</span></label><select id="pyF" class="full">${opts()}</select></div>
+  <div class="f"><label><span>だれの</span></label><div class="seg" id="pyW"><button type="button" data-w="自分" class="on">MARU</button><button type="button" data-w="心愛">KOKOA</button><button type="button" data-w="2人">BOTH</button></div></div>
+  <div class="g2"><div class="f"><label><span>カテゴリ</span></label><select id="pyC" class="full">${(typeof CATS!=='undefined'?CATS:['その他']).map(c=>`<option>${esc(c)}</option>`).join('')}</select></div>
+  <div class="f"><label><span>メモ</span><span>なくてOK</span></label><div class="in tx"><input id="pyM" type="text" autocomplete="off" placeholder="詳細"></div></div></div>
+  <div class="bt"><button class="ok" type="button">追加する</button><button class="ng" type="button">キャンセル</button></div>`;
+  const $q=s=>bx.querySelector(s);
+  $q('#pyF').value=defFrom(who);$q('#pyC').value='その他';
+  $q('#pyF').onchange=()=>{fromTouched=true;};$q('#pyC').onchange=()=>{catTouched=true;};
+  $q('#pyL').addEventListener('input',()=>{if(!catTouched&&typeof guessCat==='function'){const g=guessCat($q('#pyL').value);if(g)$q('#pyC').value=g;}});
+  $q('#pyA').addEventListener('input',e=>{const n=String(e.target.value).replace(/[^\d]/g,'');e.target.value=n?(+n).toLocaleString('ja-JP'):'';});
+  $q('#pyW').onclick=e=>{const b=e.target.closest('button');if(!b)return;who=b.dataset.w;$q('#pyW').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));if(!fromTouched)$q('#pyF').value=defFrom(who);};
+  const close=()=>{box.classList.remove('on');try{window.fxKpClose&&fxKpClose();}catch(_){}};
+  $q('.ng').onclick=close;
+  $q('.ok').onclick=async()=>{const ttl=$q('#pyL').value.trim(),memo=$q('#pyM').value.trim(),amt=num($q('#pyA').value),dt=$q('#pyD').value;
+    if(!ttl){$q('#pyL').focus();return;}if(!dt){$q('#pyD').focus();return;}if(!(amt>0)){$q('#pyA').focus();return;}
+    const k=keyOf(dt);try{if(window.isLocked&&isLocked(k)){window.fxLockToast&&fxLockToast(lockMsg);return;}}catch(_){}
+    const it={label:memo?`${ttl}（${memo}）`:ttl,amount:amt,cat:$q('#pyC').value,who,date:dt};const f=$q('#pyF').value;if(f)it.from=f;
+    S.extras=S.extras||{};(S.extras[k]=S.extras[k]||[]).push(it);close();
+    try{renderSettings();}catch(_){}render();try{await save(document.getElementById('status')||document.createElement('i'));}catch(_){}};
+  box.classList.add('on');setTimeout(()=>{try{$q('#pyL').focus();}catch(_){}},260);};
+window.fxPayAddSheet=open;
+const b=document.getElementById('fxPayAdd');
+if(b){const nb=b.cloneNode(true);b.replaceWith(nb);nb.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();open();});}
+})();
+</script>
+<style>
+html body #fxSheet .g2>*{min-width:0}
+html body #fxSheet .in{min-width:0}
+html body #fxSheet .in select,html body #fxSheet .in input[type=date]{background:none!important;background-image:none!important;border:0!important;box-shadow:none!important;padding:0!important;margin:0!important;height:auto!important;width:100%!important;border-radius:0!important;-webkit-appearance:none!important;appearance:none!important}
+html body #fxSheet .in input{min-width:0}
+</style>
 </body>
 </html>

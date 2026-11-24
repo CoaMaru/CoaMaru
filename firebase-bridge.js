@@ -100,7 +100,7 @@
   // レシート読み取り：Firebase AI Logic（Gemini）で写真を読む
   const AI_MODEL = 'gemini-4-hydrogen';
   // 混み合っているとき：少し待ってやり直し → それでもダメなら別のモデルで
-  const AI_MODELS = [AI_MODEL, 'gemini-flash-latest', 'gemini-2.5-flash'];
+  const AI_MODELS = [AI_MODEL, 'gemini-3.6-flash', 'gemini-3.5-flash-lite', 'gemini-flash-latest'];
   const aiMsg = e => String(e && (e.message || e.code) || '');
   const aiBusy = m => /\[?\b(500|502|503|504)\b|high demand|overloaded|UNAVAILABLE|INTERNAL|temporarily|try again later/i.test(m);
   const aiNoModel = m => /\[?404\b|not found|is not supported|no longer available|deprecated/i.test(m);

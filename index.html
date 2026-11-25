@@ -325,6 +325,8 @@
 </style>
 </head>
 <body>
+<!-- 読み込みの途中の画面（レシート欄など）が見えないように、最初は暗い幕でかくす -->
+<div id="cmCover" aria-hidden="true" style="position:fixed;inset:0;z-index:2147483647;background:#07040f"></div>
 <div id="bgfx" aria-hidden="true"><svg viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">
 <defs><radialGradient id="bgg" cx="70%" cy="40%" r="75%"><stop offset="0" stop-color="#3a2a7a"/><stop offset=".45" stop-color="#1c1342"/><stop offset="1" stop-color="#0a0616"/></radialGradient>
 <filter id="blr"><feGaussianBlur stdDeviation="2.2"/></filter></defs>
@@ -1491,7 +1493,7 @@ function endBoot(){if(done)return;done=true;boot.classList.add('out');setTimeout
 if(RM){boot.remove();}else{
   boot.addEventListener('click',endBoot);
   const log=document.getElementById('bootLog'),bar=document.getElementById('bootBar');
-  const step=()=>{if(done)return;if(bi<LINES.length){const d=document.createElement('div');d.textContent=LINES[bi];log.appendChild(d);if(log.children.length>3)log.firstChild.remove();bi++;bar.style.width=(bi/LINES.length*100)+'%';setTimeout(step,230);}else setTimeout(endBoot,260);};
+  const step=()=>{if(done)return;if(bi<LINES.length){const d=document.createElement('div');d.textContent=LINES[bi];log.appendChild(d);if(log.children.length>3)log.firstChild.remove();bi++;bar.style.width=(bi/LINES.length*100)+'%';setTimeout(step,230);}else{const t0=Date.now();const w=()=>{if(done)return;const st=document.getElementById('status');if(st&&/読み込み中/.test(st.textContent)&&Date.now()-t0<5000)return setTimeout(w,150);setTimeout(endBoot,260);};w();}};
   setTimeout(step,450);
 }
 
@@ -5999,6 +6001,217 @@ document.addEventListener('click',e=>{if(e.target.closest('[data-gcar]'))setTime
 setTimeout(sub,0);
 })();
 </script>
+<!-- ===== 入力シートの上でも、日付・選択のシートが前に出るようにする ===== -->
+<style>
+html body .sheetov{z-index:2147483300!important}
+</style>
+<!-- ===== こあまる家専用の日本語キーボード（フリック入力・漢字変換つき）：文字の欄はスマホのキーボードの代わりにこれを出す ===== -->
+<style>
+#fxIme{position:fixed;left:0;right:0;bottom:0;z-index:2147483600;padding:6px 8px calc(10px + env(safe-area-inset-bottom));
+  background:linear-gradient(180deg,#1a0e34,#0a0518);border-radius:24px 24px 0 0;
+  box-shadow:0 -1px 0 rgba(217,198,255,.35),0 -18px 50px rgba(0,0,0,.55),0 -4px 30px rgba(150,100,255,.18);
+  transform:translateY(105%);transition:transform .22s cubic-bezier(.2,.9,.3,1);touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;font-family:"Murecho",sans-serif}
+#fxIme.on{transform:none}
+#fxIme .cb{display:flex;align-items:center;gap:6px;height:42px;margin:0 0 6px}
+#fxIme .cl{flex:1;min-width:0;display:flex;gap:4px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;touch-action:pan-x;align-items:center;height:100%}
+#fxIme .cl::-webkit-scrollbar{display:none}
+#fxIme .cl button{flex:none;height:34px;padding:0 12px;border:0;border-radius:999px;background:rgba(190,155,255,.08);color:#fff;font:600 16px "Murecho",sans-serif;white-space:nowrap;box-shadow:inset 0 0 0 1px rgba(217,198,255,.18)}
+#fxIme .cl button.p{color:#d9c6ff}
+#fxIme .cl button.s{color:#b9a8e0;font-size:15px}
+#fxIme .cl button.on{color:#1a0c33;background:linear-gradient(90deg,#b48cff,#e6d6ff);box-shadow:0 0 12px rgba(180,140,255,.5)}
+#fxIme .cl .ht{color:#7f70a8;font-size:11px;letter-spacing:.06em;padding:0 6px;white-space:nowrap}
+#fxIme .dn{flex:none;height:34px;padding:0 14px;border:0;border-radius:999px;background:rgba(190,155,255,.14);color:#d9c6ff;font:700 13px "Murecho",sans-serif;box-shadow:inset 0 0 0 1px rgba(217,198,255,.3)}
+#fxIme .gd{display:grid;grid-template-columns:.82fr 1fr 1fr 1fr .82fr;grid-template-rows:repeat(4,48px);gap:6px}
+#fxIme .gd button{position:relative;border:0;border-radius:16px;background:rgba(190,155,255,.08);color:#fff;font:700 21px "Murecho",sans-serif;padding:0;
+  box-shadow:inset 0 0 0 1px rgba(217,198,255,.22);transition:background .08s,transform .08s;line-height:1.05;touch-action:none}
+#fxIme .gd button.dw{transform:scale(.95);background:rgba(190,155,255,.28)}
+#fxIme .gd button small{display:block;font-size:9px;font-weight:600;color:#b9a8e0;letter-spacing:.04em;margin-top:2px}
+#fxIme .gd .fn{color:#d9c6ff;font-size:14px;background:rgba(190,155,255,.14)}
+#fxIme .gd .fn svg{width:20px;height:20px;display:block;margin:auto}
+#fxIme .gd .en{grid-row:span 2;background:linear-gradient(160deg,#b48cff,#e6d6ff);color:#1a0c33;font-size:15px;font-weight:800;box-shadow:0 0 18px rgba(180,140,255,.45)}
+#fxIme .gd .sm{font-size:15px}
+#fxIme .fp{position:absolute;z-index:3;width:150px;height:150px;margin:-75px 0 0 -75px;pointer-events:none;display:none}
+#fxIme .fp.on{display:block}
+#fxIme .fp span{position:absolute;width:50px;height:50px;display:grid;place-items:center;border-radius:14px;background:#2a1a52;color:#fff;font:700 22px "Murecho",sans-serif;box-shadow:inset 0 0 0 1px rgba(217,198,255,.4),0 6px 20px rgba(0,0,0,.5)}
+#fxIme .fp span:empty{display:none}
+#fxIme .fp span.on{background:linear-gradient(160deg,#b48cff,#e6d6ff);color:#1a0c33}
+#fxIme .fp .d0{left:50px;top:50px}#fxIme .fp .d1{left:0;top:50px}#fxIme .fp .d2{left:50px;top:0}#fxIme .fp .d3{left:100px;top:50px}#fxIme .fp .d4{left:50px;top:100px}
+input.imact,textarea.imact{box-shadow:inset 0 0 0 1.5px #c6a8ff,0 0 14px rgba(198,168,255,.35)!important}
+body.imon #fxSheet .bx{margin-bottom:calc(var(--imh,0px) + 10px)}
+.imsp{height:var(--imh,320px)}
+</style>
+<script>
+(()=>{
+if(!matchMedia('(pointer:coarse)').matches)return; // パソコンでは今まで通りのキーボード
+/* ---------- 辞書 ---------- */
+const SEED={'しゃけん':['車検'],'しけんみんぜい':['市県民税'],'じゅうみんぜい':['住民税'],'じどうしゃぜい':['自動車税'],'けいじどうしゃぜい':['軽自動車税'],'こていしさんぜい':['固定資産税'],
+ 'やちん':['家賃'],'こうねつひ':['光熱費'],'でんきだい':['電気代'],'すいどうだい':['水道代'],'がすだい':['ガス代'],'しょくひ':['食費'],'にちようひん':['日用品'],'がいしょく':['外食'],
+ 'こうさいひ':['交際費'],'つうしんひ':['通信費'],'けいたいだい':['携帯代'],'がそりん':['ガソリン'],'こうそくだい':['高速代'],'ちゅうしゃじょう':['駐車場'],'ちゅうしゃじょうだい':['駐車場代'],
+ 'びよういん':['美容院','病院'],'いりょうひ':['医療費'],'きゅうりょう':['給料'],'ちょきん':['貯金'],'しゅうにゅう':['収入'],'ししゅつ':['支出'],'へんさい':['返済'],'しはらい':['支払い'],
+ 'こんびに':['コンビニ'],'すーぱー':['スーパー'],'どらっぐすとあ':['ドラッグストア'],'あまぞん':['Amazon','アマゾン'],'らくてん':['楽天'],'ねこ':['猫','ねこ'],'きゃっとふーど':['キャットフード'],
+ 'ねこすな':['猫砂'],'ぺいぺい':['PayPay'],'ここあ':['心愛','ココア'],'まる':['マル','丸'],'こあまる':['こあまる','CoaMaru'],'そな':['SoNa','ソナ'],'さぶすく':['サブスク'],'ほけん':['保険'],
+ 'くるまだい':['車代'],'くるま':['車'],'ざっぴ':['雑費'],'ぷれぜんと':['プレゼント'],'たんじょうび':['誕生日'],'りょこう':['旅行'],'けっこん':['結婚'],'ゆうびん':['郵便']};
+let DK=null,DV=null,dictP=null,dictErr=false;
+const loadDict=()=>dictP||(dictP=fetch('ime-dict.txt').then(r=>r.ok?r.text():Promise.reject(r.status)).then(t=>{const K=[],V=[];
+  for(const l of t.split('\n')){if(!l||l[0]==='#')continue;const i=l.indexOf('\t');if(i<1)continue;K.push(l.slice(0,i));V.push(l.slice(i+1));}
+  DK=K;DV=V;dictErr=false;refresh();}).catch(()=>{dictP=null;dictErr=true;refresh();}));
+const lb=k=>{let lo=0,hi=DK.length;while(lo<hi){const m=(lo+hi)>>1;if(DK[m]<k)lo=m+1;else hi=m;}return lo;};
+const look=k=>{if(!DK||!k)return [];const i=lb(k);return DK[i]===k?DV[i].split('/'):[];};
+const LS='cm_ime_learn';let learn={};try{learn=JSON.parse(localStorage.getItem(LS)||'{}')||{};}catch(_){}
+const remember=(r,t)=>{if(!r||!t)return;const a=(learn[r]||[]).filter(x=>x!==t);a.unshift(t);learn[r]=a.slice(0,6);try{localStorage.setItem(LS,JSON.stringify(learn));}catch(_){}};
+const kata=s=>s.replace(/[ぁ-ゖ]/g,c=>String.fromCharCode(c.charCodeAt(0)+96));
+// 送りがな（書く→「かk」など）
+const ROW={};[['あいうえお','aiueo'],['かきくけこ','k'],['がぎぐげご','g'],['さしすせそ','s'],['ざじずぜぞ','z'],['たちつてと','t'],['だぢづでど','d'],['なにぬねの','n'],['はひふへほ','h'],['ばびぶべぼ','b'],['ぱぴぷぺぽ','p'],['まみむめも','m'],['やゆよ','y'],['らりるれろ','r'],['わを','w'],['っ','t'],['ん','n']]
+ .forEach(([k,c])=>[...k].forEach((ch,i)=>ROW[ch]=c.length>1?c[i]:c));
+const okuri=R=>{const L=[];for(let j=R.length-1;j>=1&&R.length-j<=3;j--){const c=ROW[R[j]];if(!c)continue;look(R.slice(0,j)+c).slice(0,6).forEach(w=>L.push(w+R.slice(j)));}return L;};
+const cands=R=>{const L=[],seen=new Set();const add=(t,n,s)=>{if(!t||seen.has(t+'|'+n)||L.length>80)return;seen.add(t+'|'+n);L.push({t,n,s});};const N=R.length;if(!N)return L;
+  (learn[R]||[]).forEach(t=>add(t,N,'c'));(SEED[R]||[]).forEach(t=>add(t,N,'c'));look(R).forEach(t=>add(t,N,'c'));okuri(R).forEach(t=>add(t,N,'c'));
+  add(R,N,'h');add(kata(R),N,'h');
+  // 予測（続きの言葉）
+  let c=0;for(const k in learn){if(c>=6)break;if(k.length>N&&k.startsWith(R)){add(learn[k][0],N,'p');c++;}}
+  for(const k in SEED){if(c>=10)break;if(k.length>N&&k.startsWith(R)){add(SEED[k][0],N,'p');c++;}}
+  if(DK&&N>=2){let i=lb(R),m=0;for(;i<DK.length&&m<8&&DK[i].startsWith(R);i++){if(DK[i]===R||/[a-z]$/.test(DK[i]))continue;add(DV[i].split('/')[0],N,'p');m++;}}
+  // 前のほうだけ変換（残りは入力中のまま）
+  for(let j=N-1;j>=1;j--){const r=R.slice(0,j);[...(learn[r]||[]),...(SEED[r]||[]),...look(r).slice(0,4)].forEach(t=>add(t,j,'s'));}
+  return L;};
+/* ---------- キー ---------- */
+const kk=(c,t,lab,sub)=>({c,t:t||c.filter(Boolean).join(''),lab:lab||c[0],sub:sub||''});
+const KANA=[kk(['あ','い','う','え','お']),kk(['か','き','く','け','こ']),kk(['さ','し','す','せ','そ']),
+ kk(['た','ち','つ','て','と']),kk(['な','に','ぬ','ね','の']),kk(['は','ひ','ふ','へ','ほ']),
+ kk(['ま','み','む','め','も']),kk(['や','（','ゆ','）','よ'],'やゆよ'),kk(['ら','り','る','れ','ろ']),
+ 'DK',kk(['わ','を','ん','ー','']),kk(['、','。','？','！',''],'','、。','?!')];
+const ABC=[kk(['@','#','/','&','_'],'','@#/&_'),kk(['a','b','c','',''],'','ABC'),kk(['d','e','f','',''],'','DEF'),
+ kk(['g','h','i','',''],'','GHI'),kk(['j','k','l','',''],'','JKL'),kk(['m','n','o','',''],'','MNO'),
+ kk(['p','q','r','s',''],'','PQRS'),kk(['t','u','v','',''],'','TUV'),kk(['w','x','y','z',''],'','WXYZ'),
+ 'CASE',kk(["'",'"','(',')',''],'',`'"()`),kk(['.',',','?','!',''],'','.,?!')];
+const N1=(c,sub)=>kk(c,c[0],c[0],sub||c.slice(1).join(''));
+const NUM=[N1(['1','☆','♪','→','']),N1(['2','¥','$','€','']),N1(['3','%','°','#','']),N1(['4','○','*','・','']),N1(['5','+','×','÷','']),N1(['6','<','=','>','']),
+ N1(['7','「','」',':','']),N1(['8','〒','々','〆','']),N1(['9','^','|','\\','']),N1(['(',')','[',']',''],'()[]'),N1(['0','〜','…','','']),N1(['.',',','-','/',''],'.,-/')];
+const MODES=[KANA,ABC,NUM],MNEXT=['ABC','☆123','あいう'];let mode=0;
+const DAK={};['かが','きぎ','くぐ','けげ','こご','さざ','しじ','すず','せぜ','そぞ','ただ','ちぢ','つっづ','てで','とど','はばぱ','ひびぴ','ふぶぷ','へべぺ','ほぼぽ','あぁ','いぃ','うぅゔ','えぇ','おぉ','やゃ','ゆゅ','よょ','わゎ']
+ .forEach(g=>[...g].forEach((c,i)=>DAK[c]=g[(i+1)%g.length]));
+const SV=s=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${s}</svg>`;
+const IC={L:SV('<path d="M15 6l-6 6 6 6"/>'),R:SV('<path d="M9 6l6 6-6 6"/>'),bs:SV('<path d="M21 5H9l-6 7 6 7h12z"/><path d="M17 9l-5 6M12 9l5 6"/>'),
+  kb:SV('<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6.5 10h.01M10 10h.01M13.5 10h.01M17 10h.01M7.5 14h9"/>')};
+/* ---------- 画面 ---------- */
+const ime=document.createElement('div');ime.id='fxIme';ime.setAttribute('aria-hidden','true');
+ime.innerHTML='<div class="cb"><div class="cl"></div><button type="button" class="dn" data-k="done">完了</button></div><div class="gd"></div><div class="fp"><span class="d0"></span><span class="d1"></span><span class="d2"></span><span class="d3"></span><span class="d4"></span></div>';
+document.body.appendChild(ime);
+const cl=ime.querySelector('.cl'),gd=ime.querySelector('.gd'),fp=ime.querySelector('.fp');
+const build=()=>{const K=MODES[mode];const ctr=i=>{const k=K[i];
+    if(k==='DK')return `<button type="button" class="sm" data-k="dk">小<small>゛ ゜</small></button>`;
+    if(k==='CASE')return `<button type="button" class="sm" data-k="case">a/A</button>`;
+    return `<button type="button" data-c="${i}"${k.lab.length>2?' class="sm"':''}>${k.lab}${k.sub?`<small>${k.sub}</small>`:''}</button>`;};
+  gd.innerHTML=`<button type="button" class="fn" data-k="L" aria-label="左へ">${IC.L}</button>${ctr(0)}${ctr(1)}${ctr(2)}<button type="button" class="fn" data-k="bs" aria-label="1文字消す">${IC.bs}</button>
+<button type="button" class="fn" data-k="R" aria-label="右へ">${IC.R}</button>${ctr(3)}${ctr(4)}${ctr(5)}<button type="button" class="fn" data-k="sp">空白</button>
+<button type="button" class="fn" data-k="mode">${MNEXT[mode]}</button>${ctr(6)}${ctr(7)}${ctr(8)}<button type="button" class="en" data-k="en">完了</button>
+<button type="button" class="fn" data-k="kb" aria-label="スマホのキーボード">${IC.kb}</button>${ctr(9)}${ctr(10)}${ctr(11)}`;refresh();};
+/* ---------- 入力 ---------- */
+let cur=null,comp=null,last=null,spacer=null,offT=0;
+const NV=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value'),TV=Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value');
+const gv=el=>String((el.tagName==='TEXTAREA'?TV:NV).get.call(el)||'');
+const sel=()=>{let a=0,b=0;try{a=cur.selectionStart;b=cur.selectionEnd;}catch(_){}const L=gv(cur).length;if(a==null){a=b=L;}return [a,b];};
+const put=(a,b,t)=>{const v=gv(cur);cur.value=v.slice(0,a)+t+v.slice(b);const p=a+t.length;try{cur.setSelectionRange(p,p);}catch(_){}cur.dispatchEvent(new Event('input',{bubbles:true}));};
+const shown=()=>comp.sel<0?comp.r:comp.list[comp.sel].t+comp.r.slice(comp.list[comp.sel].n);
+const draw=()=>{const s=shown();put(comp.a,comp.a+comp.len,s);comp.len=s.length;};
+const newList=()=>{comp.list=cands(comp.r);comp.sel=-1;};
+const pick=i=>{const c=comp.list[i];if(!c)return;if(c.s!=='h'||c.t!==comp.r.slice(0,c.n))remember(comp.r.slice(0,c.n),c.t);
+  const rest=comp.r.slice(c.n);put(comp.a,comp.a+comp.len,c.t+rest);
+  if(rest){comp={a:comp.a+c.t.length,r:rest,len:rest.length,sel:-1,list:[]};newList();}else comp=null;refresh();};
+const commit=()=>{if(!comp)return;if(comp.sel>=0)pick(comp.sel);else{comp=null;refresh();}};
+const commitAll=()=>{let n=0;while(comp&&n++<20)commit();};
+const kanaIn=ch=>{if(comp&&comp.sel>=0)commitAll();
+  if(!comp){const [a,b]=sel();if(b>a)put(a,b,'');comp={a,r:'',len:0,sel:-1,list:[]};}
+  comp.r+=ch;newList();draw();refresh();};
+const direct=ch=>{commitAll();const [a,b]=sel();put(a,b,ch);};
+const lastChange=f=>{if(comp&&comp.r){const ch=f(comp.r.slice(-1));if(ch){comp.r=comp.r.slice(0,-1)+ch;newList();draw();refresh();}return;}
+  const [a]=sel();if(a<1)return;const v=gv(cur),ch=f(v[a-1]);if(ch)put(a-1,a,ch);};
+const typeKey=(i,dir)=>{const k=MODES[mode][i];if(!k||typeof k==='string')return;const now=Date.now();
+  if(dir===0&&mode!==2&&last&&last.i===i&&last.m===mode&&now-last.t<1000&&k.t.length>1){ // 同じキーを続けて押すと次の文字
+    const nx=k.t[(k.t.indexOf(last.ch)+1)%k.t.length];last={i,m:mode,t:now,ch:nx};lastChange(()=>nx);return;}
+  const ch=dir===0?k.c[0]:k.c[dir];if(!ch)return;
+  last=dir===0?{i,m:mode,t:now,ch}:null;
+  if(mode===0&&/^[ぁ-ゖー]$/.test(ch))kanaIn(ch);else direct(ch);};
+const bs=()=>{last=null;if(comp){if(comp.sel>=0){comp.sel=-1;draw();refresh();return;}comp.r=comp.r.slice(0,-1);
+    if(!comp.r){put(comp.a,comp.a+comp.len,'');comp=null;}else{newList();draw();}refresh();return;}
+  const [a,b]=sel();if(b>a){put(a,b,'');return;}if(a<1)return;const v=gv(cur);const n=a>1&&/[\uDC00-\uDFFF]/.test(v[a-1])?2:1;put(a-n,a,'');};
+const move=d=>{last=null;if(comp){commitAll();if(d<0)return;}const [a,b]=sel();const L=gv(cur).length;const p=d<0?Math.max(0,(b>a?a:a-1)):Math.min(L,b>a?b:b+1);try{cur.setSelectionRange(p,p);}catch(_){}};
+const isForm=()=>cur&&cur.tagName==='INPUT'&&cur.form;
+const enter=()=>{last=null;if(comp){commitAll();return;}
+  if(cur.tagName==='TEXTAREA'){direct('\n');return;}
+  const el=cur;const ev=new KeyboardEvent('keydown',{key:'Enter',code:'Enter',keyCode:13,bubbles:true,cancelable:true});el.dispatchEvent(ev);
+  if(el.form&&!ev.defaultPrevented){try{el.form.requestSubmit?el.form.requestSubmit():el.form.dispatchEvent(new Event('submit',{cancelable:true,bubbles:true}));}catch(_){}refresh();return;}
+  finish();};
+/* ---------- 変換候補・表示 ---------- */
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function refresh(){if(!gd.firstChild)return;
+  const sp=gd.querySelector('[data-k="sp"]'),en=gd.querySelector('[data-k="en"]');
+  if(sp)sp.textContent=comp?'次候補':'空白';
+  if(en)en.textContent=comp?'確定':!cur?'完了':cur.tagName==='TEXTAREA'?'改行':isForm()?'送信':'完了';
+  if(!comp){cl.innerHTML=mode===0&&!DK&&dictP?'<span class="ht">辞書を読み込み中…</span>':mode===0&&dictErr?'<span class="ht">辞書を読み込めませんでした（よく使う言葉だけ変換できます）</span>':'';return;}
+  cl.innerHTML=comp.list.map((c,i)=>`<button type="button" data-ci="${i}" class="${c.s}${i===comp.sel?' on':''}">${esc(c.t)}</button>`).join('')+(!DK&&dictP?'<span class="ht">辞書を読み込み中…</span>':'');
+  const on=cl.querySelector('.on');if(on)on.scrollIntoView({inline:'center',block:'nearest'});else cl.scrollLeft=0;}
+/* ---------- 開く・閉じる ---------- */
+const scrollParent=el=>{for(let p=el.parentElement;p&&p!==document.body;p=p.parentElement){const o=getComputedStyle(p).overflowY;if((o==='auto'||o==='scroll')&&p.scrollHeight>p.clientHeight)return p;}return null;};
+const imOf=el=>(el.dataset.kpim??el.dataset.imim??el.inputMode)||'';
+const isText=el=>el&&!el.readOnly&&!el.disabled&&!el.dataset.imnative&&!el.closest('#fxIme')&&
+  (el.tagName==='TEXTAREA'||(el.tagName==='INPUT'&&/^(text|search)$/.test(el.type)))&&!/^(numeric|decimal|tel|email|url)$/.test(imOf(el));
+const prep=el=>{if(el.dataset.imim==null)el.dataset.imim=el.inputMode||'';el.inputMode='none';};
+const open=el=>{if(cur===el)return;if(cur)finish(false);cur=el;comp=null;last=null;prep(el);el.classList.add('imact');
+  if(mode===2)mode=0;build();loadDict();
+  clearTimeout(offT);ime.classList.add('on');document.body.classList.add('imon');
+  requestAnimationFrame(()=>{const h=ime.offsetHeight;document.documentElement.style.setProperty('--imh',h+'px');
+    if(el.closest('#fxSheet')){setTimeout(()=>{try{el.scrollIntoView({block:'center',behavior:'smooth'});}catch(_){}},60);return;}
+    const sp=scrollParent(el);if(sp&&!spacer){spacer=document.createElement('div');spacer.className='imsp';sp.appendChild(spacer);}
+    const r=el.getBoundingClientRect();if(r.bottom>innerHeight-h-16||r.top<60){try{el.scrollIntoView({block:'center',behavior:'smooth'});}catch(_){}}
+    setTimeout(()=>{if(cur!==el)return;const r2=el.getBoundingClientRect();if(r2.bottom>innerHeight-h-16){const p=scrollParent(el)||document.scrollingElement;p.scrollBy({top:r2.bottom-(innerHeight-h-40),behavior:'smooth'});}},280);});};
+function finish(blur=true){if(!cur)return;try{commitAll();}catch(_){}const el=cur;cur=null;comp=null;last=null;el.classList.remove('imact');
+  el.dispatchEvent(new Event('change',{bubbles:true}));if(blur)try{el.blur();}catch(_){}
+  setTimeout(()=>{if(el.dataset.imim!=null&&document.activeElement!==el)el.inputMode=el.dataset.imim;},50);
+  ime.classList.remove('on');clearTimeout(offT);offT=setTimeout(()=>{if(!cur)document.body.classList.remove('imon');},350);fp.classList.remove('on');if(spacer){spacer.remove();spacer=null;}}
+window.fxImeClose=()=>finish();
+// スマホのキーボードに切りかえ（この欄から出るまで）
+const toNative=()=>{const el=cur;if(!el)return;finish(false);el.dataset.imnative='1';el.inputMode=el.dataset.imim||'';
+  try{el.blur();el.focus();}catch(_){}
+  const back=()=>{el.removeEventListener('blur',back);setTimeout(()=>{delete el.dataset.imnative;},0);};el.addEventListener('blur',back);};
+document.addEventListener('pointerdown',e=>{const el=e.target.closest&&e.target.closest('input,textarea');if(isText(el))prep(el);},true);
+document.addEventListener('focusin',e=>{const el=e.target;if(isText(el))open(el);else if(cur&&el!==cur&&!ime.contains(el)&&/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName))finish(false);});
+document.addEventListener('focusout',e=>{if(e.target!==cur)return;setTimeout(()=>{if(cur&&document.activeElement!==cur)finish(false);},120);});
+document.addEventListener('click',e=>{if(!cur||ime.contains(e.target))return;const el=e.target.closest&&e.target.closest('input,textarea,select');
+  if(el===cur){if(comp){comp=null;last=null;refresh();}return;}if(el)return;setTimeout(()=>{if(cur)finish();},0);},true);
+const sh=document.getElementById('fxSheet');if(sh)new MutationObserver(()=>{if(!sh.classList.contains('on')&&cur&&cur.closest('#fxSheet'))finish();}).observe(sh,{attributes:true,attributeFilter:['class']});
+/* ---------- タップ・フリック ---------- */
+const buzz=()=>{try{navigator.vibrate&&navigator.vibrate(6);}catch(_){}};
+let pd=null,rep=0,repT=0;
+const stopRep=()=>{clearTimeout(repT);clearInterval(rep);repT=rep=0;};
+ime.addEventListener('pointerdown',e=>{e.preventDefault();if(e.target.closest('.cl'))return;const b=e.target.closest('button');if(!b||!cur)return;
+  b.classList.add('dw');try{b.setPointerCapture(e.pointerId);}catch(_){}pd={b,x:e.clientX,y:e.clientY,dir:0,id:e.pointerId};buzz();
+  if(b.dataset.c!=null){const k=MODES[mode][+b.dataset.c];const r=b.getBoundingClientRect(),R=ime.getBoundingClientRect();
+    fp.querySelectorAll('span').forEach((s,i)=>{s.textContent=i===0?'':(k.c[i]||'');s.classList.remove('on');});
+    fp.style.left=(r.left+r.width/2-R.left)+'px';fp.style.top=(r.top+r.height/2-R.top)+'px';}
+  if(b.dataset.k==='bs'){bs();repT=setTimeout(()=>{rep=setInterval(()=>{if(cur)bs();else stopRep();},70);},420);}});
+ime.addEventListener('pointermove',e=>{if(!pd||pd.id!==e.pointerId||pd.b.dataset.c==null)return;const dx=e.clientX-pd.x,dy=e.clientY-pd.y;
+  const dir=Math.hypot(dx,dy)<18?0:Math.abs(dx)>Math.abs(dy)?(dx<0?1:3):(dy<0?2:4);if(dir===pd.dir)return;pd.dir=dir;
+  const k=MODES[mode][+pd.b.dataset.c];fp.classList.toggle('on',dir>0);fp.querySelectorAll('span').forEach((s,i)=>{s.classList.toggle('on',i===dir);if(i===0)s.textContent=dir>0?k.c[0]:'';});});
+const up=e=>{if(!pd||pd.id!==e.pointerId)return;const {b,dir}=pd;pd=null;b.classList.remove('dw');fp.classList.remove('on');stopRep();
+  if(e.type==='pointercancel'||!cur)return;
+  if(b.dataset.c!=null){typeKey(+b.dataset.c,dir);return;}
+  const k=b.dataset.k;if(k!=='dk'&&k!=='case')last=null;
+  if(k==='done'){finish();return;}
+  if(k==='L')return move(-1);if(k==='R')return move(1);
+  if(k==='sp'){if(comp){comp.sel=(comp.sel+1)%comp.list.length;draw();refresh();}else direct(' ');return;}
+  if(k==='en')return enter();
+  if(k==='mode'){commitAll();mode=(mode+1)%3;build();return;}
+  if(k==='kb')return toNative();
+  if(k==='dk'){last=null;lastChange(c=>DAK[c]);return;}
+  if(k==='case'){last=null;lastChange(c=>c===c.toLowerCase()?c.toUpperCase():c.toLowerCase());return;}};
+ime.addEventListener('pointerup',up);ime.addEventListener('pointercancel',up);
+cl.addEventListener('click',e=>{const b=e.target.closest('[data-ci]');if(!b||!comp||!cur)return;buzz();last=null;pick(+b.dataset.ci);});
+// 起動して少したったら、辞書を先に読んでおく
+setTimeout(()=>{try{(window.requestIdleCallback||setTimeout)(()=>loadDict());}catch(_){}},6000);
+})();
+</script>
 <script>try{localStorage.removeItem('cm_resume');}catch(e){}</script>
+<script>(()=>{const c=document.getElementById('cmCover');if(!c)return;const go=()=>requestAnimationFrame(()=>requestAnimationFrame(()=>{c.style.transition='opacity .15s';c.style.opacity='0';c.style.pointerEvents='none';setTimeout(()=>c.remove(),200);}));if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();setTimeout(()=>{if(c.isConnected)c.remove();},8000);})();</script>
 </body>
 </html>

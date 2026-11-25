@@ -1657,7 +1657,11 @@ window.render=function(){const r=_rd.apply(this,arguments);try{ensureSnaps();loc
 let tt=null;function toast(m){const t=$('lockToast');t.innerHTML='<i data-lucide="lock"></i><span></span>';t.querySelector('span').textContent=m;try{icons();}catch(e){}t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2200);try{sfx('del');}catch(e){}}
 const dsOf=ts=>{const d=new Date(ts);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 const keyPeriod=pk=>{const s=String(pk).split('|').pop();if(/^\d{4}-\d{2}-\d{2}$/.test(s))return keyOf(s);if(/^\d{4}-\d{2}$/.test(s))return s;return null;};
+// 未払い分（払えてない支払い）は、次の期間（今の期間）からならチェックできる。あとから払ってチェックした分は、取り消しもできる
+function lateOk(k){const v=(S.paid||{})[k];if(typeof v==='string'&&v[0]==='→')return false;if(!v)return true;
+  const pk=keyPeriod(k);if(!pk)return false;const [y,m]=pk.split('-').map(Number);return typeof v==='number'&&v>=new Date(y,m,25).getTime();}
 function chkLocked(b){const ks=(b.dataset.paidg!==undefined?b.dataset.paidg.split('\n'):[b.dataset.paid]);
+  if(P===NOWK&&ks.every(lateOk))return false; // 前の期間を見ているときはロックのまま。今の期間に引き継がれた未払いだけチェックできる
   if(b.closest('#flow')&&isLocked(P))return true;return ks.some(k=>isLocked(keyPeriod(k)));}
 const LOCKMSG='確定済みの期間です（解除すると編集できます）';
 

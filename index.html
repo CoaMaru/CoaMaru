@@ -6238,10 +6238,16 @@ const items=(owner,m)=>{const o=owner==='心愛'?'ko':'me',L=[];
   ((S.fixed||{})[o]||[]).filter(f=>f.from===m.name).forEach(f=>L.push({id:fid(o,f),a:+f.amount||0,day:+f.day}));
   (S.subs||[]).filter(x=>x.from===m.name&&(whoName(x.who)===owner||(owner==='マル'&&x.who==='2人'))).forEach(x=>L.push({id:sid(x),a:+x.amount||0,day:+x.day}));
   Object.values(S.extras||{}).flat().filter(x=>x&&x.from===owner+'|'+m.name&&x.date).forEach(x=>L.push({id:xid(x),a:+x.amount||0,date:x.date}));
+  // どこから引かれるかが未設定の支払いは、その人の給料口座から引く
+  const ML=(owner==='心愛'?S.methods.ko:S.methods.me)||[];const home=ML.find(x=>x.salary&&!isCredit(x))||ML.find(x=>!isCredit(x));
+  if(home&&home.name===m.name){const has=n=>!!n&&ML.some(x=>x.name===n);
+    ((S.fixed||{})[o]||[]).filter(f=>!has(f.from)).forEach(f=>L.push({id:fid(o,f),a:+f.amount||0,day:+f.day,nd:1}));
+    (S.subs||[]).filter(x=>!has(x.from)&&(whoName(x.who)===owner||(owner==='マル'&&x.who==='2人'))).forEach(x=>L.push({id:sid(x),a:+x.amount||0,day:+x.day,nd:1}));
+    Object.values(S.extras||{}).flat().filter(x=>x&&x.date&&!x.from&&(whoName(x.who)===owner||(owner==='マル'&&x.who==='2人'))).forEach(x=>L.push({id:xid(x),a:+x.amount||0,date:x.date,nd:1}));}
   return L;};
 // 日付で自動的に引いていた分を戻して、チェックした分だけ引く（引く額の差分を返す）
 const delta=(owner,m,a,at)=>{let d=0;const L=items(owner,m);
-  L.forEach(it=>{
+  L.forEach(it=>{if(it.nd)return; // 未設定の分は、もともと日付では引いていない
     if(it.date){const t=dOf(it.date);if(t>a&&t<=todayD&&!mvd(it.id+'|'+it.date))d-=it.a;return;}
     if(!(it.day>0))return;let y=a.getFullYear(),mo=a.getMonth();
     while(new Date(y,mo,1)<=todayD){const last=new Date(y,mo+1,0).getDate(),t=new Date(y,mo,Math.min(it.day,last));

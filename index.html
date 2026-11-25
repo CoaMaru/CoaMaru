@@ -2598,7 +2598,7 @@ function spItems(){
   const L=[];const k=P;
   EXP.filter(e=>e.date&&keyOf(e.date)===k&&e.date<=todayStr).forEach(e=>{const c=OLDMAP[e.category]||e.category||'その他';L.push({n:e.item||e.shop||c,d:e.date,a:+e.amount||0,c,src:e.method||'',who:e.who,t:'記録'});});
   const fx=[...S.fixed.me.map(f=>({f,o:'me',w:'自分'})),...S.fixed.ko.map(f=>({f,o:'ko',w:'心愛'}))];
-  const due=(pk,occ)=>/^\d{4}-\d{2}-\d{2}$/.test(occ)&&occ<=todayStr; // チェックは確認用だけ。お金の動きは日付で決まる
+  const due=(pk,occ)=>{const v=(S.paid||{})[pk];return /^\d{4}-\d{2}-\d{2}$/.test(occ)&&!!v&&!(typeof v==='string'&&v[0]==='→');}; // 支払い済みにチェックしたものだけ、出ていったお金にする
   fx.forEach(({f,o,w})=>{const occ=occOf(f.day,k);if(due(fid(o,f)+'|'+occ,occ)&&!movedTo(fid(o,f)+'|'+occ))L.push({n:f.label,d:/^\d{4}-\d{2}-\d{2}$/.test(occ)?occ:'',a:+f.amount||0,c:catOf(f),src:f.from||'',who:w,t:'固定費'});});
   (S.subs||[]).forEach(s=>{const occ=occOf(s.day,k);if(due(sid(s)+'|'+occ,occ)&&!movedTo(sid(s)+'|'+occ))L.push({n:s.name,d:/^\d{4}-\d{2}-\d{2}$/.test(occ)?occ:'',a:+s.amount||0,c:'サブスク',src:s.from||'',who:s.who,t:'サブスク'});});
   (S.extras[k]||[]).forEach(x=>{if(due(xid(x)+'|'+(x.date||k),x.date||''))L.push({n:splitL(x.label)[0],d:x.date||'',a:+x.amount||0,c:catOf(x),src:(x.from||'').split('|').slice(1).join('|'),who:x.who,t:'変動費'});});
@@ -6227,6 +6227,42 @@ html body .fxpay li.done{opacity:1}
 html body .fxpay li.done>:not(.fxck){opacity:.45}
 html body .fxpay li.done .n .mqi{text-decoration:line-through;text-decoration-color:rgba(46,242,176,.8)}
 </style>
+<!-- ===== 支払い予定は「支払い済み」にチェックしたときに、お財布の残高（カードは使った額）に反映する ===== -->
+<script>
+(()=>{
+const pv=k=>{const v=(S.paid||{})[k];if(!v||(typeof v==='string'&&v[0]==='→'))return 0;return typeof v==='number'?v:1;};
+const mvd=k=>{const v=(S.paid||{})[k];return typeof v==='string'&&v[0]==='→';};
+const dOf=s=>new Date(s+'T00:00');
+// このお財布から引かれる予定（id・金額・日にち）
+const items=(owner,m)=>{const o=owner==='心愛'?'ko':'me',L=[];
+  ((S.fixed||{})[o]||[]).filter(f=>f.from===m.name).forEach(f=>L.push({id:fid(o,f),a:+f.amount||0,day:+f.day}));
+  (S.subs||[]).filter(x=>x.from===m.name&&(whoName(x.who)===owner||(owner==='マル'&&x.who==='2人'))).forEach(x=>L.push({id:sid(x),a:+x.amount||0,day:+x.day}));
+  Object.values(S.extras||{}).flat().filter(x=>x&&x.from===owner+'|'+m.name&&x.date).forEach(x=>L.push({id:xid(x),a:+x.amount||0,date:x.date}));
+  return L;};
+// 日付で自動的に引いていた分を戻して、チェックした分だけ引く（引く額の差分を返す）
+const delta=(owner,m,a,at)=>{let d=0;const L=items(owner,m);
+  L.forEach(it=>{
+    if(it.date){const t=dOf(it.date);if(t>a&&t<=todayD&&!mvd(it.id+'|'+it.date))d-=it.a;return;}
+    if(!(it.day>0))return;let y=a.getFullYear(),mo=a.getMonth();
+    while(new Date(y,mo,1)<=todayD){const last=new Date(y,mo+1,0).getDate(),t=new Date(y,mo,Math.min(it.day,last));
+      if(t>a&&t<=todayD&&!mvd(it.id+'|'+ds(t)))d-=it.a;mo++;if(mo>11){mo=0;y++;}}});
+  const seen=new Set();
+  Object.keys(S.paid||{}).forEach(k=>{const ts=pv(k);if(!ts||ts<=at)return;const i=k.lastIndexOf('|'),id=k.slice(0,i);
+    const it=L.find(x=>x.id===id&&(!x.date||x.date===k.slice(i+1)));if(it&&!seen.has(k)){seen.add(k);d+=it.a;}});
+  return d;};
+const p25=()=>{const [py,pm]=NOWK.split('-').map(Number);return new Date(py,pm-1,25).getTime()-1;};
+const _bal=window.balOf;
+window.balOf=function(m,owner){const b=_bal.apply(this,arguments);if(b===null||b===undefined||isNaN(b))return b;
+  try{const unset=m.balance===undefined||m.balance===null||m.balance==='';const at=unset?p25():(+m.balAt||0);const a=new Date(at);a.setHours(0,0,0,0);
+    return b-delta(owner,m,a,at);}catch(e){return b;}};
+const _used=window.usedOf;
+window.usedOf=function(m,w){const u=_used.apply(this,arguments);
+  try{let a,at;if(m.asOf){a=new Date(dOf(m.asOf).getTime()-1);at=dOf(m.asOf).getTime();}else if(!m.usedAt){at=p25();a=new Date(at);}else return u;
+    return u+delta(w,m,a,at);}catch(e){return u;}};
+try{balOf=window.balOf;usedOf=window.usedOf;}catch(_){}
+try{render();}catch(_){}
+})();
+</script>
 <script>try{localStorage.removeItem('cm_resume');}catch(e){}</script>
 <script>(()=>{const c=document.getElementById('cmCover');if(!c)return;const go=()=>requestAnimationFrame(()=>requestAnimationFrame(()=>{c.style.transition='opacity .15s';c.style.opacity='0';c.style.pointerEvents='none';setTimeout(()=>c.remove(),200);}));if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();setTimeout(()=>{if(c.isConnected)c.remove();},8000);})();</script>
 </body>
